@@ -8,9 +8,22 @@ height = 300;
 var svg = d3.select('#graph').append('svg')
     .attr('width', width).attr('height', height);
 
+svg.append('defs').append('marker')
+  .attr("id", 'markerArrowEnd')
+  .attr("viewBox", "0 -5 10 10")
+  .attr("refX", 15 + r)
+  .attr("refY", 0)
+  .attr("markerWidth", 8)
+  .attr("markerHeight", 8)
+  .attr("orient", "auto")
+  .append("path")
+    .attr("d", 'M0,-5 L10,0 L0,5')
+    .attr('fill', 'black');
+
+
 var force = d3.layout.force()
     .charge(-120)
-    .linkDistance(50)
+    .linkDistance(70)
     .size([width, height]);
 
 function render() {
@@ -30,7 +43,8 @@ function render() {
     // render links
     var links = svg.selectAll('.link').data(data.links, function(d) {return String(d.from) + '_' + String(d.to)});
     var linksEnter = links.enter().append('line')
-        .attr('class', 'link');
+        .attr('class', 'link')
+        .attr('marker-end', 'url(#markerArrowEnd)');
     links.exit().remove();
 
     // render nodes
@@ -40,9 +54,8 @@ function render() {
         .attr('transform', 'translate(50, 50)');
     nodesEnter.append('circle')
         .attr('r', r);
-    nodesEnter.append('text')
-      .append('tspan');
-    nodes.select('text tspan').text(function(d) {return d.label});
+    nodesEnter.append('text');
+    nodes.select('text').text(function(d) {return d.label});
     nodes.select('text').each(function(d) {
       var bbox = this.getBBox();
       d3.select(this).attr({x: -bbox.x - bbox.width / 2, y: -bbox.y - bbox.height / 2});
