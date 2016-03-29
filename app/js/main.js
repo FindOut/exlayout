@@ -1,46 +1,49 @@
-var d3 = require('d3');
-var _ = require('lodash');
+var d3 = require('d3'); // Include d3 package (Visualization)
+var _ = require('lodash'); // Inlcude lodash package (Utility library)
 
 var r = 20,
 width = 800,
 height = 300;
 
+// Select graph element and append SVG to it
 var svg = d3.select('#graph').append('svg')
     .attr('width', width).attr('height', height);
 
+// Define marker
 svg.append('defs').append('marker')
-  .attr("id", 'markerArrowEnd')
-  .attr("viewBox", "0 -5 10 10")
-  .attr("refX", 10)
-  .attr("refY", 0)
-  .attr("markerWidth", 8)
-  .attr("markerHeight", 8)
-  .attr("orient", "auto")
-  .append("path")
-    .attr("d", 'M0,-5 L10,0 L0,5')
-    .attr('fill', 'black');
+  .attr("id", 'markerArrowEnd') // ID of marker
+  .attr("viewBox", "0 -5 10 10") // minX, minY, width and height of viewBox
+  .attr("refX", 10) // Position where marker connect to the vertex
+  .attr("refY", 0) // Position where marker connect to the vertex
+  .attr("markerWidth", 8) // The width of marker
+  .attr("markerHeight", 8) // The height of marker
+  .attr("orient", "auto") // Rotation of marker
+  .append("path") // Used to draw line
+    .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
+    .attr('fill', 'black'); // Fill the triangle
 
-
+// Set force attribut
 var force = d3.layout.force()
-    .charge(-120)
-    .linkDistance(70)
-    .size([width, height]);
+    .charge(-120) // Replusion between nodes
+    .linkDistance(70) // Distance between linked nodes
+    .size([width, height]); // Layout size
+
 
 function render() {
-  d3.json('model.json', function(error, data) {
-    var nodeById = _.keyBy(data.nodes, 'id');
+  d3.json('model.json', function(error, data) { // Apply function to json object
+    var nodeById = _.keyBy(data.nodes, 'id'); // Create {key:value} pair
     force
-        .nodes(data.nodes)
-        .links(_.map(data.links, function(link) {
+        .nodes(data.nodes) // Set layout's associated nodes to specified array
+        .links(_.map(data.links, function(link) { // Apply function to every links
             return {source: nodeById[link.from],
                     target: nodeById[link.to]}}))
-        .start();
+        .start(); // Start the simulation
 
     // render nodes
-    var nodes = svg.selectAll('.node').data(data.nodes, function(d) {return d.id});
-    var nodesEnter = nodes.enter().append('g')
-        .attr('class', 'node')
-        .attr('transform', 'translate(50, 50)');
+    var nodes = svg.selectAll('.node').data(data.nodes, function(d) {return d.id}); // Joins the nodes
+    var nodesEnter = nodes.enter().append('g') // Apeend g element
+        .attr('class', 'node') // Assign class name
+        .attr('transform', 'translate(50, 50)'); // 
     nodesEnter.append('circle')
         .attr('r', r);
     nodesEnter.append('text');
