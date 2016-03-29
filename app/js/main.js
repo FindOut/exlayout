@@ -11,7 +11,7 @@ var svg = d3.select('#graph').append('svg')
 svg.append('defs').append('marker')
   .attr("id", 'markerArrowEnd')
   .attr("viewBox", "0 -5 10 10")
-  .attr("refX", 15 + r)
+  .attr("refX", 10)
   .attr("refY", 0)
   .attr("markerWidth", 8)
   .attr("markerHeight", 8)
@@ -29,23 +29,12 @@ var force = d3.layout.force()
 function render() {
   d3.json('model.json', function(error, data) {
     var nodeById = _.keyBy(data.nodes, 'id');
-    console.log(nodeById);
-    console.log(_.map(data.links, function(link) {
-        return {source: nodeById[link.from],
-                target: nodeById[link.to]}}));
     force
         .nodes(data.nodes)
         .links(_.map(data.links, function(link) {
             return {source: nodeById[link.from],
                     target: nodeById[link.to]}}))
         .start();
-
-    // render links
-    var links = svg.selectAll('.link').data(data.links, function(d) {return String(d.from) + '_' + String(d.to)});
-    var linksEnter = links.enter().append('line')
-        .attr('class', 'link')
-        .attr('marker-end', 'url(#markerArrowEnd)');
-    links.exit().remove();
 
     // render nodes
     var nodes = svg.selectAll('.node').data(data.nodes, function(d) {return d.id});
@@ -62,14 +51,33 @@ function render() {
     });
     nodes.exit().remove();
 
-    force.on("tick", function() {
-      links.attr("x1", function(d) { return nodeById[d.from].x; })
-          .attr("y1", function(d) { return nodeById[d.from].y; })
-          .attr("x2", function(d) { return nodeById[d.to].x; })
-          .attr("y2", function(d) { return nodeById[d.to].y; });
+    // render links
+    var links = svg.selectAll('.link').data(data.links, function(d) {return String(d.from) + '_' + String(d.to)});
+    var linksEnter = links.enter().append('line')
+    .attr('class', 'link')
+    .attr('marker-end', 'url(#markerArrowEnd)');
+    links.exit().remove();
 
+    function adjustEnds(fromPoint, toPoint) {
+      var dx = toPoint.x - fromPoint.x,
+        dy = toPoint.y - fromPoint.y,
+        length = Math.sqrt(dx * dx + dy * dy);
+      dx = dx / length * r;
+      dy = dy / length * r;
+      return {from: {x: fromPoint.x + dx, y: fromPoint.y + dy}, to: {x: toPoint.x - dx, y: toPoint.y - dy}};
+    }
+
+    force.on("tick", function() {
       nodes.each(function(d) {
         d3.select(this).attr('transform', 'translate(' + d.x + ', ' + d.y + ')');
+      });
+      links.each(function(d) {
+        var adjustedEnds = adjustEnds(nodeById[d.from], nodeById[d.to]);
+        d3.select(this)
+        .attr("x1", function(d) { return adjustedEnds.from.x; })
+        .attr("y1", function(d) { return adjustedEnds.from.y; })
+        .attr("x2", function(d) { return adjustedEnds.to.x; })
+        .attr("y2", function(d) { return adjustedEnds.to.y; });
       });
     });
   });
