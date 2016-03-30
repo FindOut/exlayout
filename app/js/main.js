@@ -24,7 +24,7 @@ svg.append('defs').append('marker')
 
 // Set force attribut
 var force = d3.layout.force()
-    .charge(-120) // Replusion between nodes
+    .charge(-125) // Replusion between nodes
     .linkDistance(70) // Distance between linked nodes
     .size([width, height]); // Layout size
 
@@ -43,23 +43,23 @@ function render() {
     var nodes = svg.selectAll('.node').data(data.nodes, function(d) {return d.id}); // Joins the nodes
     var nodesEnter = nodes.enter().append('g') // Apeend g element
         .attr('class', 'node') // Assign class name
-        .attr('transform', 'translate(50, 50)'); // 
-    nodesEnter.append('circle')
-        .attr('r', r);
-    nodesEnter.append('text');
-    nodes.select('text').text(function(d) {return d.label});
+        .attr('transform', 'translate(50, 50)'); // Translate nodes
+    nodesEnter.append('circle') // Apeend circle
+        .attr('r', r); // Set circle radius
+    nodesEnter.append('text'); // Apnned text
+    nodes.select('text').text(function(d) {return d.label}); // Set text to its label
     nodes.select('text').each(function(d) {
-      var bbox = this.getBBox();
-      d3.select(this).attr({x: -bbox.x - bbox.width / 2, y: -bbox.y - bbox.height / 2});
+      var bbox = this.getBBox(); // Get bounding box of text
+      d3.select(this).attr({x: -bbox.x - bbox.width / 2, y: -bbox.y - bbox.height / 2}); // Calculate its position
     });
-    nodes.exit().remove();
+    nodes.exit().remove(); // Exit
 
     // render links
-    var links = svg.selectAll('.link').data(data.links, function(d) {return String(d.from) + '_' + String(d.to)});
-    var linksEnter = links.enter().append('line')
-    .attr('class', 'link')
-    .attr('marker-end', 'url(#markerArrowEnd)');
-    links.exit().remove();
+    var links = svg.selectAll('.link').data(data.links, function(d) {return String(d.from) + '_' + String(d.to)}); // Joins the links
+    var linksEnter = links.enter().append('line') // Append line element
+    .attr('class', 'link') // Assign class name
+    .attr('marker-end', 'url(#markerArrowEnd)'); // Arrowhead that will be drawn at the final vertex
+    links.exit().remove(); // Exit
 
     function adjustEnds(fromPoint, toPoint) {
       var dx = toPoint.x - fromPoint.x,

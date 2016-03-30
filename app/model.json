@@ -2,10 +2,20 @@
   "nodes": [
     {"id": 1, "label": "A"},
     {"id": 2, "label": "B"},
-    {"id": 3, "label": "C"}
+    {"id": 3, "label": "C"},
+    {"id": 4, "label": "D"},
+    {"id": 5, "label": "E"},
+    {"id": 6, "label": "F"},
+    {"id": 7, "label": "G"},
+    {"id": 8, "label": "H"},
+    {"id": 9, "label": "I"},
+    {"id": 10, "label": "J"},
+    {"id": 11, "label": "K"},
+    {"id": 12, "label": "L"},
+    {"id": 13, "label": "M"},
+    {"id": 14, "label": "N"}
   ],
   "links": [
-    {"from": 1, "to": 2},
-    {"from": 2, "to": 3}
+
   ]
 }
