@@ -41,7 +41,7 @@ d3.json('large-graph.json', function(error, data) {
   svg.call(zoom);
 
   // Run the renderer. This is what draws the final graph.
-  render(d3.select("svg g"), g);
+  render(d3.select("svg g"),g);
 
   // Center the graph
   var initialScale = 0.75;
