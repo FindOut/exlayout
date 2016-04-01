@@ -204,28 +204,16 @@ function testDAG(v,e)
   }
   while(sources.length > 0)
   {
-    console.log("Sources is");
-    console.log(sources);
-    console.log("");
     node = sources.pop();
     list.push(node);
-    console.log("Node is");
-    console.log(node);
-    console.log("");
     for(i = 0; i < temporaryEdges.length; i++)
     {
       if(temporaryEdges[i].from === node.id)
       {
         neighbor = nodes[temporaryEdges[i].to-1];
         links = deleteLinks([temporaryEdges[i]],links);
-        console.log(node);
-        console.log(links);
-        console.log("");
         if(ingoing(neighbor,links).length == 0)
         {
-          console.log("Pushing node");
-          console.log(node);
-          console.log("");
           sources.push(neighbor);
         }
       }
@@ -239,7 +227,7 @@ function testDAG(v,e)
   }
 }
 
-var graph = {
+/*var graph = {
   "nodes": [
     {"id": 1, "label": "A"},
     {"id": 2, "label": "B"},
@@ -262,4 +250,4 @@ var graph = {
   ]
 };
 
-console.log(testDAG(graph.nodes, graph.links));
+console.log(testDAG(graph.nodes, graph.links));*/
