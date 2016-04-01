@@ -1,19 +1,3 @@
-exports.cycleRemoval = function(v,e){
-  return cycleRemoval(v,e);
-};
-exports.containsSource = function(v,e){
-  return containsSource(v,e);
-};
-exports.deleteNode = function(node,nodes){
-  return deleteNode(node,nodes);
-};
-exports.deleteLinks = function(edges,e){
-  return deleteLinks(edges,e);
-};
-exports.ingoing = function(node,links){
-  return ingoing(node,links);
-};
-
 function cycleRemoval(nodes, links)
 {
   var v = nodes;
@@ -105,7 +89,7 @@ function deleteNode(node, nodes)
 {
   for(var i = 0; i < nodes.length; i++)
   {
-    if(nodes[i].id === node.id)
+    if(nodes[i] === node)
     {
       nodes.splice(i,1);
     }
@@ -123,7 +107,7 @@ function deleteLinks(edges, e)
   var j = 0;
   for(var i = 0; i < e.length; i++)
   {
-    if(edges[j].from == e[i].from && edges[j].to == e[i].to)
+    if(edges[j] === e[i])
     {
       e.splice(i,1);
       i--;
@@ -187,79 +171,7 @@ function ingoing(node, links)
   return edges;
 }
 
-function testDAG(v,e)
-{
-  var nodes = v;
-  var temporaryNodes = (JSON.parse(JSON.stringify(v)));
-  var links = e;
-  var temporaryEdges = (JSON.parse(JSON.stringify(e)));
-  var list = [];
-  var sources = [];
-  var node;
-  var neighbor;
-  for(var i = containsSource(temporaryNodes,links); i != null; i = containsSource(temporaryNodes,links))
-  {
-    sources.push(i);
-    temporaryNodes = deleteNode(i,temporaryNodes);
-  }
-  while(sources.length > 0)
-  {
-    console.log("Sources is");
-    console.log(sources);
-    console.log("");
-    node = sources.pop();
-    list.push(node);
-    console.log("Node is");
-    console.log(node);
-    console.log("");
-    for(i = 0; i < temporaryEdges.length; i++)
-    {
-      if(temporaryEdges[i].from === node.id)
-      {
-        neighbor = nodes[temporaryEdges[i].to-1];
-        links = deleteLinks([temporaryEdges[i]],links);
-        console.log(node);
-        console.log(links);
-        console.log("");
-        if(ingoing(neighbor,links).length == 0)
-        {
-          console.log("Pushing node");
-          console.log(node);
-          console.log("");
-          sources.push(neighbor);
-        }
-      }
-    }
-  }
-  if(links.length > 0)
-  {
-    return false;
-  }else{
-    return true;
-  }
-}
+var nodes = [{"id": 1, "label": "A"},{"id": 2, "label": "B"},{"id": 3, "label": "C"},{"id": 4, "label": "E"}];
+var links = [{"from": 1, "to": 2},{"from": 2, "to": 4},{"from": 3, "to": 1},{"from": 1, "to": 4},{"from": 4, "to": 3}];
 
-var graph = {
-  "nodes": [
-    {"id": 1, "label": "A"},
-    {"id": 2, "label": "B"},
-    {"id": 3, "label": "C"},
-    {"id": 4, "label": "D"},
-    {"id": 5, "label": "E"},
-    {"id": 6, "label": "F"},
-    {"id": 7, "label": "G"},
-
-  ],
-  "links": [
-    {"from": 1, "to": 2},
-    {"from": 2, "to": 3},
-    {"from": 2, "to": 5},
-    {"from": 2, "to": 4},
-    {"from": 3, "to": 5},
-    {"from": 4, "to": 5},
-    {"from": 5, "to": 6},
-    {"from": 7, "to": 4},
-  ]
-};
-
-console.log(testDAG(graph.nodes, graph.links));
+console.log(cycleRemoval(nodes,links));
