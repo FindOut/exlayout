@@ -27,16 +27,16 @@ function cycleRemoval(nodes, links)
   var isolated;
   while(v.length > 0)
   {
-    sink = containsSink(v,e);
+    sink = containsSink(v,e); //check if there is sink node
     while(sink != null)
     {
       ingoingEdges = ingoing(sink,e);
-      edges = edges.concat(ingoingEdges);
+      edges = edges.concat(ingoingEdges); //add ingoingEdges to reserved edges because sink will never be in a circle
       v = deleteNode(sink,v);
       e = deleteLinks(ingoingEdges,e);
       sink = containsSink(v,e);
     }
-    isolated = isolatedNodes(v,e);
+    isolated = isolatedNodes(v,e);  //find isolatedNodes and delete them
     for(var i = 0; i < isolated.length; i++)
     {
       v = deleteNode(isolated[i],v);
@@ -45,14 +45,14 @@ function cycleRemoval(nodes, links)
     while(source != null)
     {
       outgoingEdges = outgoing(source,e);
-      edges = edges.concat(outgoingEdges);
+      edges = edges.concat(outgoingEdges); //add all outgoingEdges to reserved edges bacause source will never be in a circle
       v = deleteNode(source,v);
       e = deleteLinks(outgoingEdges,e);
       source = containsSource(v,e);
     }
     if(v.length > 0)
     {
-      node = maximum(v,e);
+      node = maximum(v,e); //choose the node with the most difference between outgoingEdges and ingoingEdges
       ingoingEdges = ingoing(node,e);
       outgoingEdges = outgoing(node,e);
       edges = edges.concat(outgoingEdges);
@@ -120,17 +120,18 @@ function deleteNode(node, nodes)
 }
 
 // Inputs two array of edges. Outputs array of edges which is array2 / array1
-// (set operation)
+// (set operation) which means to delete all the same links set (both exsist in array2 and array1) in array2.
 function deleteLinks(edges, e)
 {
   var length = edges.length;
+  var elength = e.length;
   if(length == 0)
   {
     return e;
   }
-  for(var i = 0; i < edges.length; i++)
+  for(var i = 0; i < length; i++)
   {
-    for(var j = 0; j < e.length; j++)
+    for(var j = 0; j < elength; j++)
     {
       if(edges[i].from == e[j].from && edges[i].to == e[j].to)
       {
@@ -146,9 +147,10 @@ function deleteLinks(edges, e)
 // edges or null
 function containsSink(nodes, links)
 {
-  for(var i = 0; i < nodes.length; i++)
+  var nodesSize = nodes.length;
+  for(var i = 0; i < nodesSize; i++)
   {
-    if(outgoing(nodes[i],links).length == 0)
+    if(outgoing(nodes[i],links).length == 0)  // no outgoing link, so the node is sink
     {
       return nodes[i];
     }
@@ -160,9 +162,10 @@ function containsSink(nodes, links)
 // edges or null
 function containsSource(nodes, links)
 {
-  for(var i = 0; i < nodes.length; i++)
+  var nodesSize = nodes.length;
+  for(var i = 0; i < nodesSize; i++)
   {
-    if(ingoing(nodes[i],links).length == 0)
+    if(ingoing(nodes[i],links).length == 0)  // no ingoing link, so the node is source
     {
       return nodes[i];
     }
@@ -174,9 +177,10 @@ function containsSource(nodes, links)
 // from that vertex
 function outgoing(node, links){
   var edges = [];
-  for(var i = 0; i < links.length; i++)
+  var linksLength = links.length;
+  for(var i = 0; i < linksLength; i++)
   {
-    if(links[i].from == node.id)
+    if(links[i].from == node.id) // have outgoing links from the node
     {
       edges.push(links[i]);
     }
@@ -189,9 +193,10 @@ function outgoing(node, links){
 function ingoing(node, links)
 {
   var edges = [];
-  for(var i = 0; i < links.length; i++)
+  var linksLength = links.length;
+  for(var i = 0; i < linksLength; i++)
   {
-    if(links[i].to == node.id)
+    if(links[i].to == node.id)  //have ingoing links from the node
     {
       edges.push(links[i]);
     }
@@ -213,7 +218,7 @@ function getNodeById(id, nodes)
 }
 
 // Inputs array of vertexs and array of edges. Outputs true if that graph is DAG or false
-// otherwise
+// otherwise. topological sorting with Kahn's algorithm is used here.
 function testDAG(v,e)
 {
   var nodes = (JSON.parse(JSON.stringify(v)));
@@ -224,6 +229,7 @@ function testDAG(v,e)
   var sources = [];
   var node;
   var neighbor;
+  //find all sources
   for(var i = containsSource(temporaryNodes,links); i != null; i = containsSource(temporaryNodes,links))
   {
     sources.push(i);
@@ -231,62 +237,25 @@ function testDAG(v,e)
   }
   while(sources.length > 0)
   {
-    //console.log("Sources");
-    //console.log(sources);
-    //console.log("");
     node = sources.pop();
     list.push(node);
-    //console.log("Node");
-    //console.log(node);
-    //console.log("");
     for(i = 0; i < temporaryEdges.length; i++)
     {
       if(temporaryEdges[i].from === node.id)
       {
         neighbor = getNodeById(temporaryEdges[i].to, nodes);
         links = deleteLinks([temporaryEdges[i]],links);
-        //console.log("Neighbor");
-        //console.log(neighbor);
-        //console.log("");
         if(ingoing(neighbor,links).length == 0)
         {
           sources.push(neighbor);
-          //console.log("Push node");
-          //console.log(neighbor);
-          //console.log("");
         }
       }
     }
   }
-  if(links.length > 0)
+  if(links.length > 0) //no order, is not DAG
   {
     return false;
-  }else{
+  }else{  //har order, is DAG
     return true;
   }
 }
-
-/*var graph = {
-  "nodes": [
-    {"id": 1, "label": "A"},
-    {"id": 2, "label": "B"},
-    {"id": 3, "label": "C"},
-    {"id": 4, "label": "D"},
-    {"id": 5, "label": "E"},
-    {"id": 6, "label": "F"},
-    {"id": 7, "label": "G"},
-
-  ],
-  "links": [
-    {"from": 1, "to": 2},
-    {"from": 2, "to": 3},
-    {"from": 2, "to": 5},
-    {"from": 2, "to": 4},
-    {"from": 3, "to": 5},
-    {"from": 4, "to": 5},
-    {"from": 5, "to": 6},
-    {"from": 7, "to": 4}
-  ]
-};
-
-console.log(testDAG(graph.nodes, graph.links));*/
