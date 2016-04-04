@@ -11,8 +11,20 @@ exports.cycleRemoval = function(v,e){
 exports.testDAG = function(v,e){
   return testDAG(v,e);
 };
+exports.topologicalOrder = function(v,e){
+  return topologicalOrder(v,e);
+};
+exports.outgoing = function(node, links){
+  return outgoing(node, links);
+};
+exports.getNodeById = function(id, nodes){
+  return getNodeById(id, nodes);
+}
+exports.deleteLinks = function(edges, e){
+  return deleteLinks(edges,e);
+}
 
-// This function takes array of vertex and array of edges. Returning array of edges
+// Inputs array of vertex and array of edges. Outputs array of edges
 // without cycle using greedy cycle removal algorithm
 function cycleRemoval(nodes, links)
 {
@@ -123,23 +135,24 @@ function deleteNode(node, nodes)
 // (set operation)
 function deleteLinks(edges, e)
 {
+  var newEdge = (JSON.parse(JSON.stringify(e)));
   var length = edges.length;
   if(length == 0)
   {
-    return e;
+    return newEdge;
   }
   for(var i = 0; i < edges.length; i++)
   {
-    for(var j = 0; j < e.length; j++)
+    for(var j = 0; j < newEdge.length; j++)
     {
-      if(edges[i].from == e[j].from && edges[i].to == e[j].to)
+      if(edges[i].from == newEdge[j].from && edges[i].to == newEdge[j].to)
       {
-        e.splice(j,1);
+        newEdge.splice(j,1);
         break;
       }
     }
   }
-  return e;
+  return newEdge;
 }
 
 // Inputs array of vertex and array of edges. Outputs one vertex with none outgoing
@@ -231,29 +244,17 @@ function testDAG(v,e)
   }
   while(sources.length > 0)
   {
-    //console.log("Sources");
-    //console.log(sources);
-    //console.log("");
     node = sources.pop();
     list.push(node);
-    //console.log("Node");
-    //console.log(node);
-    //console.log("");
     for(i = 0; i < temporaryEdges.length; i++)
     {
       if(temporaryEdges[i].from === node.id)
       {
         neighbor = getNodeById(temporaryEdges[i].to, nodes);
         links = deleteLinks([temporaryEdges[i]],links);
-        //console.log("Neighbor");
-        //console.log(neighbor);
-        //console.log("");
         if(ingoing(neighbor,links).length == 0)
         {
           sources.push(neighbor);
-          //console.log("Push node");
-          //console.log(neighbor);
-          //console.log("");
         }
       }
     }
@@ -266,27 +267,52 @@ function testDAG(v,e)
   }
 }
 
+function topologicalOrder(v,e)
+{
+  var nodes = (JSON.parse(JSON.stringify(v)));
+  var temporaryNodes = (JSON.parse(JSON.stringify(v)));
+  var links = (JSON.parse(JSON.stringify(e)));
+  var temporaryEdges = (JSON.parse(JSON.stringify(e)));
+  var list = [];
+  var sources = [];
+  var node;
+  var neighbor;
+  for(var i = containsSource(temporaryNodes,links); i != null; i = containsSource(temporaryNodes,links))
+  {
+    sources.push(i);
+    temporaryNodes = deleteNode(i,temporaryNodes);
+  }
+  while(sources.length > 0)
+  {
+    node = sources.pop();
+    list.push(node);
+    for(i = 0; i < temporaryEdges.length; i++)
+    {
+      if(temporaryEdges[i].from === node.id)
+      {
+        neighbor = getNodeById(temporaryEdges[i].to, nodes);
+        links = deleteLinks([temporaryEdges[i]],links);
+        if(ingoing(neighbor,links).length == 0)
+        {
+          sources.push(neighbor);
+        }
+      }
+    }
+  }
+  return list;
+}
+
 /*var graph = {
   "nodes": [
-    {"id": 1, "label": "A"},
-    {"id": 2, "label": "B"},
-    {"id": 3, "label": "C"},
-    {"id": 4, "label": "D"},
-    {"id": 5, "label": "E"},
-    {"id": 6, "label": "F"},
-    {"id": 7, "label": "G"},
-
+    {"id": 1, "label": "A", "rank": 0},
+    {"id": 2, "label": "B", "rank": 0},
+    {"id": 3, "label": "C", "rank": 0}
   ],
   "links": [
     {"from": 1, "to": 2},
     {"from": 2, "to": 3},
-    {"from": 2, "to": 5},
-    {"from": 2, "to": 4},
-    {"from": 3, "to": 5},
-    {"from": 4, "to": 5},
-    {"from": 5, "to": 6},
-    {"from": 7, "to": 4}
+    {"from": 1, "to": 3}
   ]
 };
 
-console.log(testDAG(graph.nodes, graph.links));*/
+console.log(topologicalOrder(graph.nodes, graph.links));*/
