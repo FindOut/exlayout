@@ -1,3 +1,10 @@
+/**********************************************************************************
+This function removes cycle in a connected directed graph. Vertexs are represented as
+js object = {"id": id, "label": label}. Edges are represented as js object =
+{"from": id, "to": id}. The algorithm that we are using is greedy cycle removal.
+**********************************************************************************/
+
+// Exports modules for testing
 exports.cycleRemoval = function(v,e){
   return cycleRemoval(v,e);
 };
@@ -5,6 +12,8 @@ exports.testDAG = function(v,e){
   return testDAG(v,e);
 };
 
+// This function takes array of vertex and array of edges. Returning array of edges
+// without cycle using greedy cycle removal algorithm
 function cycleRemoval(nodes, links)
 {
   var v = (JSON.parse(JSON.stringify(nodes)));
@@ -55,6 +64,8 @@ function cycleRemoval(nodes, links)
   return edges;
 }
 
+// Inputs array of vertex and array of edges. Outputs vertex with maximum difference
+// (outgoingEdges - ingoingEdges).
 function maximum(v,e)
 {
   var max = -1;
@@ -72,6 +83,8 @@ function maximum(v,e)
   return node;
 }
 
+// Inputs array of vertex and array of edges. Outputs array of vertex which does
+// not have edges
 function isolatedNodes(v,e)
 {
     var iso = [];
@@ -92,6 +105,8 @@ function isolatedNodes(v,e)
     return iso;
 }
 
+// Inputs single vertex and array of vertex. Outputs array of vertex which does not
+// contain the single vertex.
 function deleteNode(node, nodes)
 {
   for(var i = 0; i < nodes.length; i++)
@@ -104,6 +119,8 @@ function deleteNode(node, nodes)
   return nodes;
 }
 
+// Inputs two array of edges. Outputs array of edges which is array2 / array1
+// (set operation)
 function deleteLinks(edges, e)
 {
   var length = edges.length;
@@ -125,6 +142,8 @@ function deleteLinks(edges, e)
   return e;
 }
 
+// Inputs array of vertex and array of edges. Outputs one vertex with none outgoing
+// edges or null
 function containsSink(nodes, links)
 {
   for(var i = 0; i < nodes.length; i++)
@@ -137,6 +156,8 @@ function containsSink(nodes, links)
   return null;
 }
 
+// Inputs array of vertex and array of edges. Outputs one vertex with none ingoing
+// edges or null
 function containsSource(nodes, links)
 {
   for(var i = 0; i < nodes.length; i++)
@@ -149,6 +170,8 @@ function containsSource(nodes, links)
   return null;
 }
 
+// Input single vertex and array of edges. Outputs array of edges which is outgoing
+// from that vertex
 function outgoing(node, links){
   var edges = [];
   for(var i = 0; i < links.length; i++)
@@ -161,6 +184,8 @@ function outgoing(node, links){
   return edges;
 }
 
+// Inputs single vertex and array of edges. Outputs array of edges which is ingoing
+// from that vertex
 function ingoing(node, links)
 {
   var edges = [];
@@ -174,6 +199,7 @@ function ingoing(node, links)
   return edges;
 }
 
+// Inputs id and array of vertex. Outputs vertex with that id or null;
 function getNodeById(id, nodes)
 {
   for(var i = 0; i < nodes.length; i++)
@@ -183,8 +209,11 @@ function getNodeById(id, nodes)
       return nodes[i];
     }
   }
+  return null;
 }
 
+// Inputs array of vertexs and array of edges. Outputs true if that graph is DAG or false
+// otherwise
 function testDAG(v,e)
 {
   var nodes = (JSON.parse(JSON.stringify(v)));
