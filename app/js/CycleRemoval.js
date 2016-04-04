@@ -115,7 +115,7 @@ function deleteLinks(edges, e)
   {
     for(var j = 0; j < e.length; j++)
     {
-      if(edges[i].from == e[j].from && edges[i].to == e[i].to)
+      if(edges[i].from == e[j].from && edges[i].to == e[j].to)
       {
         e.splice(j,1);
         break;
@@ -123,22 +123,6 @@ function deleteLinks(edges, e)
     }
   }
   return e;
-  /*var j = 0;
-  for(var i = 0; i < e.length; i++)
-  {
-    if(edges[j].from == e[i].from && edges[j].to == e[i].to)
-    {
-      e.splice(i,1);
-      i--;
-      if(j == length-1)
-      {
-        break;
-      }else{
-        j++
-      }
-    }
-  }
-  return e;*/
 }
 
 function containsSink(nodes, links)
