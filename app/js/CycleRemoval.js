@@ -145,11 +145,8 @@ function deleteLinks(edges, e)
   }
   for(var i = 0; i < length; i++)
   {
-<<<<<<< HEAD
-    for(var j = 0; j < elength; j++)
-=======
+
     for(var j = 0; j < newEdge.length; j++)
->>>>>>> 49a7cebf54467ade91bc1e694f46b7c7d6fa4786
     {
       if(edges[i].from == newEdge[j].from && edges[i].to == newEdge[j].to)
       {
@@ -277,8 +274,6 @@ function testDAG(v,e)
     return true;
   }
 }
-<<<<<<< HEAD
-=======
 
 function topologicalOrder(v,e)
 {
@@ -314,19 +309,3 @@ function topologicalOrder(v,e)
   }
   return list;
 }
-
-/*var graph = {
-  "nodes": [
-    {"id": 1, "label": "A", "rank": 0},
-    {"id": 2, "label": "B", "rank": 0},
-    {"id": 3, "label": "C", "rank": 0}
-  ],
-  "links": [
-    {"from": 1, "to": 2},
-    {"from": 2, "to": 3},
-    {"from": 1, "to": 3}
-  ]
-};
-
-console.log(topologicalOrder(graph.nodes, graph.links));*/
->>>>>>> 49a7cebf54467ade91bc1e694f46b7c7d6fa4786
