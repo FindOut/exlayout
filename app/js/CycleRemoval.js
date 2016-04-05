@@ -1,7 +1,8 @@
 /**********************************************************************************
 This function removes cycle in a connected directed graph. Vertexs are represented as
-js object = {"id": id, "label": label}. Edges are represented as js object =
-{"from": id, "to": id}. The algorithm that we are using is greedy cycle removal.
+js object = {"id": id, "label": label, "rank": rank, "isDummy": boolean}. Edges are
+represented as js object = {"from": id, "to": id}. The algorithm that we are using
+is greedy cycle removal.
 **********************************************************************************/
 
 // Exports modules for testing

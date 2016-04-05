@@ -1,5 +1,22 @@
+/**********************************************************************************
+This function converts DAG to layred DAG. Vertexs are represented asjs object =
+{"id": id, "label": label, "rank": rank, "isDummy": boolean}. Edges arerepresented
+as js object = {"from": id, "to": id}. The algorithm that we are using LongestPath
+algorithm, if one edge is crossing more than two layers, we add dummyNode and
+dummyLink between then so between vertex that is linked, the difference in layer
+is 1.
+**********************************************************************************/
+
+// Exports function for testing
+exports.layering = function(graph){
+  return layering(graph);
+}
+
+// Import module
 var CycleRemoval = require("./CycleRemoval");
 
+// Calculate rank property for each node and add dummyNode and dummyLink if
+// necessary. Inputs DAG, outputs layred DAG
 function layering(graph)
 {
   var edges;
@@ -28,9 +45,12 @@ function layering(graph)
     maxRank = -1;
   }
   graph.nodes = sortedVertex;
+  graph = addDummy(graph);
   return graph;
 }
 
+// Add dummyNode and dummyLink when edges are crossing more than two layers.
+// Inputs layered DAG, output proper layered DAG
 function addDummy(graph)
 {
   var max = -1;
@@ -74,28 +94,3 @@ function addDummy(graph)
   }
   return graph;
 }
-
-var graph = {
-  "nodes": [
-    {"id": 1, "label": "A", "rank": 5, "isDummy": false},
-    {"id": 2, "label": "B", "rank": 4, "isDummy": false},
-    {"id": 3, "label": "C", "rank": 3, "isDummy": false},
-    {"id": 4, "label": "D", "rank": 3, "isDummy": false},
-    {"id": 5, "label": "E", "rank": 2, "isDummy": false},
-    {"id": 6, "label": "F", "rank": 1, "isDummy": false},
-    {"id": 7, "label": "G", "rank": 4, "isDummy": false}
-
-  ],
-  "links": [
-    {"from": 1, "to": 2},
-    {"from": 2, "to": 3},
-    {"from": 2, "to": 5},
-    {"from": 2, "to": 4},
-    {"from": 3, "to": 5},
-    {"from": 4, "to": 5},
-    {"from": 5, "to": 6},
-    {"from": 7, "to": 4}
-  ]
-};
-
-console.log(addDummy(layering(graph)));
