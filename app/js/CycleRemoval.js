@@ -1,7 +1,8 @@
 /**********************************************************************************
 This function removes cycle in a connected directed graph. Vertexs are represented as
-js object = {"id": id, "label": label}. Edges are represented as js object =
-{"from": id, "to": id}. The algorithm that we are using is greedy cycle removal.
+js object = {"id": id, "label": label, "rank": rank, "isDummy": boolean}. Edges are
+represented as js object = {"from": id, "to": id}. The algorithm that we are using
+is greedy cycle removal.
 **********************************************************************************/
 
 // Exports modules for testing
@@ -11,8 +12,20 @@ exports.cycleRemoval = function(v,e){
 exports.testDAG = function(v,e){
   return testDAG(v,e);
 };
+exports.topologicalOrder = function(v,e){
+  return topologicalOrder(v,e);
+};
+exports.outgoing = function(node, links){
+  return outgoing(node, links);
+};
+exports.getNodeById = function(id, nodes){
+  return getNodeById(id, nodes);
+}
+exports.deleteLinks = function(edges, e){
+  return deleteLinks(edges,e);
+}
 
-// This function takes array of vertex and array of edges. Returning array of edges
+// Inputs array of vertex and array of edges. Outputs array of edges
 // without cycle using greedy cycle removal algorithm
 function cycleRemoval(nodes, links)
 {
@@ -123,24 +136,29 @@ function deleteNode(node, nodes)
 // (set operation) which means to delete all the same links set (both exsist in array2 and array1) in array2.
 function deleteLinks(edges, e)
 {
+  var newEdge = (JSON.parse(JSON.stringify(e)));
   var length = edges.length;
   var elength = e.length;
   if(length == 0)
   {
-    return e;
+    return newEdge;
   }
   for(var i = 0; i < length; i++)
   {
+<<<<<<< HEAD
     for(var j = 0; j < elength; j++)
+=======
+    for(var j = 0; j < newEdge.length; j++)
+>>>>>>> 49a7cebf54467ade91bc1e694f46b7c7d6fa4786
     {
-      if(edges[i].from == e[j].from && edges[i].to == e[j].to)
+      if(edges[i].from == newEdge[j].from && edges[i].to == newEdge[j].to)
       {
-        e.splice(j,1);
+        newEdge.splice(j,1);
         break;
       }
     }
   }
-  return e;
+  return newEdge;
 }
 
 // Inputs array of vertex and array of edges. Outputs one vertex with none outgoing
@@ -259,3 +277,56 @@ function testDAG(v,e)
     return true;
   }
 }
+<<<<<<< HEAD
+=======
+
+function topologicalOrder(v,e)
+{
+  var nodes = (JSON.parse(JSON.stringify(v)));
+  var temporaryNodes = (JSON.parse(JSON.stringify(v)));
+  var links = (JSON.parse(JSON.stringify(e)));
+  var temporaryEdges = (JSON.parse(JSON.stringify(e)));
+  var list = [];
+  var sources = [];
+  var node;
+  var neighbor;
+  for(var i = containsSource(temporaryNodes,links); i != null; i = containsSource(temporaryNodes,links))
+  {
+    sources.push(i);
+    temporaryNodes = deleteNode(i,temporaryNodes);
+  }
+  while(sources.length > 0)
+  {
+    node = sources.pop();
+    list.push(node);
+    for(i = 0; i < temporaryEdges.length; i++)
+    {
+      if(temporaryEdges[i].from === node.id)
+      {
+        neighbor = getNodeById(temporaryEdges[i].to, nodes);
+        links = deleteLinks([temporaryEdges[i]],links);
+        if(ingoing(neighbor,links).length == 0)
+        {
+          sources.push(neighbor);
+        }
+      }
+    }
+  }
+  return list;
+}
+
+/*var graph = {
+  "nodes": [
+    {"id": 1, "label": "A", "rank": 0},
+    {"id": 2, "label": "B", "rank": 0},
+    {"id": 3, "label": "C", "rank": 0}
+  ],
+  "links": [
+    {"from": 1, "to": 2},
+    {"from": 2, "to": 3},
+    {"from": 1, "to": 3}
+  ]
+};
+
+console.log(topologicalOrder(graph.nodes, graph.links));*/
+>>>>>>> 49a7cebf54467ade91bc1e694f46b7c7d6fa4786
