@@ -75,7 +75,8 @@ function addDummy(graph)
     diff = CycleRemoval.getNodeById(link.from, graph.nodes).rank - node.rank;
     if(diff > 1)
     {
-      CycleRemoval.deleteLinks([link],graph.links);
+      CycleRemoval.deleteLinks([link], graph.links);
+      i--;
       dummyNode = {"id": ++max, "label": "", "rank": node.rank+1, "isDummy": true};
       dummyLink = {"from": max, "to": link.to};
       graph.nodes.push(dummyNode);
