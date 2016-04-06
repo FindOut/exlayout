@@ -23,7 +23,7 @@ function layering(graph)
   var maxRank = -1;
   var currentRank;
   var len;
-  var sortedVertex = CycleRemoval.topologicalOrder(graph.nodes, graph.links);
+  var sortedVertex = CycleRemoval.topologicalOrder(graph);
   for(var i = sortedVertex.length-1; i >= 0; i--)
   {
     edges = CycleRemoval.outgoing(sortedVertex[i], graph.links);
@@ -45,8 +45,7 @@ function layering(graph)
     maxRank = -1;
   }
   graph.nodes = sortedVertex;
-  graph = addDummy(graph);
-  return graph;
+  addDummy(graph);
 }
 
 // Add dummyNode and dummyLink when edges are crossing more than two layers.
@@ -76,7 +75,7 @@ function addDummy(graph)
     diff = CycleRemoval.getNodeById(link.from, graph.nodes).rank - node.rank;
     if(diff > 1)
     {
-      graph.links = CycleRemoval.deleteLinks([link],graph.links);
+      CycleRemoval.deleteLinks([link],graph.links);
       dummyNode = {"id": ++max, "label": "", "rank": node.rank+1, "isDummy": true};
       dummyLink = {"from": max, "to": link.to};
       graph.nodes.push(dummyNode);
@@ -92,5 +91,4 @@ function addDummy(graph)
       graph.links.push(dummyLink);
     }
   }
-  return graph;
 }

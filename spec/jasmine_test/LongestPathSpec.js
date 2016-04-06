@@ -24,13 +24,13 @@ describe("Testing layering", function(){
         {"from": 7, "to": 4}
       ]
     };
-    graph = LongestPath.layering(graph);
-    var len = graph.length;
+    LongestPath.layering(graph);
+    var len = graph.links.length;
     for(var i = 0; i < len; i++)
     {
       expect
-      (getNodeByID(graph.links[i].from, graph.nodes).rank -
-        getNodeByID(graph.links[i].to, graph.nodes).rank)
+      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
+        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
         .not.toBeLessThan(1);
     }
   });
@@ -66,13 +66,13 @@ describe("Testing layering", function(){
         {"from": 8, "to": 11}
       ]
     };
-    graph = LongestPath.layering(graph);
-    var len = graph.length;
+    LongestPath.layering(graph);
+    var len = graph.links.length;
     for(var i = 0; i < len; i++)
     {
       expect
-      (getNodeByID(graph.links[i].from, graph.nodes).rank -
-        getNodeByID(graph.links[i].to, graph.nodes).rank)
+      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
+        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
         .not.toBeLessThan(1);
     }
   });
@@ -126,13 +126,13 @@ describe("Testing layering", function(){
         {"from": 11, "to": 15}
       ]
     };
-    graph = LongestPath.layering(graph);
-    var len = graph.length;
+    LongestPath.layering(graph);
+    var len = graph.links.length;
     for(var i = 0; i < len; i++)
     {
       expect
-      (getNodeByID(graph.links[i].from, graph.nodes).rank -
-        getNodeByID(graph.links[i].to, graph.nodes).rank)
+      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
+        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
         .not.toBeLessThan(1);
     }
   });
@@ -159,13 +159,13 @@ describe("Testing layering", function(){
         {"from": 7, "to": 4}
       ]
     };
-    graph = LongestPath.layering(graph);
-    var len = graph.length;
+    LongestPath.layering(graph);
+    var len = graph.links.length;
     for(var i = 0; i < len; i++)
     {
       expect
-      (getNodeByID(graph.links[i].from, graph.nodes).rank -
-        getNodeByID(graph.links[i].to, graph.nodes).rank)
+      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
+        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
         .toBe(1);
     }
   });
@@ -201,13 +201,13 @@ describe("Testing layering", function(){
         {"from": 8, "to": 11}
       ]
     };
-    graph = LongestPath.layering(graph);
-    var len = graph.length;
+    LongestPath.layering(graph);
+    var len = graph.links.length;
     for(var i = 0; i < len; i++)
     {
       expect
-      (getNodeByID(graph.links[i].from, graph.nodes).rank -
-        getNodeByID(graph.links[i].to, graph.nodes).rank)
+      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
+        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
         .toBe(1);
     }
   });
@@ -261,13 +261,13 @@ describe("Testing layering", function(){
         {"from": 11, "to": 15}
       ]
     };
-    graph = LongestPath.layering(graph);
-    var len = graph.length;
+    LongestPath.layering(graph);
+    var len = graph.links.length;
     for(var i = 0; i < len; i++)
     {
       expect
-      (getNodeByID(graph.links[i].from, graph.nodes).rank -
-        getNodeByID(graph.links[i].to, graph.nodes).rank)
+      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
+        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
         .toBe(1);
     }
   });

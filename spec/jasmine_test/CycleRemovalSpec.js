@@ -13,9 +13,9 @@ describe("Test for DAG", function(){
         {"from": 2, "to": 3}
       ]
     };
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(true);
-    graph.links = CycleRemoval.cycleRemoval(graph.nodes, graph.links);
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(true);
+    expect(CycleRemoval.testDAG(graph)).toBe(true);
+    CycleRemoval.cycleRemoval(graph);
+    expect(CycleRemoval.testDAG(graph)).toBe(true);
   });
 
   it("Simple graph which is not DAG", function() {
@@ -31,9 +31,9 @@ describe("Test for DAG", function(){
         {"from": 3, "to": 1}
       ]
     };
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(false);
-    graph.links = CycleRemoval.cycleRemoval(graph.nodes, graph.links);
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(true);
+    expect(CycleRemoval.testDAG(graph)).toBe(false);
+    CycleRemoval.cycleRemoval(graph);
+    expect(CycleRemoval.testDAG(graph)).toBe(true);
   });
 
   it("Bigger graph which is DAG", function() {
@@ -59,9 +59,9 @@ describe("Test for DAG", function(){
         {"from": 7, "to": 4}
       ]
     };
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(true);
-    graph.links = CycleRemoval.cycleRemoval(graph.nodes, graph.links);
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(true);
+    expect(CycleRemoval.testDAG(graph)).toBe(true);
+    CycleRemoval.cycleRemoval(graph);
+    expect(CycleRemoval.testDAG(graph)).toBe(true);
   });
 
   it("Bigger graph which is not DAG", function() {
@@ -88,9 +88,9 @@ describe("Test for DAG", function(){
         {"from": 6, "to": 5}
       ]
     };
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(false);
-    graph.links = CycleRemoval.cycleRemoval(graph.nodes, graph.links);
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(true);
+    expect(CycleRemoval.testDAG(graph)).toBe(false);
+    CycleRemoval.cycleRemoval(graph);
+    expect(CycleRemoval.testDAG(graph)).toBe(true);
   });
 
   it("Even bigger graph which is not DAG", function() {
@@ -124,8 +124,8 @@ describe("Test for DAG", function(){
 
       ]
     };
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(false);
-    graph.links = CycleRemoval.cycleRemoval(graph.nodes, graph.links);
-    expect(CycleRemoval.testDAG(graph.nodes, graph.links)).toBe(true);
+    expect(CycleRemoval.testDAG(graph)).toBe(false);
+    CycleRemoval.cycleRemoval(graph);
+    expect(CycleRemoval.testDAG(graph)).toBe(true);
   });
 });

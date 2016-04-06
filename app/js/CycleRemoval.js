@@ -6,31 +6,33 @@ is greedy cycle removal.
 **********************************************************************************/
 
 // Exports modules for testing
-exports.cycleRemoval = function(v,e){
-  return cycleRemoval(v,e);
+exports.cycleRemoval = function(graph){
+  cycleRemoval(graph);
 };
-exports.testDAG = function(v,e){
-  return testDAG(v,e);
+exports.testDAG = function(graph){
+  return testDAG(graph);
 };
-exports.topologicalOrder = function(v,e){
-  return topologicalOrder(v,e);
+exports.topologicalOrder = function(graph){
+  return topologicalOrder(graph);
 };
 exports.outgoing = function(node, links){
   return outgoing(node, links);
+};
+exports.ingoing = function(node, links){
+  return ingoing(node, links);
 };
 exports.getNodeById = function(id, nodes){
   return getNodeById(id, nodes);
 }
 exports.deleteLinks = function(edges, e){
-  return deleteLinks(edges,e);
+  deleteLinks(edges,e);
 }
 
-// Inputs array of vertex and array of edges. Outputs array of edges
-// without cycle using greedy cycle removal algorithm
-function cycleRemoval(nodes, links)
+// Removes cycle from input graph using greddy cycle removal
+function cycleRemoval(graph)
 {
-  var v = (JSON.parse(JSON.stringify(nodes)));
-  var e = (JSON.parse(JSON.stringify(links)));
+  var temporaryNodes = (JSON.parse(JSON.stringify(graph.nodes)));
+  var temporaryEdges = (JSON.parse(JSON.stringify(graph.links)));
   var edges = [];
   var node;
   var sink;
@@ -38,43 +40,43 @@ function cycleRemoval(nodes, links)
   var ingoingEdges;
   var outgoingEdges;
   var isolated;
-  while(v.length > 0)
+  while(temporaryNodes.length > 0)
   {
-    sink = containsSink(v,e); //check if there is sink node
+    sink = containsSink(temporaryNodes,temporaryEdges); //check if there is sink node
     while(sink != null)
     {
-      ingoingEdges = ingoing(sink,e);
+      ingoingEdges = ingoing(sink,temporaryEdges);
       edges = edges.concat(ingoingEdges); //add ingoingEdges to reserved edges because sink will never be in a circle
-      v = deleteNode(sink,v);
-      e = deleteLinks(ingoingEdges,e);
-      sink = containsSink(v,e);
+      deleteNode(sink,temporaryNodes);
+      deleteLinks(ingoingEdges,temporaryEdges);
+      sink = containsSink(temporaryNodes,temporaryEdges);
     }
-    isolated = isolatedNodes(v,e);  //find isolatedNodes and delete them
+    isolated = isolatedNodes(temporaryNodes,temporaryEdges);  //find isolatedNodes and delete them
     for(var i = 0; i < isolated.length; i++)
     {
-      v = deleteNode(isolated[i],v);
+      deleteNode(isolated[i],temporaryNodes);
     }
-    source = containsSource(v,e);
+    source = containsSource(temporaryNodes,temporaryEdges);
     while(source != null)
     {
-      outgoingEdges = outgoing(source,e);
+      outgoingEdges = outgoing(source,temporaryEdges);
       edges = edges.concat(outgoingEdges); //add all outgoingEdges to reserved edges bacause source will never be in a circle
-      v = deleteNode(source,v);
-      e = deleteLinks(outgoingEdges,e);
-      source = containsSource(v,e);
+      deleteNode(source,temporaryNodes);
+      deleteLinks(outgoingEdges,temporaryEdges);
+      source = containsSource(temporaryNodes,temporaryEdges);
     }
-    if(v.length > 0)
+    if(temporaryNodes.length > 0)
     {
-      node = maximum(v,e); //choose the node with the most difference between outgoingEdges and ingoingEdges
-      ingoingEdges = ingoing(node,e);
-      outgoingEdges = outgoing(node,e);
+      node = maximum(temporaryNodes, temporaryEdges); //choose the node with the most difference between outgoingEdges and ingoingEdges
+      ingoingEdges = ingoing(node, temporaryEdges);
+      outgoingEdges = outgoing(node, temporaryEdges);
       edges = edges.concat(outgoingEdges);
-      v = deleteNode(node,v);
-      e = deleteLinks(ingoingEdges,e);
-      e = deleteLinks(outgoingEdges,e);
+      deleteNode(node, temporaryNodes);
+      deleteLinks(ingoingEdges, temporaryEdges);
+      deleteLinks(outgoingEdges, temporaryEdges);
     }
   }
-  return edges;
+  graph.links = edges;
 }
 
 // Inputs array of vertex and array of edges. Outputs vertex with maximum difference
@@ -118,8 +120,7 @@ function isolatedNodes(v,e)
     return iso;
 }
 
-// Inputs single vertex and array of vertex. Outputs array of vertex which does not
-// contain the single vertex.
+// Delete node from nodes
 function deleteNode(node, nodes)
 {
   for(var i = 0; i < nodes.length; i++)
@@ -129,33 +130,25 @@ function deleteNode(node, nodes)
       nodes.splice(i,1);
     }
   }
-  return nodes;
 }
 
-// Inputs two array of edges. Outputs array of edges which is array2 / array1
-// (set operation) which means to delete all the same links set (both exsist in array2 and array1) in array2.
+// Delete edges from e
 function deleteLinks(edges, e)
 {
-  var newEdge = (JSON.parse(JSON.stringify(e)));
   var length = edges.length;
   var elength = e.length;
-  if(length == 0)
-  {
-    return newEdge;
-  }
   for(var i = 0; i < length; i++)
   {
 
-    for(var j = 0; j < newEdge.length; j++)
+    for(var j = 0; j < elength; j++)
     {
-      if(edges[i].from == newEdge[j].from && edges[i].to == newEdge[j].to)
+      if(edges[i].from == e[j].from && edges[i].to == e[j].to)
       {
-        newEdge.splice(j,1);
+        e.splice(j,1);
         break;
       }
     }
   }
-  return newEdge;
 }
 
 // Inputs array of vertex and array of edges. Outputs one vertex with none outgoing
@@ -232,14 +225,14 @@ function getNodeById(id, nodes)
   return null;
 }
 
-// Inputs array of vertexs and array of edges. Outputs true if that graph is DAG or false
+// Inputs graph. Outputs true if that graph is DAG or false
 // otherwise. topological sorting with Kahn's algorithm is used here.
-function testDAG(v,e)
+function testDAG(graph)
 {
-  var nodes = (JSON.parse(JSON.stringify(v)));
-  var temporaryNodes = (JSON.parse(JSON.stringify(v)));
-  var links = (JSON.parse(JSON.stringify(e)));
-  var temporaryEdges = (JSON.parse(JSON.stringify(e)));
+  var nodes = (JSON.parse(JSON.stringify(graph.nodes)));
+  var temporaryNodes = (JSON.parse(JSON.stringify(graph.nodes)));
+  var links = (JSON.parse(JSON.stringify(graph.links)));
+  var temporaryEdges = (JSON.parse(JSON.stringify(graph.links)));
   var list = [];
   var sources = [];
   var node;
@@ -248,7 +241,7 @@ function testDAG(v,e)
   for(var i = containsSource(temporaryNodes,links); i != null; i = containsSource(temporaryNodes,links))
   {
     sources.push(i);
-    temporaryNodes = deleteNode(i,temporaryNodes);
+    deleteNode(i,temporaryNodes);
   }
   while(sources.length > 0)
   {
@@ -259,7 +252,7 @@ function testDAG(v,e)
       if(temporaryEdges[i].from === node.id)
       {
         neighbor = getNodeById(temporaryEdges[i].to, nodes);
-        links = deleteLinks([temporaryEdges[i]],links);
+        deleteLinks([temporaryEdges[i]],links);
         if(ingoing(neighbor,links).length == 0)
         {
           sources.push(neighbor);
@@ -275,12 +268,13 @@ function testDAG(v,e)
   }
 }
 
-function topologicalOrder(v,e)
+// Inputs graoh. Outputs the topological order of nodes using Kahn's algorithm
+function topologicalOrder(graph)
 {
-  var nodes = (JSON.parse(JSON.stringify(v)));
-  var temporaryNodes = (JSON.parse(JSON.stringify(v)));
-  var links = (JSON.parse(JSON.stringify(e)));
-  var temporaryEdges = (JSON.parse(JSON.stringify(e)));
+  var nodes = (JSON.parse(JSON.stringify(graph.nodes)));
+  var temporaryNodes = (JSON.parse(JSON.stringify(graph.nodes)));
+  var links = (JSON.parse(JSON.stringify(graph.links)));
+  var temporaryEdges = (JSON.parse(JSON.stringify(graph.links)));
   var list = [];
   var sources = [];
   var node;
@@ -288,7 +282,7 @@ function topologicalOrder(v,e)
   for(var i = containsSource(temporaryNodes,links); i != null; i = containsSource(temporaryNodes,links))
   {
     sources.push(i);
-    temporaryNodes = deleteNode(i,temporaryNodes);
+    deleteNode(i,temporaryNodes);
   }
   while(sources.length > 0)
   {
@@ -299,7 +293,7 @@ function topologicalOrder(v,e)
       if(temporaryEdges[i].from === node.id)
       {
         neighbor = getNodeById(temporaryEdges[i].to, nodes);
-        links = deleteLinks([temporaryEdges[i]],links);
+        deleteLinks([temporaryEdges[i]],links);
         if(ingoing(neighbor,links).length == 0)
         {
           sources.push(neighbor);
