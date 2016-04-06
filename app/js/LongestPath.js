@@ -93,3 +93,48 @@ function addDummy(graph)
     }
   }
 }
+
+function promoteVertex(node, graph)
+{
+  var dummyDiff = 0;
+  var neighbor = CycleRemoval.ingoing(node, graph.links);
+  var len = neighbor.length;
+  var v;
+  for(var i = 0; i < len; i++)
+  {
+    v = CycleRemoval.getNodeById(neighbor[i].from, graph.nodes);
+    if(v.rank == node.rank+1)
+    {
+      dummyDiff = dummyDiff + promoteVertex(v, graph);
+    }
+  }
+  node.rank = node.rank + 1;
+  dummyDiff = dummyDiff -
+  CycleRemoval.ingoing(node, graph.links).length +
+  CycleRemoval.outgoing(node, graph.links).length;
+  return dummyDiff;
+}
+
+function vertexPromotion(graph)
+{
+  var backUp = (JSON.parse(JSON.stringify(graph.nodes)));
+  var len = backUp.length;
+  var promotions;
+  var node;
+  do{
+    promotions = 0;
+    for(var i = 0; i < len; i++)
+    {
+      if(CycleRemoval.ingoing(graph.nodes[i], graph.links).length > 0)
+      {
+        if(promoteVertex(graph.nodes[i]) < 0)
+        {
+          promotions = promotions + 1;
+          backUp = (JSON.parse(JSON.stringify(graph.nodes)));
+        }else{
+          graph.nodes = (JSON.parse(JSON.stringify(backUp)));
+        }
+      }
+    }
+  }while(promotions != 0)
+}
