@@ -2,9 +2,9 @@
 This function converts DAG to layred DAG. Vertexs are represented asjs object =
 {"id": id, "label": label, "rank": rank, "isDummy": boolean}. Edges arerepresented
 as js object = {"from": id, "to": id}. The algorithm that we are using LongestPath
-algorithm, if one edge is crossing more than two layers, we add dummyNode and
-dummyLink between then so between vertex that is linked, the difference in layer
-is 1.
+algorithm. Efterwards we use vertex promotion to try minimize number of dummyNode
+and dummyLink. In the last step we add dummyNode and dummyLink between all nodes
+with layer difference bigger than 1.
 **********************************************************************************/
 
 // Exports function for testing
@@ -45,7 +45,8 @@ function layering(graph)
     maxRank = -1;
   }
   graph.nodes = sortedVertex;
-  //addDummy(graph);
+  vertexPromotion(graph);
+  addDummy(graph);
 }
 
 // Add dummyNode and dummyLink when edges are crossing more than two layers.
@@ -139,7 +140,7 @@ function vertexPromotion(graph)
   }while(promotions != 0)
 }
 
-var graph = {
+/*var graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false},
     {"id": 2, "label": "B", "rank": 0, "isDummy": false},
@@ -171,9 +172,4 @@ var graph = {
 };
 
 layering(graph);
-console.log("Before:");
-console.log(graph);
-console.log("");
-vertexPromotion(graph);
-console.log("Efter:");
-console.log(graph);
+console.log(graph);*/
