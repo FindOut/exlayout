@@ -78,13 +78,13 @@ function addDummy(graph)
     {
       CycleRemoval.deleteLinks([link], graph.links);
       i--;
-      dummyNode = {"id": ++max, "label": "", "rank": node.rank+1, "isDummy": true};
+      dummyNode = {"id": ++max, "label": "", "rank": node.rank+1, "order": 0, "isDummy": true};
       dummyLink = {"from": max, "to": link.to};
       graph.nodes.push(dummyNode);
       graph.links.push(dummyLink);
       for(var j = 2; j < diff; j++)
       {
-        dummyNode = {"id": ++max, "label": "", "rank": node.rank+j, "isDummy": true};
+        dummyNode = {"id": ++max, "label": "", "rank": node.rank+j, "order": 0, "isDummy": true};
         dummyLink = {"from": max, "to": max-1};
         graph.nodes.push(dummyNode);
         graph.links.push(dummyLink);

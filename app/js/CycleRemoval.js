@@ -23,7 +23,7 @@ exports.ingoing = function(node, links){
 };
 exports.getNodeById = function(id, nodes){
   return getNodeById(id, nodes);
-}
+};
 exports.deleteLinks = function(edges, e){
   deleteLinks(edges,e);
 }
