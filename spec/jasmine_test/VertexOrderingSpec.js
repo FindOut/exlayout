@@ -171,7 +171,7 @@ describe("Test VertexOrdering", function(){
       }
     });
     var len = graph.nodes.length;
-    var rank = graoh.nodes[0].rank;
+    var rank = graph.nodes[0].rank;
     var order = 1;
     for(var i = 0; i < len; i++)
     {
@@ -236,7 +236,7 @@ describe("Test VertexOrdering", function(){
       }
     });
     var len = graph.nodes.length;
-    var rank = graoh.nodes[0].rank;
+    var rank = graph.nodes[0].rank;
     var order = 1;
     for(var i = 0; i < len; i++)
     {
@@ -319,7 +319,7 @@ describe("Test VertexOrdering", function(){
       }
     });
     var len = graph.nodes.length;
-    var rank = graoh.nodes[0].rank;
+    var rank = graph.nodes[0].rank;
     var order = 1;
     for(var i = 0; i < len; i++)
     {

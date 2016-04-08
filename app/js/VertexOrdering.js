@@ -1,27 +1,36 @@
 var CycleRemoval = require("./CycleRemoval.js");
 var LongestPath = require("./LongestPath.js");
 
+exports.vertexOrdering = function(graph){
+  return vertexOrdering(graph);
+}
+
 function vertexOrdering(graph)
 {
-  var changed = false;
+  var a;
+  var before;
+  var efter;
+  var i;
+  var layer;
+  var copyGraph;
   setInitialOrder(graph);
-  console.log(graph);
-  downwardSorting(graph);
-  console.log(graph);
-  upwardSorting(graph);
-  console.log(graph);
-  /*while(true)
-  {
-    if(!upwardSorting(graph))
+  a = getTotalCrossing(graph);
+  do{
+    before = getTotalCrossing(graph);
+    copyGraph = upwardSorting(graph);
+    efter = getTotalCrossing(copyGraph);
+    if(efter < before)
     {
-      if(!downwardSorting(graph))
-      {
-        break;
-      }
-    }else{
-      downwardSorting(graph);
+      graph = copyGraph;
     }
-  }*/
+    copyGraph = downwardSorting(graph);
+    if(getTotalCrossing(copyGraph) < efter)
+    {
+      graph = copyGraph;
+    }
+    efter = getTotalCrossing(copyGraph);
+  }while(before != efter)
+  return a - getTotalCrossing(graph);
 }
 
 function setInitialOrder(graph){
@@ -47,9 +56,15 @@ function setInitialOrder(graph){
     }
     if(len1 == 0)
     {
-      layer2[i].order = 1;
+      layer2[i].order = 0;
     }else{
-      layer2[i].order = position.sort()[Math.floor(len1/2)];
+      position.sort();
+      if(len1 % 2 == 1)
+      {
+        layer2[i].order = position[Math.floor(len1/2)];
+      }else{
+        layer2[i].order = (position[len1/2]+position[len1/2-1])/2;
+      }
     }
     position = [];
   }
@@ -88,9 +103,15 @@ function setInitialOrder(graph){
       }
       if(len1 == 0)
       {
-        layer2[i].order = 1;
+        layer2[i].order = 0;
       }else{
-        layer2[i].order = position.sort()[Math.floor(len1/2)];
+        position.sort();
+        if(len1 % 2 == 1)
+        {
+          layer2[i].order = position[Math.floor(len1/2)];
+        }else{
+          layer2[i].order = (position[len1/2]+position[len1/2-1])/2;
+        }
       }
       position = [];
     }
@@ -122,12 +143,10 @@ function setInitialOrder(graph){
 
 function upwardSorting(graph)
 {
+  var copyGraph = (JSON.parse(JSON.stringify(graph)));
   var currentRank = 1;
-  var layer1 = getLayer(graph, currentRank);
-  var layer2 = getLayer(graph, ++currentRank);
-  var changed = false;
-  var before;
-  var efter;
+  var layer1 = getLayer(copyGraph, currentRank);
+  var layer2 = getLayer(copyGraph, ++currentRank);
   var edges;
   var len1;
   var len2;
@@ -135,17 +154,23 @@ function upwardSorting(graph)
   len2 = layer2.length;
   for(var i = 0; i < len2; i++)
   {
-    edges = CycleRemoval.outgoing(layer2[i], graph.links);
+    edges = CycleRemoval.outgoing(layer2[i], copyGraph.links);
     len1 = edges.length;
     for(var j = 0; j < len1; j++)
     {
-      position.push(CycleRemoval.getNodeById(edges[j].to, graph.nodes).order);
+      position.push(CycleRemoval.getNodeById(edges[j].to, copyGraph.nodes).order);
     }
     if(len1 == 0)
     {
-      layer2[i].order = 1;
+      layer2[i].order = 0;
     }else{
-      layer2[i].order = position.sort()[Math.floor(len1/2)];
+      position.sort();
+      if(len1 % 2 == 1)
+      {
+        layer2[i].order = position[Math.floor(len1/2)];
+      }else{
+        layer2[i].order = (position[len1/2]+position[len1/2-1])/2;
+      }
     }
     position = [];
   }
@@ -156,7 +181,7 @@ function upwardSorting(graph)
     }else if(a.order > b.order){
       return 1;
     }else{
-      if(CycleRemoval.outgoing(a, graph.links).length % 2 == 1)
+      if(CycleRemoval.outgoing(a, copyGraph.links).length % 2 == 1)
       {
         return -1;
       }else{
@@ -164,35 +189,35 @@ function upwardSorting(graph)
       }
     }
   });
-  before = numberOfCrossing(layer2, graph);
   for(i = 1; i <= len2; i++)
   {
     layer2[i-1].order = i;
   }
-  efter = numberOfCrossing(layer2, graph);
-  if((before-efter) != 0)
-  {
-    changed = true;
-  }
   layer1 = layer2;
-  layer2 = getLayer(graph, ++currentRank);
+  layer2 = getLayer(copyGraph, ++currentRank);
   len1 = len2;
   len2 = layer2.length;
   while(len2 > 0)
   {
     for(i = 0; i < len2; i++)
     {
-      edges = CycleRemoval.outgoing(layer2[i], graph.links);
+      edges = CycleRemoval.outgoing(layer2[i], copyGraph.links);
       len1 = edges.length;
       for(j = 0; j < len1; j++)
       {
-        position.push(CycleRemoval.getNodeById(edges[j].to, graph.nodes).order);
+        position.push(CycleRemoval.getNodeById(edges[j].to, copyGraph.nodes).order);
       }
       if(len1 == 0)
       {
-        layer2[i].order = 1;
+        layer2[i].order = 0;
       }else{
-        layer2[i].order = position.sort()[Math.floor(len1/2)];
+        position.sort();
+        if(len1 % 2 == 1)
+        {
+          layer2[i].order = position[Math.floor(len1/2)];
+        }else{
+          layer2[i].order = (position[len1/2]+position[len1/2-1])/2;
+        }
       }
       position = [];
     }
@@ -203,7 +228,7 @@ function upwardSorting(graph)
       }else if(a.order > b.order){
         return 1;
       }else{
-        if(CycleRemoval.outgoing(a, graph.links).length % 2 == 1)
+        if(CycleRemoval.outgoing(a, copyGraph.links).length % 2 == 1)
         {
           return -1;
         }else{
@@ -211,58 +236,56 @@ function upwardSorting(graph)
         }
       }
     });
-    before = numberOfCrossing(layer2, graph);
     for(i = 1; i <= len2; i++)
     {
       layer2[i-1].order = i;
     }
-    efter = numberOfCrossing(layer2, graph);
-    if((before-efter) != 0)
-    {
-      changed = true;
-    }
     layer1 = layer2;
-    layer2 = getLayer(graph, ++currentRank);
+    layer2 = getLayer(copyGraph, ++currentRank);
     len1 = len2;
     len2 = layer2.length;
   }
-  return changed;
+  return copyGraph;
 }
 
 function downwardSorting(graph)
 {
+  var copyGraph = (JSON.parse(JSON.stringify(graph)));
   var currentRank = 0;
-  var changed = false;
-  var before;
-  var efter;
   var edges;
   var len1;
   var len2;
   var position = [];
-  len1 = graph.nodes.length;
+  len1 = copyGraph.nodes.length;
   for(var i = 0; i < len1; i++)
   {
-    if(graph.nodes[i].rank > currentRank)
+    if(copyGraph.nodes[i].rank > currentRank)
     {
-      currentRank = graph.nodes[i].rank;
+      currentRank = copyGraph.nodes[i].rank;
     }
   }
-  var layer2 = getLayer(graph, currentRank);
-  var layer1 = getLayer(graph, --currentRank);
+  var layer2 = getLayer(copyGraph, currentRank);
+  var layer1 = getLayer(copyGraph, --currentRank);
   len1 = layer1.length;
   for(i = 0; i < len1; i++)
   {
-    edges = CycleRemoval.ingoing(layer1[i] , graph.links);
+    edges = CycleRemoval.ingoing(layer1[i] , copyGraph.links);
     len2 = edges.length;
     for(var j = 0; j < len2; j++)
     {
-      position.push(CycleRemoval.getNodeById(edges[j].from, graph.nodes).order);
+      position.push(CycleRemoval.getNodeById(edges[j].from, copyGraph.nodes).order);
     }
     if(len2 == 0)
     {
-      layer1[i].order = 1;
+      layer1[i].order = 0;
     }else{
-      layer1[i].order = position.sort()[Math.floor(len2/2)];
+      position.sort();
+      if(len2 % 2 == 1)
+      {
+        layer1[i].order = position[Math.floor(len2/2)];
+      }else{
+        layer1[i].order = (position[len2/2]+position[len2/2-1])/2;
+      }
     }
     position = [];
   }
@@ -273,7 +296,7 @@ function downwardSorting(graph)
     }else if(a.order > b.order){
       return 1;
     }else{
-      if(CycleRemoval.outgoing(a, graph.links).length % 2 == 1)
+      if(CycleRemoval.outgoing(a, copyGraph.links).length % 2 == 1)
       {
         return -1;
       }else{
@@ -281,35 +304,35 @@ function downwardSorting(graph)
       }
     }
   });
-  before = numberOfCrossing(layer2, graph);
   for(i = 1; i <= len1; i++)
   {
     layer1[i-1].order = i;
   }
-  efter = numberOfCrossing(layer2, graph);
-  if((before-efter) != 0)
-  {
-    changed = true;
-  }
   layer2 = layer1;
-  layer1 = getLayer(graph, --currentRank);
+  layer1 = getLayer(copyGraph, --currentRank);
   len2 = len1;
   len1 = layer1.length;
   while(len1 > 0)
   {
     for(i = 0; i < len1; i++)
     {
-      edges = CycleRemoval.ingoing(layer1[i], graph.links);
+      edges = CycleRemoval.ingoing(layer1[i], copyGraph.links);
       len2 = edges.length;
       for(var j = 0; j < len2; j++)
       {
-        position.push(CycleRemoval.getNodeById(edges[j].from, graph.nodes).order);
+        position.push(CycleRemoval.getNodeById(edges[j].from, copyGraph.nodes).order);
       }
       if(len2 == 0)
       {
-        layer1[i].order = 1;
+        layer1[i].order = 0;
       }else{
-        layer1[i].order = position.sort()[Math.floor(len2/2)];
+        position.sort();
+        if(len2 % 2 == 1)
+        {
+          layer1[i].order = position[Math.floor(len2/2)];
+        }else{
+          layer1[i].order = (position[len2/2]+position[len2/2-1])/2;
+        }
       }
       position = [];
     }
@@ -320,7 +343,7 @@ function downwardSorting(graph)
       }else if(a.order > b.order){
         return 1;
       }else{
-        if(CycleRemoval.outgoing(a, graph.links).length % 2 == 1)
+        if(CycleRemoval.outgoing(a, copyGraph.links).length % 2 == 1)
         {
           return -1;
         }else{
@@ -328,26 +351,23 @@ function downwardSorting(graph)
         }
       }
     });
-    before = numberOfCrossing(layer2, graph);
     for(i = 1; i <= len1; i++)
     {
       layer1[i-1].order = i;
     }
-    efter = numberOfCrossing(layer2, graph);
-    if((before-efter) != 0)
-    {
-      changed = true;
-    }
     layer2 = layer1;
-    layer1 = getLayer(graph, --currentRank);
+    layer1 = getLayer(copyGraph, --currentRank);
     len2 = len1;
     len1 = layer1.length;
   }
-  return changed;
+  return copyGraph;
 }
 
 function numberOfCrossing(layer, graph)
 {
+  layer.sort(function(a,b){
+    return a.order - b.order;
+  });
   var len = layer.length;
   var number = 0;
   var edges1;
@@ -379,6 +399,24 @@ function numberOfCrossing(layer, graph)
   return number;
 }
 
+function getTotalCrossing(graph)
+{
+  var total = 0;
+  var i = 2;
+  var layer;
+  while(true)
+  {
+    layer = getLayer(graph, i++);
+    if(layer.length > 0)
+    {
+      total += numberOfCrossing(layer, graph);
+    }else{
+      break;
+    }
+  }
+  return total;
+}
+
 function getLayer(graph, layer){
   var result = [];
   var len = graph.nodes.length;
@@ -391,36 +429,3 @@ function getLayer(graph, layer){
   }
   return result;
 }
-
-var graph = {
-  "nodes": [
-    {"id": 1, "label": "A", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 2, "label": "B", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 3, "label": "C", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 4, "label": "D", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 5, "label": "E", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 6, "label": "F", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 7, "label": "G", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 8, "label": "H", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 9, "label": "I", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 10, "label": "J", "rank": 0, "order": 0, "isDummy": false},
-    {"id": 11, "label": "K", "rank": 0, "order": 0, "isDummy": false}
-  ],
-  "links": [
-    {"from": 1, "to": 3},
-    {"from": 1, "to": 4},
-    {"from": 1, "to": 5},
-    {"from": 2, "to": 4},
-    {"from": 2, "to": 6},
-    {"from": 3, "to": 7},
-    {"from": 3, "to": 8},
-    {"from": 3, "to": 9},
-    {"from": 4, "to": 8},
-    {"from": 5, "to": 9},
-    {"from": 6, "to": 11},
-    {"from": 8, "to": 10},
-    {"from": 8, "to": 11}
-  ]
-};
-LongestPath.layering(graph);
-vertexOrdering(graph);
