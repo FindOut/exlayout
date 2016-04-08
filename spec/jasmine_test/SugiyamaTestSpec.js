@@ -1,4 +1,4 @@
-describe("crossing_reducing_rate", function(){
+/*describe("crossing_reducing_rate", function(){
   it("Test rate of reduced crossing", function(){
     var graph = {
       "nodes": [
@@ -20,4 +20,4 @@ describe("crossing_reducing_rate", function(){
         {"from": 5, "to": 6},
         {"from": 7, "to": 4}
       ]
-    };
+    };*/

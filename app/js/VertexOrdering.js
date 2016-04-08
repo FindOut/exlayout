@@ -14,8 +14,10 @@ function vertexOrdering(graph)
   var layer;
   var copyGraph;
   setInitialOrder(graph);
+  console.log(getTotalCrossing(graph));
   a = getTotalCrossing(graph);
   do{
+
     before = getTotalCrossing(graph);
     copyGraph = upwardSorting(graph);
     efter = getTotalCrossing(copyGraph);
@@ -23,13 +25,24 @@ function vertexOrdering(graph)
     {
       graph = copyGraph;
     }
+    transpose(graph);
+    if(getTotalCrossing(graph) < efter){
+      efter = getTotalCrossing(graph);
+    }
+
     copyGraph = downwardSorting(graph);
     if(getTotalCrossing(copyGraph) < efter)
     {
       graph = copyGraph;
     }
     efter = getTotalCrossing(copyGraph);
+    transpose(graph);
+    if(getTotalCrossing(graph) < efter){
+      efter = getTotalCrossing(graph);
+    }
+
   }while(before != efter)
+  console.log(getTotalCrossing(graph));
   return a - getTotalCrossing(graph);
 }
 
@@ -363,7 +376,75 @@ function downwardSorting(graph)
   return copyGraph;
 }
 
-function numberOfCrossing(layer, graph)
+function transpose(graph)
+{
+  var improved = true;
+  var rank;
+  var layer;
+  var len;
+  var node;
+  var node1;
+  var node2;
+  var order;
+  while(improved)
+  {
+    improved = false;
+    rank = 2;
+    layer = getLayer(graph, rank);
+    layer.sort(function(a,b){
+      return a.order - b.order;
+    });
+    len = layer.length;
+    while(len > 0)
+    {
+      for(var i = 0; i < len-1; i++)
+      {
+        node1 = layer[i];
+        node2 = layer[i+1];
+        if(getNodeCrossing(node1,node2,graph) > getNodeCrossing(node2,node1,graph))
+        {
+          improved = true;
+          order = node1.order;
+          node1.order = node2.order;
+          node2.order = order;
+          node = node1;
+          layer[i] = node2;
+          layer[i+1] = node;
+        }
+      }
+      rank++;
+      layer = getLayer(graph, rank);
+      layer.sort(function(a,b){
+        return a.order - b.order;
+      });
+      len = layer.length;
+    }
+  }
+}
+
+function getNodeCrossing(node1, node2, graph)
+{
+  var number = 0;
+  var edges1 = CycleRemoval.outgoing(node1, graph.links);
+  var edges2 = CycleRemoval.outgoing(node2, graph.links);
+  var len1 = edges1.length;
+  var len2 = edges2.length;
+  var node;
+  for(var a = 0; a < len1; a++)
+  {
+    node = CycleRemoval.getNodeById(edges1[a].to, graph.nodes);
+    for(var b = 0; b < len2; b++)
+    {
+      if(node.order > CycleRemoval.getNodeById(edges2[b].to, graph.nodes).order)
+      {
+        number++;
+      }
+    }
+  }
+  return number;
+}
+
+function getLayerCrossing(layer, graph)
 {
   layer.sort(function(a,b){
     return a.order - b.order;
@@ -409,7 +490,7 @@ function getTotalCrossing(graph)
     layer = getLayer(graph, i++);
     if(layer.length > 0)
     {
-      total += numberOfCrossing(layer, graph);
+      total += getLayerCrossing(layer, graph);
     }else{
       break;
     }
@@ -429,3 +510,60 @@ function getLayer(graph, layer){
   }
   return result;
 }
+
+/*var graph = {
+  "nodes": [
+    {"id": 1, "label": "A", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 2, "label": "B", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 3, "label": "C", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 4, "label": "D", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 5, "label": "E", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 6, "label": "F", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 7, "label": "G", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 8, "label": "H", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 9, "label": "I", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 10, "label": "J", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 11, "label": "K", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 12, "label": "L", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 13, "label": "M", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 14, "label": "N", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 15, "label": "O", "rank": 0, "order": 0, "isDummy": false},
+    {"id": 16, "label": "P", "rank": 0, "order": 0, "isDummy": false}
+  ],
+  "links": [
+    {"from": 1, "to": 14},
+    {"from": 1, "to": 9},
+    {"from": 1, "to": 15},
+    {"from": 1, "to": 8},
+    {"from": 2, "to": 3},
+    {"from": 2, "to": 14},
+    {"from": 2, "to": 10},
+    {"from": 3, "to": 13},
+    {"from": 3, "to": 14},
+    {"from": 3, "to": 11},
+    {"from": 3, "to": 15},
+    {"from": 4, "to": 10},
+    {"from": 4, "to": 7},
+    {"from": 4, "to": 12},
+    {"from": 4, "to": 9},
+    {"from": 5, "to": 8},
+    {"from": 6, "to": 11},
+    {"from": 6, "to": 8},
+    {"from": 6, "to": 10},
+    {"from": 6, "to": 7},
+    {"from": 7, "to": 16},
+    {"from": 8, "to": 15},
+    {"from": 9, "to": 16},
+    {"from": 10, "to": 12},
+    {"from": 10, "to": 15},
+    {"from": 11, "to": 15}
+  ]
+};
+
+LongestPath.layering(graph);
+setInitialOrder(graph);
+console.log(getTotalCrossing(graph));
+transpose(graph);
+console.log(getTotalCrossing(graph));
+console.log(graph);
+vertexOrdering(graph);*/
