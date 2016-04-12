@@ -1,4 +1,4 @@
-var connectedGraph = require("../../app/js/connectedGraphDetection.js");
+var connectedGraph = require("../../app/js/ConnectedGraphDetection.js");
 describe("connectedGraphDetect", function(){
   it("is conneted graph detected", function(){
     var graph = {

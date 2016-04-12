@@ -3,7 +3,11 @@ var LongestPath = require("./LongestPath.js");
 
 exports.vertexOrdering = function(graph){
   return vertexOrdering(graph);
-}
+};
+
+exports.getLayer = function(graph, layer){
+  return getLayer(graph, layer);
+};
 
 function vertexOrdering(graph)
 {
