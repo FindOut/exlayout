@@ -18,7 +18,6 @@ function vertexOrdering(graph)
   var layer;
   var copyGraph;
   setInitialOrder(graph);
-  console.log(getTotalCrossing(graph));
   a = getTotalCrossing(graph);
   do{
 
@@ -46,7 +45,6 @@ function vertexOrdering(graph)
     }
 
   }while(before != efter)
-  console.log(getTotalCrossing(graph));
   return a - getTotalCrossing(graph);
 }
 
@@ -565,9 +563,5 @@ function getLayer(graph, layer){
 };
 
 LongestPath.layering(graph);
-setInitialOrder(graph);
-console.log(getTotalCrossing(graph));
-transpose(graph);
-console.log(getTotalCrossing(graph));
-console.log(graph);
-vertexOrdering(graph);*/
+vertexOrdering(graph);
+console.log(graph);*/
