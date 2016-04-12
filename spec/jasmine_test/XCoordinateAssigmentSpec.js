@@ -1,4 +1,4 @@
-var XcoordinateAssigment = require("../../app/js/XcoordinateAssigment.js");
+/*var XcoordinateAssigment = require("../../app/js/XcoordinateAssigment.js");
 describe("preprocessing", function(){
   it("preprocessing check", function(){
     var graph = {
@@ -76,7 +76,7 @@ describe("preprocessing", function(){
     {
       expect
       (graph.nodes[i].group).toBe(2);
-    }*/
+    }
 
   });
-});
+});*/
