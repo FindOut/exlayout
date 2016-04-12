@@ -21,13 +21,19 @@ function preprocessing(Graph) //mark type 1 conflict
       var NodesinRow = VertexOrdering.getLayer(Graph,height-i);  // get nodes in i + 1 row
       //console.log(NodesinRow);
       var numberofNodesinRow = NodesinRow.length;
+      var currentNode;
+      var dummiParNode;
+      var layer;
+      var ingoingEdges;
+      var index;
+      var upperNeighbor;
       for(var m= 1; m <= numberofNodesinRow; m++)
       {
-        var currentNode = NodesinRow[m-1];
-        var dummiParNode = isdummyPar(currentNode, NodesinRow);  //get ingoing dummy Node to NodesinRow[m]
+        currentNode= NodesinRow[m-1];
+        dummiParNode = isdummyPar(currentNode, NodesinRow);  //get ingoing dummy Node to NodesinRow[m]
         if(m == numberofNodesinRow || dummiParNode != null)
         {
-          var layer = height -i +1;
+          layer = height -i +1;
           kend = VertexOrdering.getLayer(Graph, layer).length;  //kend is the last position of row i
           if(dummiParNode != null)
           {
@@ -35,11 +41,11 @@ function preprocessing(Graph) //mark type 1 conflict
           }
           while ( l <= m)
           {
-            var ingoingEdges = CycleRemoval.ingoing(NodesinRow[l-1], Graph.links);  //get all ingoingEdges of Nodes in Row i+1
+            ingoingEdges = CycleRemoval.ingoing(NodesinRow[l-1], Graph.links);  //get all ingoingEdges of Nodes in Row i+1
             for(var x = 0; x < ingoingEdges.length; x++)
             {
-              var index = ingoingEdges[x].from;
-              var upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+              index = ingoingEdges[x].from;
+              upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
               if(upperNeighbor.order < kstart || upperNeighbor.order > kend)
               {
                 ignoreEdges.push(ingoingEdges[x]); //sparas in ignoreEdges
@@ -57,13 +63,16 @@ function preprocessing(Graph) //mark type 1 conflict
 
 function isdummyPar(node, NodesinRow)
 {
+  var index;
+  var upperNeighbor;
+  var ingoingEdges;
   if(node.isDummy) //node is Dummy, to check the upperNeighbor;
   {
-    var ingoingEdges = CycleRemoval.ingoing(node, Graph.links);
+    ingoingEdges = CycleRemoval.ingoing(node, Graph.links);
     for(var x = 0; x < ingoingEdges.length; x++)
     {
-      var index = ingoingEdges[x].from;
-      var upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+      index = ingoingEdges[x].from;
+      upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
       if(upperNeighbor.isDummy)
       {
         return upperNeighbor;
@@ -162,54 +171,58 @@ function alignment(Graph)
     }
   }
 
+  var r;
+  var xRowIndex;  //  index of x row
+  var NodesinRow;  // nodes in one row
+  var currentNode;
+  var ingoingEdges;  //ingoingEdges of currentNode
+  var upperNeighborArray;   //upperNeighbors array of currentNode
+  var index; //id of node which ingoingEdges come from
+  var upperNeighbor; // one upperNeighbor of currentNode
+  var length; // length of upperNeighborArray
+  var averageValue, averageValueFloor,averageValueCeil; //average length of upperNeighborArray
+  var averageNode; // the node in middle position of upperNeighborArray
+  var link;
   for(var x = 1; x <= height; x++)
   {
-    var r = 0;
-    var xRowIndex = height-x+1;
-    var NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
-    //console.log(NodesinRow);
+    r = 0;
+    xRowIndex = height-x+1;
+    NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
 
     for(var k = 1; k <= NodesinRow.length; k++)
     {
-      var currentNode = NodesinRow[k-1];
-      //console.log("************************ currentNode id is " + currentNode.id);
-      var ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
-      var upperNeighborsOrderArray = [];
+      currentNode = NodesinRow[k-1];
+      ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
+      upperNeighborArray = [];
       if(ingoingEdges.length > 0)   // check if exsit upperNeighbor
       {
         for(var y = 0; y < ingoingEdges.length; y++)
         {
-          var index = ingoingEdges[y].from;
-          var upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
-          upperNeighborsOrderArray.push(upperNeighbor);
+          index = ingoingEdges[y].from;
+          upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          upperNeighborArray.push(upperNeighbor);
         }
 
-        upperNeighborsOrderArray.sort(function(a,b){
+        upperNeighborArray.sort(function(a,b){
           return a.order-b.order;
         }); //sort from small to big
-        var length = upperNeighborsOrderArray.length;
-        var averageValue = (length + 1)/2;
-        var averageValueFloor = Math.floor(averageValue);
-        var averageValueCeil = Math.ceil(averageValue);
+        length = upperNeighborArray.length;
+        averageValue = (length + 1)/2;
+        averageValueFloor = Math.floor(averageValue);
+        averageValueCeil = Math.ceil(averageValue);
 
-        for(var m = averageValueFloor; m <= averageValueCeil; m++) //m is index in upperNeighborsOrderArray
+        for(var m = averageValueFloor; m <= averageValueCeil; m++) //m is index in upperNeighborArray
         {
-
-          var averageNode = upperNeighborsOrderArray[m-1];
-          //console.log("node " + currentNode + "has averageNode" + averageValueFloor +" and " + averageValueCeil);
+          averageNode = upperNeighborArray[m-1];
           if(currentNode.align == currentNode.id)
           {
-            var link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
+            link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
             if(link != null && !link.ismark && r < averageNode.order)
             {
-              //console.log("BBBBBBBBBBBBBBBB");
-                console.log(link);
                 averageNode.align = currentNode.id;
                 currentNode.root = averageNode.root;
                 currentNode.align = currentNode.root;
                 r = averageNode.order;
-                //console.log("currentNode align is " + currentNode.align);
-                //console.log("currentNode root is " + currentNode.root);
             }
           }
         }
