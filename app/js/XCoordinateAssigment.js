@@ -138,9 +138,9 @@ var Graph = {
 };
 
 
-//console.log(preprocessing(Graph));
+preprocessing(Graph);
 alignment(Graph);
-//console.log(Graph);
+console.log(Graph);
 
 
 function alignment(Graph)
@@ -167,12 +167,14 @@ function alignment(Graph)
     var r = 0;
     var xRowIndex = height-x+1;
     var NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
-    console.log(NodesinRow);
-    var upperNeighborsOrderArray = [];
+    //console.log(NodesinRow);
+
     for(var k = 1; k <= NodesinRow.length; k++)
     {
       var currentNode = NodesinRow[k-1];
+      //console.log("************************ currentNode id is " + currentNode.id);
       var ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
+      var upperNeighborsOrderArray = [];
       if(ingoingEdges.length > 0)   // check if exsit upperNeighbor
       {
         for(var y = 0; y < ingoingEdges.length; y++)
@@ -194,18 +196,20 @@ function alignment(Graph)
         {
 
           var averageNode = upperNeighborsOrderArray[m-1];
-          console.log("averageNode id is  " + averageNode.id);
+          //console.log("node " + currentNode + "has averageNode" + averageValueFloor +" and " + averageValueCeil);
           if(currentNode.align == currentNode.id)
           {
             var link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
             if(link != null && !link.ismark && r < averageNode.order)
             {
-              console.log("BBBBBBBBBBBBBBBB");
+              //console.log("BBBBBBBBBBBBBBBB");
                 console.log(link);
                 averageNode.align = currentNode.id;
                 currentNode.root = averageNode.root;
                 currentNode.align = currentNode.root;
                 r = averageNode.order;
+                //console.log("currentNode align is " + currentNode.align);
+                //console.log("currentNode root is " + currentNode.root);
             }
           }
         }
