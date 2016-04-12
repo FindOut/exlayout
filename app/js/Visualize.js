@@ -10,7 +10,7 @@ function adjustEnds(fromPoint, toPoint) {
   return {from: {x: fromPoint.x + dx, y: fromPoint.y + dy}, to: {x: toPoint.x - dx, y: toPoint.y - dy}};
 }
 
-var width = 300;
+var width = 800;
 var height = 800;
 var r = 10
 
@@ -56,13 +56,10 @@ nodesEnter.each(function(d){
     .attr("cx", d.x)
     .attr("cy", d.y)
     .attr("r", r)
-    .attr("stroke", "black")
-    .attr("stroke-width", 1)
     .style("fill", "white")
   .append('text')
     .text(d.label)
     .attr({x: d.x, y: d.y}) // Calculate its position7
-    .attr("fill", "black");
 });
 
 nodes.exit().remove();
@@ -80,8 +77,6 @@ linksEnter.each(function (d){
     .attr("y1", function(d) { return adjustedEnds.from.y; })
     .attr("x2", function(d) { return adjustedEnds.to.x; })
     .attr("y2", function(d) { return adjustedEnds.to.y; })
-    .attr("stroke-width", 1)
-    .attr("stroke", "black")
     .attr("marker-end", "url(#markerArrowEnd)");
 });
 
