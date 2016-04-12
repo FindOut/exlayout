@@ -1,11 +1,32 @@
 var d3 = require('d3');
+var CycleRemoval = require('./CycleRemoval.js');
+
+function adjustEnds(fromPoint, toPoint) {
+  var dx = toPoint.x - fromPoint.x,
+    dy = toPoint.y - fromPoint.y,
+    length = Math.sqrt(dx * dx + dy * dy);
+  dx = dx / length * r;
+  dy = dy / length * r;
+  return {from: {x: fromPoint.x + dx, y: fromPoint.y + dy}, to: {x: toPoint.x - dx, y: toPoint.y - dy}};
+}
 
 var width = 300;
 var height = 800;
 var r = 10
 
-var jsonNodes = [];
-var jsonLinks = [];
+var graph = {
+  "nodes": [
+    {"id": 1, "x": 20, "y": 20, "label": "A"},
+    {"id": 2, "x": 100, "y": 100, "label": "B"}
+  ],
+  "links": [
+    {"from": 1, "to": 2}
+  ]
+};
+
+var jsonNodes = [{"x": 20, "y": 20, "label": "A"},
+                 {"x": 100, "y": 100, "label": "B"}];
+var jsonLinks = [{"from": 1, "to": 2}];
 
 var svg = d3.select('#graph').append('svg')
   .attr('width', width).attr('height', height);
@@ -24,27 +45,44 @@ svg.append('defs').append('marker')
     .attr('fill', 'black'); // Fill the triangle
 
 var nodes = svg.selectAll('circle')
-  .data(jsonNodes)
-  .enter()
-  .append('circle');
+  .data(graph.nodes)
+
+var nodesEnter = nodes.enter().append('g')
+  .attr('class', 'node');
+
+nodesEnter.each(function(d){
+  d3.select(this)
+  .append('circle')
+    .attr("cx", d.x)
+    .attr("cy", d.y)
+    .attr("r", r)
+    .attr("stroke", "black")
+    .attr("stroke-width", 1)
+    .style("fill", "white")
+  .append('text')
+    .text(d.label)
+    .attr({x: d.x, y: d.y}) // Calculate its position7
+    .attr("fill", "black");
+});
+
+nodes.exit().remove();
 
 var links = svg.selectAll('line')
-  .data(jsonLinks)
-  .enter()
-  .append('line');
+  .data(graph.links);
 
-var nodesAttr = nodes
-  .attr("cx", function(d){ return d.x_axis; })
-  .attr("cy", function(d){ return d.y_axis; })
-  .attr("r", r)
-  .style("fill", "white")
-  .text(function(d){ return d.label });
+var linksEnter = links.enter().append('line')
+  .attr('class', 'link');
 
-var linksAttr = links
-  .attr("x1", function(d){ return d.x1; })
-  .attr("y1", function(d){ return d.y1; })
-  .attr("x2", function(d){ return d.x2; })
-  .attr("y2", function(d){ return d.y2; })
-  .attr("stroke-width", 2)
-  .attr("stroke", "black")
-  .attr("marker-end", "url(#markerArrowEnd)");
+linksEnter.each(function (d){
+  var adjustedEnds = adjustEnds(CycleRemoval.getNodeById(d.from, graph.nodes), CycleRemoval.getNodeById(d.to, graph.nodes));
+  d3.select(this)
+    .attr("x1", function(d) { return adjustedEnds.from.x; })
+    .attr("y1", function(d) { return adjustedEnds.from.y; })
+    .attr("x2", function(d) { return adjustedEnds.to.x; })
+    .attr("y2", function(d) { return adjustedEnds.to.y; })
+    .attr("stroke-width", 1)
+    .attr("stroke", "black")
+    .attr("marker-end", "url(#markerArrowEnd)");
+});
+
+links.exit().remove();
