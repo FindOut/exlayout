@@ -231,3 +231,78 @@ function edgeBetweenTwoNodes(nodeA, nodeB, Graph)
   }
   return link;
 }
+
+function place_block(v, graph)
+{
+  if(v.x === undefined)
+  {
+    v.x = 0;
+    var w = v;
+    var u;
+    var layer
+    do
+    {
+      if(w.order > 1)
+      {
+        layer = VertexOrdering.getLayer(graph, w.rank);
+        layer.sort(function(a,b){
+          return a.order - b.order;
+        });
+        u = CycleRemoval.getNodeById(layer[w.order-2].root, graph.nodes);
+        place_block(u);
+        if(v.sink == v.id)
+        {
+          v.sink = u.sink;
+        }
+        if(v.sink != u.sink)
+        {
+          CycleRemoval.getNodeById(u.sink, graph.nodes).shift =
+          CycleRemoval.getNodeById(u.sink, graph.nodes).shift < (x.v - u.x - alpha)
+          ? CycleRemoval.getNodeById(u.sink, graph.nodes).shift : (x.v - u.x - alpha);
+        }else{
+          v.x = v.x > (u.x + alpha) ? v.x : (u.x + alpha)
+        }
+      }
+      w = CycleRemoval.getNodeById(w.align, graph.nodes);
+    }while(w.id != v.id)
+  }
+}
+
+function coordinateAsignment(graph)
+{
+  var len = graph.nodes.length;
+  graph.nodes.sort(function(a,b){
+    return a.id - b.id;
+  })
+  for(var i = 0; i < len; i++)
+  {
+    graph.nodes[i].sink = graph.nodes[i].id;
+    graph.nodes[i].shift = Number.MAX_VALUE;
+    graph.nodes[i].x = undefined;
+  }
+
+  for(i = 0; i < len; i++)
+  {
+    if(graph.nodes[i].root == graph.nodes[i].id)
+    {
+      place_block(graph.nodes[i], graph);
+    }
+  }
+
+  var root;
+  var sink;
+  var shift;
+  var node;
+  for(i = 0; i < len; i++)
+  {
+    node = graph.nodes[i];
+    root = graph.nodes[node.root-1];
+    sink = graph.nodes[root.sink-1];
+    shift = sink.shift;
+    node.x = root.x;
+    if(shift < Number.MAX_VALUE)
+    {
+      node.x = node.x + shift;
+    }
+  }
+}
