@@ -137,5 +137,93 @@ var Graph = {
   ]
 };
 
-console.log(preprocessing(Graph));
-console.log(Graph);
+
+//console.log(preprocessing(Graph));
+alignment(Graph);
+//console.log(Graph);
+
+
+function alignment(Graph)
+{
+  var numberofNodes = Graph.nodes.length;
+  //initialize root[v] and align[v]
+  var height = 0;
+  for(var i = 0; i < numberofNodes; i++)
+  {
+    Graph.nodes[i].root = Graph.nodes[i].id;
+    Graph.nodes[i].align = Graph.nodes[i].id;
+  }
+
+  for(var j = 0; j < numberofNodes; j++)  // get height
+  {
+    if(Graph.nodes[j].rank > height)
+    {
+      height = Graph.nodes[j].rank;
+    }
+  }
+
+  for(var x = 1; x <= height; x++)
+  {
+    var r = 0;
+    var xRowIndex = height-x+1;
+    var NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
+    console.log(NodesinRow);
+    var upperNeighborsOrderArray = [];
+    for(var k = 1; k <= NodesinRow.length; k++)
+    {
+      var currentNode = NodesinRow[k-1];
+      var ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
+      if(ingoingEdges.length > 0)   // check if exsit upperNeighbor
+      {
+        for(var y = 0; y < ingoingEdges.length; y++)
+        {
+          var index = ingoingEdges[y].from;
+          var upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          upperNeighborsOrderArray.push(upperNeighbor);
+        }
+
+        upperNeighborsOrderArray.sort(function(a,b){
+          return a.order-b.order;
+        }); //sort from small to big
+        var length = upperNeighborsOrderArray.length;
+        var averageValue = (length + 1)/2;
+        var averageValueFloor = Math.floor(averageValue);
+        var averageValueCeil = Math.ceil(averageValue);
+
+        for(var m = averageValueFloor; m <= averageValueCeil; m++) //m is index in upperNeighborsOrderArray
+        {
+
+          var averageNode = upperNeighborsOrderArray[m-1];
+          console.log("averageNode id is  " + averageNode.id);
+          if(currentNode.align == currentNode.id)
+          {
+            var link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
+            if(link != null && !link.ismark && r < averageNode.order)
+            {
+              console.log("BBBBBBBBBBBBBBBB");
+                console.log(link);
+                averageNode.align = currentNode.id;
+                currentNode.root = averageNode.root;
+                currentNode.align = currentNode.root;
+                r = averageNode.order;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function edgeBetweenTwoNodes(nodeA, nodeB, Graph)
+{
+  var link = null;
+  for(var i = 0; i< Graph.links.length; i++)
+  {
+    if(Graph.links[i].from == nodeA.id && Graph.links[i].to == nodeB.id)
+    {
+      link = Graph.links[i];
+      break;
+    }
+  }
+  return link;
+}
