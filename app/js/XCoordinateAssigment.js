@@ -21,19 +21,10 @@ function preprocessing(Graph) //mark type 1 conflict
       var NodesinRow = VertexOrdering.getLayer(Graph,height-i);  // get nodes in i + 1 row
       //console.log(NodesinRow);
       var numberofNodesinRow = NodesinRow.length;
-      console.log(numberofNodesinRow);
       for(var m= 1; m <= numberofNodesinRow; m++)
       {
         var currentNode = NodesinRow[m-1];
-        console.log("dummy node "+ currentNode.id);
         var dummiParNode = isdummyPar(currentNode, NodesinRow);  //get ingoing dummy Node to NodesinRow[m]
-        if(dummiParNode == null)
-        {
-          console.log("dummiParNode is null");
-        }
-        else {
-          console.log("dummiParNode is " + dummiParNode.id);
-        }
         if(m == numberofNodesinRow || dummiParNode != null)
         {
           var layer = height -i +1;
@@ -41,24 +32,18 @@ function preprocessing(Graph) //mark type 1 conflict
           if(dummiParNode != null)
           {
             kend = dummiParNode.order;  //kend change to position of ingoing dummy Node
-            console.log("kend is " + kend);
           }
           while ( l <= m)
           {
-            var ingoingEdges = CycleRemoval.ingoing(NodesinRow[l], Graph.links);  //get all ingoingEdges of Nodes in Row i+1
-
-            console.log("currentNode is " + NodesinRow[l].id);
+            var ingoingEdges = CycleRemoval.ingoing(NodesinRow[l-1], Graph.links);  //get all ingoingEdges of Nodes in Row i+1
             for(var x = 0; x < ingoingEdges.length; x++)
             {
               var index = ingoingEdges[x].from;
-              console.log(index);
               var upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
-              console.log("upperNeighbor is " + upperNeighbor.id);
               if(upperNeighbor.order < kstart || upperNeighbor.order > kend)
               {
-                console.log("upperNeighbor order is " + upperNeighbor.order);
                 ignoreEdges.push(ingoingEdges[x]); //sparas in ignoreEdges
-                console.log(ignoreEdges);
+                ingoingEdges[x].ismark = true;
               }
             }
             l++;
@@ -74,17 +59,13 @@ function isdummyPar(node, NodesinRow)
 {
   if(node.isDummy) //node is Dummy, to check the upperNeighbor;
   {
-    //console.log("node " + node.id + "is dummy");
     var ingoingEdges = CycleRemoval.ingoing(node, Graph.links);
-    //console.log(ingoingEdges.length);
     for(var x = 0; x < ingoingEdges.length; x++)
     {
       var index = ingoingEdges[x].from;
-    //  console.log(index);
       var upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
       if(upperNeighbor.isDummy)
       {
-      //  console.log(upperNeighbor.id);
         return upperNeighbor;
       }
     }return null; //no dummy upperNeighbor
@@ -123,37 +104,38 @@ var Graph = {
 
   ],
   "links": [
-    {"from": 1, "to": 3},
-    {"from": 1, "to": 8},
-    {"from": 1, "to": 10},
-    {"from": 2, "to": 5},
-    {"from": 2, "to": 7},
-    {"from": 4, "to": 12},
-    {"from": 5, "to": 12},
-    {"from": 6, "to": 12},
-    {"from": 7, "to": 13},
-    {"from": 8, "to": 14},
-    {"from": 9, "to": 12},
-    {"from": 9, "to": 16},
-    {"from": 10, "to": 12},
-    {"from": 10, "to": 15},
-    {"from": 11, "to": 17},
-    {"from": 11, "to": 18},
-    {"from": 11, "to": 22},
-    {"from": 13, "to": 20},
-    {"from": 14, "to": 21},
-    {"from": 15, "to": 22},
-    {"from": 16, "to": 20},
-    {"from": 16, "to": 23},
-    {"from": 17, "to": 24},
-    {"from": 17, "to": 25},
-    {"from": 18, "to": 25},
-    {"from": 19, "to": 24},
-    {"from": 20, "to": 26},
-    {"from": 21, "to": 26},
-    {"from": 22, "to": 26},
-    {"from": 23, "to": 26}
+    {"from": 1, "to": 3, "ismark": false},
+    {"from": 1, "to": 8, "ismark": false},
+    {"from": 1, "to": 10, "ismark": false},
+    {"from": 2, "to": 5, "ismark": false},
+    {"from": 2, "to": 7, "ismark": false},
+    {"from": 4, "to": 12, "ismark": false},
+    {"from": 5, "to": 12, "ismark": false},
+    {"from": 6, "to": 12, "ismark": false},
+    {"from": 7, "to": 13, "ismark": false},
+    {"from": 8, "to": 14, "ismark": false},
+    {"from": 9, "to": 12, "ismark": false},
+    {"from": 9, "to": 16, "ismark": false},
+    {"from": 10, "to": 12, "ismark": false},
+    {"from": 10, "to": 15, "ismark": false},
+    {"from": 11, "to": 17, "ismark": false},
+    {"from": 11, "to": 18, "ismark": false},
+    {"from": 11, "to": 22, "ismark": false},
+    {"from": 13, "to": 20, "ismark": false},
+    {"from": 14, "to": 21, "ismark": false},
+    {"from": 15, "to": 22, "ismark": false},
+    {"from": 16, "to": 19, "ismark": false},
+    {"from": 16, "to": 23, "ismark": false},
+    {"from": 17, "to": 24, "ismark": false},
+    {"from": 17, "to": 25, "ismark": false},
+    {"from": 18, "to": 25, "ismark": false},
+    {"from": 19, "to": 24, "ismark": false},
+    {"from": 20, "to": 26, "ismark": false},
+    {"from": 21, "to": 26, "ismark": false},
+    {"from": 22, "to": 26, "ismark": false},
+    {"from": 23, "to": 26, "ismark": false}
   ]
 };
 
 console.log(preprocessing(Graph));
+console.log(Graph);
