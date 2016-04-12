@@ -12,7 +12,7 @@ function adjustEnds(fromPoint, toPoint) {
 
 var width = 800;
 var height = 800;
-var r = 10
+var r = 20;
 
 var graph = {
   "nodes": [
@@ -48,7 +48,8 @@ var nodes = svg.selectAll('circle')
   .data(graph.nodes)
 
 var nodesEnter = nodes.enter().append('g')
-  .attr('class', 'node');
+  .attr('class', 'node')
+  .attr('transform', 'translate(50, 50)');
 
 nodesEnter.each(function(d){
   d3.select(this)
@@ -56,10 +57,12 @@ nodesEnter.each(function(d){
     .attr("cx", d.x)
     .attr("cy", d.y)
     .attr("r", r)
-    .style("fill", "white")
+    .style("fill", "white");
+
+  d3.select(this)
   .append('text')
     .text(d.label)
-    .attr({x: d.x, y: d.y}) // Calculate its position7
+    .attr({x: d.x-r/4, y: d.y+r/4});
 });
 
 nodes.exit().remove();
@@ -68,7 +71,8 @@ var links = svg.selectAll('line')
   .data(graph.links);
 
 var linksEnter = links.enter().append('line')
-  .attr('class', 'link');
+  .attr('class', 'link')
+  .attr('transform', 'translate(50, 50)');
 
 linksEnter.each(function (d){
   var adjustedEnds = adjustEnds(CycleRemoval.getNodeById(d.from, graph.nodes), CycleRemoval.getNodeById(d.to, graph.nodes));
