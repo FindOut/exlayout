@@ -81,80 +81,7 @@ function isdummyPar(node, NodesinRow)
   }return null;  // it self is not dummy
 }
 
-var Graph = {
-  "nodes": [
-    {"id": 1, "label": "A", "rank": 5, "isDummy": false, "group": 1, "order": 1},
-    {"id": 2, "label": "B", "rank": 5, "isDummy": false, "group": 1, "order": 2},
-    {"id": 3, "label": "C", "rank": 4, "isDummy": false, "group": 1, "order": 1},
-    {"id": 4, "label": "D", "rank": 4, "isDummy": false, "group": 1, "order": 2},
-    {"id": 5, "label": "E", "rank": 4, "isDummy": true, "group": 1, "order": 3},
-    {"id": 6, "label": "F", "rank": 4, "isDummy": false, "group": 1, "order": 4},
-    {"id": 7, "label": "G", "rank": 4, "isDummy": true, "group": 1, "order": 5},
-    {"id": 8, "label": "H", "rank": 4, "isDummy": true, "group": 1,"order": 6},
-    {"id": 9, "label": "I", "rank": 4, "isDummy": false, "group": 1, "order": 7},
-    {"id": 10, "label": "J", "rank": 4, "isDummy": false, "group": 1, "order": 8},
-    {"id": 11, "label": "K", "rank": 3, "isDummy": false, "group": 1, "order": 1},
-    {"id": 12, "label": "L", "rank": 3, "isDummy": false, "group": 1, "order": 2},
-    {"id": 13, "label": "M", "rank": 3, "isDummy": true, "group": 1, "order": 3},
-    {"id": 14, "label": "N", "rank": 3, "isDummy": true, "group": 1, "order": 4},
-    {"id": 15, "label": "O", "rank": 3, "isDummy": true, "group": 1, "order": 5},
-    {"id": 16, "label": "P", "rank": 3, "isDummy": false, "group": 1, "order": 6},
-    {"id": 17, "label": "Q", "rank": 2, "isDummy": false, "group": 1,"order": 1},
-    {"id": 18, "label": "R", "rank": 2, "isDummy": false, "group": 1, "order": 2},
-    {"id": 19, "label": "S", "rank": 2, "isDummy": true, "group": 1, "order": 3},
-    {"id": 20, "label": "T", "rank": 2, "isDummy": true, "group": 1, "order": 4},
-    {"id": 21, "label": "U", "rank": 2, "isDummy": true, "group": 1, "order": 5},
-    {"id": 22, "label": "V", "rank": 2, "isDummy": false, "group": 1,"order": 6},
-    {"id": 23, "label": "W", "rank": 2, "isDummy": true, "group": 1, "order": 7},
-    {"id": 24, "label": "X", "rank": 1, "isDummy": false, "group": 1, "order": 1},
-    {"id": 25, "label": "Y", "rank": 1, "isDummy": false, "group": 1, "order": 2},
-    {"id": 26, "label": "Z", "rank": 1, "isDummy": false, "group": 1,"order": 3}
-
-
-  ],
-  "links": [
-    {"from": 1, "to": 3, "ismark": false},
-    {"from": 1, "to": 8, "ismark": false},
-    {"from": 1, "to": 10, "ismark": false},
-    {"from": 2, "to": 5, "ismark": false},
-    {"from": 2, "to": 7, "ismark": false},
-    {"from": 4, "to": 12, "ismark": false},
-    {"from": 5, "to": 12, "ismark": false},
-    {"from": 6, "to": 12, "ismark": false},
-    {"from": 7, "to": 13, "ismark": false},
-    {"from": 8, "to": 14, "ismark": false},
-    {"from": 9, "to": 12, "ismark": false},
-    {"from": 9, "to": 16, "ismark": false},
-    {"from": 10, "to": 12, "ismark": false},
-    {"from": 10, "to": 15, "ismark": false},
-    {"from": 11, "to": 17, "ismark": false},
-    {"from": 11, "to": 18, "ismark": false},
-    {"from": 11, "to": 22, "ismark": false},
-    {"from": 13, "to": 20, "ismark": false},
-    {"from": 14, "to": 21, "ismark": false},
-    {"from": 15, "to": 22, "ismark": false},
-    {"from": 16, "to": 19, "ismark": false},
-    {"from": 16, "to": 23, "ismark": false},
-    {"from": 17, "to": 24, "ismark": false},
-    {"from": 17, "to": 25, "ismark": false},
-    {"from": 18, "to": 25, "ismark": false},
-    {"from": 19, "to": 24, "ismark": false},
-    {"from": 20, "to": 26, "ismark": false},
-    {"from": 21, "to": 26, "ismark": false},
-    {"from": 22, "to": 26, "ismark": false},
-    {"from": 23, "to": 26, "ismark": false}
-  ]
-};
-
-
-preprocessing(Graph);
-alignment(Graph);
-//console.log(Graph);
-coordinateAsignment(Graph);
-console.log(Graph);
-
-
-function alignment(Graph)
+function alignUpperLeft(Graph)
 {
   var numberofNodes = Graph.nodes.length;
   //initialize root[v] and align[v]
@@ -220,6 +147,246 @@ function alignment(Graph)
           {
             link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
             if(link != null && !link.ismark && r < averageNode.order)
+            {
+                averageNode.align = currentNode.id;
+                currentNode.root = averageNode.root;
+                currentNode.align = currentNode.root;
+                r = averageNode.order;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function alignUpperRight(Graph)
+{
+  var numberofNodes = Graph.nodes.length;
+  //initialize root[v] and align[v]
+  var height = 0;
+  for(var i = 0; i < numberofNodes; i++)
+  {
+    Graph.nodes[i].root = Graph.nodes[i].id;
+    Graph.nodes[i].align = Graph.nodes[i].id;
+  }
+
+  for(var j = 0; j < numberofNodes; j++)  // get height
+  {
+    if(Graph.nodes[j].rank > height)
+    {
+      height = Graph.nodes[j].rank;
+    }
+  }
+
+  var r;
+  var xRowIndex;  //  index of x row
+  var NodesinRow;  // nodes in one row
+  var currentNode;
+  var ingoingEdges;  //ingoingEdges of currentNode
+  var upperNeighborArray;   //upperNeighbors array of currentNode
+  var index; //id of node which ingoingEdges come from
+  var upperNeighbor; // one upperNeighbor of currentNode
+  var length; // length of upperNeighborArray
+  var averageValue, averageValueFloor,averageValueCeil; //average length of upperNeighborArray
+  var averageNode; // the node in middle position of upperNeighborArray
+  var link;
+  for(var x = 1; x <= height; x++)
+  {
+    r = Number.MAX_VALUE;
+    xRowIndex = height-x+1;
+    NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
+
+    for(var k = 1; k <= NodesinRow.length; k++)
+    {
+      currentNode = NodesinRow[k-1];
+      ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
+      upperNeighborArray = [];
+      if(ingoingEdges.length > 0)   // check if exsit upperNeighbor
+      {
+        for(var y = 0; y < ingoingEdges.length; y++)
+        {
+          index = ingoingEdges[y].from;
+          upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          upperNeighborArray.push(upperNeighbor);
+        }
+
+        upperNeighborArray.sort(function(a,b){
+          return b.order-a.order;
+        }); //sort from small to big
+        length = upperNeighborArray.length;
+        averageValue = (length + 1)/2;
+        averageValueFloor = Math.floor(averageValue);
+        averageValueCeil = Math.ceil(averageValue);
+
+        for(var m = averageValueFloor; m <= averageValueCeil; m++) //m is index in upperNeighborArray
+        {
+          averageNode = upperNeighborArray[m-1];
+          if(currentNode.align == currentNode.id)
+          {
+            link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
+            if(link != null && !link.ismark && r > averageNode.order)
+            {
+                averageNode.align = currentNode.id;
+                currentNode.root = averageNode.root;
+                currentNode.align = currentNode.root;
+                r = averageNode.order;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function alignLowerLeft(Graph)
+{
+  var numberofNodes = Graph.nodes.length;
+  //initialize root[v] and align[v]
+  var height = 0;
+  for(var i = 0; i < numberofNodes; i++)
+  {
+    Graph.nodes[i].root = Graph.nodes[i].id;
+    Graph.nodes[i].align = Graph.nodes[i].id;
+  }
+
+  for(var j = 0; j < numberofNodes; j++)  // get height
+  {
+    if(Graph.nodes[j].rank > height)
+    {
+      height = Graph.nodes[j].rank;
+    }
+  }
+
+  var r;
+  var xRowIndex;  //  index of x row
+  var NodesinRow;  // nodes in one row
+  var currentNode;
+  var outgoingEdges;  //ingoingEdges of currentNode
+  var lowerNeighborArray;   //upperNeighbors array of currentNode
+  var index; //id of node which ingoingEdges come from
+  var lowerNeighbor; // one upperNeighbor of currentNode
+  var length; // length of upperNeighborArray
+  var averageValue, averageValueFloor,averageValueCeil; //average length of upperNeighborArray
+  var averageNode; // the node in middle position of upperNeighborArray
+  var link;
+  for(var x = 1; x <= height; x++)
+  {
+    r = 0;
+    xRowIndex = height-x+1;
+    NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
+
+    for(var k = 1; k <= NodesinRow.length; k++)
+    {
+      currentNode = NodesinRow[k-1];
+      outgoingEdges = CycleRemoval.outgoing(currentNode, Graph.links);
+      lowerNeighborArray = [];
+      if(outgoingEdges.length > 0)   // check if exsit upperNeighbor
+      {
+        for(var y = 0; y < outgoingEdges.length; y++)
+        {
+          index = outgoingEdges[y].to;
+          lowerNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          lowerNeighborArray.push(lowerNeighbor);
+        }
+
+        lowerNeighborArray.sort(function(a,b){
+          return a.order-b.order;
+        }); //sort from small to big
+        length = lowerNeighborArray.length;
+        averageValue = (length + 1)/2;
+        averageValueFloor = Math.floor(averageValue);
+        averageValueCeil = Math.ceil(averageValue);
+
+        for(var m = averageValueFloor; m <= averageValueCeil; m++) //m is index in upperNeighborArray
+        {
+          averageNode = lowerNeighborArray[m-1];
+          if(averageNode.align == averageNode.id)
+          {
+            link = edgeBetweenTwoNodes(currentNode, averageNode, Graph);
+            /*console.log(currentNode);
+            console.log(averageNode);
+            console.log("##############");*/
+            if(link != null && !link.ismark && r < averageNode.order)
+            {
+                currentNode.align = averageNode.id;
+                averageNode.root = currentNode.root;
+                averageNode.align = averageNode.root;
+                r = averageNode.order;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function alignLowerRight(Graph)
+{
+  var numberofNodes = Graph.nodes.length;
+  //initialize root[v] and align[v]
+  var height = 0;
+  for(var i = 0; i < numberofNodes; i++)
+  {
+    Graph.nodes[i].root = Graph.nodes[i].id;
+    Graph.nodes[i].align = Graph.nodes[i].id;
+  }
+
+  for(var j = 0; j < numberofNodes; j++)  // get height
+  {
+    if(Graph.nodes[j].rank > height)
+    {
+      height = Graph.nodes[j].rank;
+    }
+  }
+
+  var r;
+  var xRowIndex;  //  index of x row
+  var NodesinRow;  // nodes in one row
+  var currentNode;
+  var ingoingEdges;  //ingoingEdges of currentNode
+  var upperNeighborArray;   //upperNeighbors array of currentNode
+  var index; //id of node which ingoingEdges come from
+  var upperNeighbor; // one upperNeighbor of currentNode
+  var length; // length of upperNeighborArray
+  var averageValue, averageValueFloor,averageValueCeil; //average length of upperNeighborArray
+  var averageNode; // the node in middle position of upperNeighborArray
+  var link;
+  for(var x = 1; x <= height; x++)
+  {
+    r = Number.MAX_VALUE;
+    xRowIndex = height-x+1;
+    NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
+
+    for(var k = 1; k <= NodesinRow.length; k++)
+    {
+      currentNode = NodesinRow[k-1];
+      ingoingEdges = CycleRemoval.outgoing(currentNode, Graph.links);
+      upperNeighborArray = [];
+      if(ingoingEdges.length > 0)   // check if exsit upperNeighbor
+      {
+        for(var y = 0; y < ingoingEdges.length; y++)
+        {
+          index = ingoingEdges[y].from;
+          upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          upperNeighborArray.push(upperNeighbor);
+        }
+
+        upperNeighborArray.sort(function(a,b){
+          return b.order-a.order;
+        }); //sort from small to big
+        length = upperNeighborArray.length;
+        averageValue = (length + 1)/2;
+        averageValueFloor = Math.floor(averageValue);
+        averageValueCeil = Math.ceil(averageValue);
+
+        for(var m = averageValueFloor; m <= averageValueCeil; m++) //m is index in upperNeighborArray
+        {
+          averageNode = upperNeighborArray[m-1];
+          if(currentNode.align == currentNode.id)
+          {
+            link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
+            if(link != null && !link.ismark && r > averageNode.order)
             {
                 averageNode.align = currentNode.id;
                 currentNode.root = averageNode.root;
@@ -325,4 +492,79 @@ function coordinateAsignment(graph)
       node.x = node.x + shift;
     }
   }
+}
+
+var Graph = {
+  "nodes": [
+    {"id": 1, "label": "A", "rank": 5, "isDummy": false, "group": 1, "order": 1},
+    {"id": 2, "label": "B", "rank": 5, "isDummy": false, "group": 1, "order": 2},
+    {"id": 3, "label": "C", "rank": 4, "isDummy": false, "group": 1, "order": 1},
+    {"id": 4, "label": "D", "rank": 4, "isDummy": false, "group": 1, "order": 2},
+    {"id": 5, "label": "E", "rank": 4, "isDummy": true, "group": 1, "order": 3},
+    {"id": 6, "label": "F", "rank": 4, "isDummy": false, "group": 1, "order": 4},
+    {"id": 7, "label": "G", "rank": 4, "isDummy": true, "group": 1, "order": 5},
+    {"id": 8, "label": "H", "rank": 4, "isDummy": true, "group": 1,"order": 6},
+    {"id": 9, "label": "I", "rank": 4, "isDummy": false, "group": 1, "order": 7},
+    {"id": 10, "label": "J", "rank": 4, "isDummy": false, "group": 1, "order": 8},
+    {"id": 11, "label": "K", "rank": 3, "isDummy": false, "group": 1, "order": 1},
+    {"id": 12, "label": "L", "rank": 3, "isDummy": false, "group": 1, "order": 2},
+    {"id": 13, "label": "M", "rank": 3, "isDummy": true, "group": 1, "order": 3},
+    {"id": 14, "label": "N", "rank": 3, "isDummy": true, "group": 1, "order": 4},
+    {"id": 15, "label": "O", "rank": 3, "isDummy": true, "group": 1, "order": 5},
+    {"id": 16, "label": "P", "rank": 3, "isDummy": false, "group": 1, "order": 6},
+    {"id": 17, "label": "Q", "rank": 2, "isDummy": false, "group": 1,"order": 1},
+    {"id": 18, "label": "R", "rank": 2, "isDummy": false, "group": 1, "order": 2},
+    {"id": 19, "label": "S", "rank": 2, "isDummy": true, "group": 1, "order": 3},
+    {"id": 20, "label": "T", "rank": 2, "isDummy": true, "group": 1, "order": 4},
+    {"id": 21, "label": "U", "rank": 2, "isDummy": true, "group": 1, "order": 5},
+    {"id": 22, "label": "V", "rank": 2, "isDummy": false, "group": 1,"order": 6},
+    {"id": 23, "label": "W", "rank": 2, "isDummy": true, "group": 1, "order": 7},
+    {"id": 24, "label": "X", "rank": 1, "isDummy": false, "group": 1, "order": 1},
+    {"id": 25, "label": "Y", "rank": 1, "isDummy": false, "group": 1, "order": 2},
+    {"id": 26, "label": "Z", "rank": 1, "isDummy": false, "group": 1,"order": 3}
+
+
+  ],
+  "links": [
+    {"from": 1, "to": 3, "ismark": false},
+    {"from": 1, "to": 8, "ismark": false},
+    {"from": 1, "to": 10, "ismark": false},
+    {"from": 2, "to": 5, "ismark": false},
+    {"from": 2, "to": 7, "ismark": false},
+    {"from": 4, "to": 12, "ismark": false},
+    {"from": 5, "to": 12, "ismark": false},
+    {"from": 6, "to": 12, "ismark": false},
+    {"from": 7, "to": 13, "ismark": false},
+    {"from": 8, "to": 14, "ismark": false},
+    {"from": 9, "to": 12, "ismark": false},
+    {"from": 9, "to": 16, "ismark": false},
+    {"from": 10, "to": 12, "ismark": false},
+    {"from": 10, "to": 15, "ismark": false},
+    {"from": 11, "to": 17, "ismark": false},
+    {"from": 11, "to": 18, "ismark": false},
+    {"from": 11, "to": 22, "ismark": false},
+    {"from": 13, "to": 20, "ismark": false},
+    {"from": 14, "to": 21, "ismark": false},
+    {"from": 15, "to": 22, "ismark": false},
+    {"from": 16, "to": 19, "ismark": false},
+    {"from": 16, "to": 23, "ismark": false},
+    {"from": 17, "to": 24, "ismark": false},
+    {"from": 17, "to": 25, "ismark": false},
+    {"from": 18, "to": 25, "ismark": false},
+    {"from": 19, "to": 24, "ismark": false},
+    {"from": 20, "to": 26, "ismark": false},
+    {"from": 21, "to": 26, "ismark": false},
+    {"from": 22, "to": 26, "ismark": false},
+    {"from": 23, "to": 26, "ismark": false}
+  ]
+};
+
+
+preprocessing(Graph);
+alignLowerLeft(Graph);
+console.log(Graph);
+coordinateAsignment(Graph);
+for(var i = 0; i < Graph.nodes.length; i++)
+{
+  console.log(Graph.nodes[i].x);
 }
