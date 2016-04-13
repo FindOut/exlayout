@@ -149,6 +149,8 @@ var Graph = {
 
 preprocessing(Graph);
 alignment(Graph);
+//console.log(Graph);
+coordinateAsignment(Graph);
 console.log(Graph);
 
 
@@ -247,12 +249,13 @@ function edgeBetweenTwoNodes(nodeA, nodeB, Graph)
 
 function place_block(v, graph)
 {
+  var alpha = 1;
   if(v.x === undefined)
   {
     v.x = 0;
     var w = v;
     var u;
-    var layer
+    var layer;
     do
     {
       if(w.order > 1)
@@ -262,7 +265,7 @@ function place_block(v, graph)
           return a.order - b.order;
         });
         u = CycleRemoval.getNodeById(layer[w.order-2].root, graph.nodes);
-        place_block(u);
+        place_block(u, graph);
         if(v.sink == v.id)
         {
           v.sink = u.sink;
@@ -270,10 +273,10 @@ function place_block(v, graph)
         if(v.sink != u.sink)
         {
           CycleRemoval.getNodeById(u.sink, graph.nodes).shift =
-          CycleRemoval.getNodeById(u.sink, graph.nodes).shift < (x.v - u.x - alpha)
-          ? CycleRemoval.getNodeById(u.sink, graph.nodes).shift : (x.v - u.x - alpha);
+          CycleRemoval.getNodeById(u.sink, graph.nodes).shift < (v.x - u.x - alpha)
+          ? CycleRemoval.getNodeById(u.sink, graph.nodes).shift : (v.x - u.x - alpha);
         }else{
-          v.x = v.x > (u.x + alpha) ? v.x : (u.x + alpha)
+          v.x = v.x > (u.x + alpha) ? v.x : (u.x + alpha);
         }
       }
       w = CycleRemoval.getNodeById(w.align, graph.nodes);
@@ -286,7 +289,7 @@ function coordinateAsignment(graph)
   var len = graph.nodes.length;
   graph.nodes.sort(function(a,b){
     return a.id - b.id;
-  })
+  });
   for(var i = 0; i < len; i++)
   {
     graph.nodes[i].sink = graph.nodes[i].id;
@@ -302,6 +305,10 @@ function coordinateAsignment(graph)
     }
   }
 
+  graph.nodes.sort(function(a,b){
+    return a.id - b.id;
+  });
+
   var root;
   var sink;
   var shift;
@@ -313,7 +320,7 @@ function coordinateAsignment(graph)
     sink = graph.nodes[root.sink-1];
     shift = sink.shift;
     node.x = root.x;
-    if(shift < Number.MAX_VALUE)
+    if(node == root && shift < Number.MAX_VALUE)
     {
       node.x = node.x + shift;
     }
