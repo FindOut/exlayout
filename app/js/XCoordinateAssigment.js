@@ -341,54 +341,56 @@ function alignLowerRight(Graph)
   var xRowIndex;  //  index of x row
   var NodesinRow;  // nodes in one row
   var currentNode;
-  var ingoingEdges;  //ingoingEdges of currentNode
-  var upperNeighborArray;   //upperNeighbors array of currentNode
+  var outgoingEdges;  //ingoingEdges of currentNode
+  var lowerNeighborArray;   //upperNeighbors array of currentNode
   var index; //id of node which ingoingEdges come from
-  var upperNeighbor; // one upperNeighbor of currentNode
+  var lowerNeighbor; // one upperNeighbor of currentNode
   var length; // length of upperNeighborArray
   var averageValue, averageValueFloor,averageValueCeil; //average length of upperNeighborArray
   var averageNode; // the node in middle position of upperNeighborArray
   var link;
   for(var x = 1; x <= height; x++)
   {
-    r = Number.MAX_VALUE;
+    r = Number.MAX_VALUE;   //R set to maximum value
     xRowIndex = height-x+1;
     NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
-
-    for(var k = 1; k <= NodesinRow.length; k++)
+    NodesinRow.sort(function(a,b){
+      return a.order - b.order;
+    });
+    for(var k = NodesinRow.length; k >= 1; k--)
     {
       currentNode = NodesinRow[k-1];
-      ingoingEdges = CycleRemoval.outgoing(currentNode, Graph.links);
-      upperNeighborArray = [];
-      if(ingoingEdges.length > 0)   // check if exsit upperNeighbor
+      outgoingEdges = CycleRemoval.outgoing(currentNode, Graph.links);
+      lowerNeighborArray = [];
+      if(outgoingEdges.length > 0)   // check if exsit upperNeighbor
       {
-        for(var y = 0; y < ingoingEdges.length; y++)
+        for(var y = 0; y < outgoingEdges.length; y++)
         {
-          index = ingoingEdges[y].from;
-          upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
-          upperNeighborArray.push(upperNeighbor);
+          index = outgoingEdges[y].to;
+          lowerNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          lowerNeighborArray.push(lowerNeighbor);
         }
 
-        upperNeighborArray.sort(function(a,b){
-          return b.order-a.order;
+        lowerNeighborArray.sort(function(a,b){
+          return a.order-b.order;
         }); //sort from small to big
-        length = upperNeighborArray.length;
+        length = lowerNeighborArray.length;
         averageValue = (length + 1)/2;
         averageValueFloor = Math.floor(averageValue);
         averageValueCeil = Math.ceil(averageValue);
 
-        for(var m = averageValueFloor; m <= averageValueCeil; m++) //m is index in upperNeighborArray
+        for(var m = averageValueCeil; m >= averageValueFloor; m--) //m is index in upperNeighborArray
         {
-          averageNode = upperNeighborArray[m-1];
-          if(currentNode.align == currentNode.id)
+          averageNode = lowerNeighborArray[m-1];
+          if(currentNode.align == currentNode.root)
           {
-            link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
+            link = edgeBetweenTwoNodes(currentNode, averageNode, Graph);
             if(link != null && !link.ismark && r > averageNode.order)
             {
-                averageNode.align = currentNode.id;
-                currentNode.root = averageNode.root;
-                currentNode.align = currentNode.root;
-                r = averageNode.order;
+              currentNode.align = averageNode.id;
+              averageNode.root = currentNode.root;
+              averageNode.align = averageNode.root;
+              r = averageNode.order;
             }
           }
         }
@@ -554,11 +556,11 @@ var Graph = {
 
 
 preprocessing(Graph);
-alignLowerLeft(Graph);
+alignLowerRight(Graph);
 //console.log(Graph);
-coordinateAsignment(Graph);
-//console.log(Graph);
-for(var i = 0; i < Graph.nodes.length; i++)
+//coordinateAsignment(Graph);
+console.log(Graph);
+/*for(var i = 0; i < Graph.nodes.length; i++)
 {
   console.log(Graph.nodes[i].x);
-}
+}*/
