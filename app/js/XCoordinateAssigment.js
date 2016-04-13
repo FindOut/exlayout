@@ -301,12 +301,9 @@ function alignLowerLeft(Graph)
         for(var m = averageValueFloor; m <= averageValueCeil; m++) //m is index in upperNeighborArray
         {
           averageNode = lowerNeighborArray[m-1];
-          if(averageNode.align == averageNode.id)
+          if(currentNode.align == currentNode.root)
           {
             link = edgeBetweenTwoNodes(currentNode, averageNode, Graph);
-            /*console.log(currentNode);
-            console.log(averageNode);
-            console.log("##############");*/
             if(link != null && !link.ismark && r < averageNode.order)
             {
                 currentNode.align = averageNode.id;
@@ -472,10 +469,6 @@ function coordinateAsignment(graph)
     }
   }
 
-  graph.nodes.sort(function(a,b){
-    return a.id - b.id;
-  });
-
   var root;
   var sink;
   var shift;
@@ -562,8 +555,9 @@ var Graph = {
 
 preprocessing(Graph);
 alignLowerLeft(Graph);
-console.log(Graph);
+//console.log(Graph);
 coordinateAsignment(Graph);
+//console.log(Graph);
 for(var i = 0; i < Graph.nodes.length; i++)
 {
   console.log(Graph.nodes[i].x);
