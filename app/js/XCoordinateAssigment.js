@@ -193,11 +193,11 @@ function alignUpperRight(Graph)
   var link;
   for(var x = 1; x <= height; x++)
   {
-    r = Number.MAX_VALUE;
+    r = Number.MAX_VALUE;   //R set to maximum value
     xRowIndex = height-x+1;
     NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
 
-    for(var k = 1; k <= NodesinRow.length; k++)
+    for(var k = NodesinRow.length; k >= 1; k--)
     {
       currentNode = NodesinRow[k-1];
       ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
@@ -212,14 +212,14 @@ function alignUpperRight(Graph)
         }
 
         upperNeighborArray.sort(function(a,b){
-          return b.order-a.order;
+          return a.order-b.order;
         }); //sort from small to big
         length = upperNeighborArray.length;
         averageValue = (length + 1)/2;
         averageValueFloor = Math.floor(averageValue);
         averageValueCeil = Math.ceil(averageValue);
 
-        for(var m = averageValueFloor; m <= averageValueCeil; m++) //m is index in upperNeighborArray
+        for(var m = averageValueCeil; m >= averageValueFloor; m--) //m is index in upperNeighborArray
         {
           averageNode = upperNeighborArray[m-1];
           if(currentNode.align == currentNode.id)
