@@ -12,6 +12,19 @@ exports.layering = function(graph){
   return layering(graph);
 }
 
+exports.addDummy = function(graph){
+  return addDummy(graph);
+}
+
+exports.promoteVertex = function(node, graph){
+  return promoteVertex(node, graph);
+}
+
+exports.vertexPromotion = function(graph){
+  return vertexPromotion(graph);
+}
+
+
 // Import module
 var CycleRemoval = require("./CycleRemoval");
 
@@ -97,6 +110,7 @@ function addDummy(graph)
   }
 }
 
+//promote Vertex recursivly to Calculate dummy diff
 function promoteVertex(node, graph)
 {
   var dummyDiff = 0;
@@ -118,6 +132,8 @@ function promoteVertex(node, graph)
   return dummyDiff;
 }
 
+//test promotion with each vertex, and save the promotion result with reduced vertex
+//otherwise roll it back. repeat until no dummy will be reduced.
 function vertexPromotion(graph)
 {
   var backUp = (JSON.parse(JSON.stringify(graph.nodes)));

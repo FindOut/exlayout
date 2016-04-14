@@ -1,5 +1,6 @@
 var CycleRemoval = require("../../app/js/CycleRemoval.js");
 var LongestPath = require("../../app/js/LongestPath.js");
+var Initialize = require("../../app/js/Initialize.js");
 
 describe("Testing layering", function(){
   it("Test uniform direction in layer", function(){
@@ -34,6 +35,40 @@ describe("Testing layering", function(){
         .not.toBeLessThan(1);
     }
   });
+
+
+//test the non DAG praph
+  it("test layering with non DAG", function(){
+    var graph = {
+      "nodes": [
+        {"id": 1, "label": "A"},
+        {"id": 2, "label": "B"},
+        {"id": 3, "label": "C"},
+        {"id": 4, "label": "D"},
+        {"id": 5, "label": "E"},
+        {"id": 6, "label": "F"}
+
+      ],
+      "links": [
+        {"from": 1, "to": 2},
+        {"from": 1, "to": 5},
+        {"from": 2, "to": 3},
+        {"from": 3, "to": 1},
+        {"from": 3, "to": 4},
+        {"from": 4, "to": 5},
+        {"from": 4, "to": 6},
+        {"from": 5, "to": 2},
+        {"from": 5, "to": 3},
+        {"from": 6, "to": 5}
+      ]
+    };
+    //Initialize.initialize(graph);
+    //CycleRemoval.cycleRemoval(graph);
+    //LongestPath.layering(graph);
+    //console.log(graph);
+
+  });
+
 
   it("Test uniform direction in another graph", function(){
     var graph = {
@@ -170,6 +205,7 @@ describe("Testing layering", function(){
     }
   });
 
+
   it("Test proper layering in another graph", function(){
     var graph = {
       "nodes": [
@@ -269,6 +305,112 @@ describe("Testing layering", function(){
       (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
         CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
         .toBe(1);
+    }
+  });
+
+  it("Test proper dummy", function(){
+    var graph = {
+      "nodes": [
+        {"id": 1, "label": "A", "rank": 3, "isDummy": false},
+        {"id": 2, "label": "B", "rank": 3, "isDummy": false},
+        {"id": 3, "label": "C", "rank": 2, "isDummy": false},
+        {"id": 4, "label": "D", "rank": 2, "isDummy": false},
+        {"id": 5, "label": "E", "rank": 1, "isDummy": false},
+        {"id": 6, "label": "F", "rank": 1, "isDummy": false},
+        {"id": 7, "label": "G", "rank": 1, "isDummy": false}
+      ],
+      "links": [
+        {"from": 1, "to": 3},
+        {"from": 2, "to": 4},
+        {"from": 3, "to": 5},
+        {"from": 4, "to": 6},
+        {"from": 4, "to": 7},
+        {"from": 1, "to": 7}
+      ]
+    };
+    LongestPath.addDummy(graph);
+    expect
+      (graph.nodes.length).toBe(8);
+    for(var i = 0; i < graph.links.length; i++)
+    {
+      if(graph.links[i].to == 7 && graph.links[i].from != 4)
+        {
+          expect
+          (graph.links[i].from).toBe(8);
+        }
+    }
+  });
+
+  it("Test promote one vertex", function(){
+    var graph = {
+      "nodes": [
+        {"id": 1, "label": "A", "rank": 4, "isDummy": false},
+        {"id": 2, "label": "B", "rank": 3, "isDummy": false},
+        {"id": 3, "label": "C", "rank": 2, "isDummy": false},
+        {"id": 4, "label": "D", "rank": 1, "isDummy": false},
+        {"id": 5, "label": "E", "rank": 1, "isDummy": false}
+      ],
+      "links": [
+        {"from": 1, "to": 2},
+        {"from": 2, "to": 4},
+        {"from": 1, "to": 4},
+        {"from": 1, "to": 3},
+        {"from": 3, "to": 4},
+        {"from": 3, "to": 5}
+      ]
+    };
+    var diff = LongestPath.promoteVertex(graph.nodes[3], graph);
+    expect
+      (diff).toBe(-2);
+    for(var i = 0; i < graph.nodes.length; i++)
+    {
+      if(graph.nodes[i].id == 4)
+        {
+          expect
+          (graph.nodes[i].rank).toBe(2);
+        }
+      if(graph.nodes[i].id == 3)
+        {
+          expect
+          (graph.nodes[i].rank).toBe(3);
+        }
+    }
+  });
+
+  it("Test promote of graph", function(){
+    var graph = {
+      "nodes": [
+        {"id": 1, "label": "A", "rank": 4, "isDummy": false},
+        {"id": 2, "label": "B", "rank": 3, "isDummy": false},
+        {"id": 3, "label": "C", "rank": 2, "isDummy": false},
+        {"id": 4, "label": "D", "rank": 1, "isDummy": false},
+        {"id": 5, "label": "E", "rank": 1, "isDummy": false}
+      ],
+      "links": [
+        {"from": 1, "to": 2},
+        {"from": 2, "to": 4},
+        {"from": 1, "to": 4},
+        {"from": 1, "to": 3},
+        {"from": 3, "to": 4},
+        {"from": 3, "to": 5}
+      ]
+    };
+    LongestPath.vertexPromotion(graph);
+    for(var i = 0; i < graph.nodes.length; i++)
+    {
+      if(graph.nodes[i].id == 4)
+        {
+          expect
+          (graph.nodes[i].rank).toBe(2);
+        }else if (graph.nodes[i].id == 3)
+        {
+          expect
+          (graph.nodes[i].rank).toBe(3);
+        }else if (graph.nodes[i].id == 5)
+        {
+          expect
+          (graph.nodes[i].rank).toBe(2);
+        }
     }
   });
 });
