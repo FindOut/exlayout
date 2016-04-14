@@ -699,8 +699,6 @@ var Graph = {
     {"from": 23, "to": 26, "ismark": false}
   ]
 };
-xCoordinateAssignment(Graph)
-console.log(Graph);
 /*for(var i = 0; i < Graph.nodes.length; i++)
 {
   console.log(Graph.nodes[i].x);
