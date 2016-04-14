@@ -513,6 +513,7 @@ function xCoordinateAssignment(Graph)
   var lowerRightMinX = Number.MAX_VALUE;
   var lowerRightWidth;
   var len = Graph.nodes.length;
+   //get the node with max and min x coordinater in different four x coordinater assignment
   for(var i = 0; i < len; i++)
   {
     if(lowerRightGraph.nodes[i].x < lowerRightMinX)
@@ -566,6 +567,8 @@ function xCoordinateAssignment(Graph)
   }
   upperLeftWidth = upperLeftMaxX - upperLeftMinX;
 
+ //find out the smallest width and assign the max and min x coordinater
+ //of this graph to other max and min node in other three graph
   var minWidth = lowerLeftWidth;
   var alignMin = lowerLeftMinX;
   var alignMax = lowerLeftMaxX;
@@ -588,6 +591,7 @@ function xCoordinateAssignment(Graph)
     alignMax = upperRightMaxX;
   }
 
+  //do the adjustment of every node
   var shift;
   shift = alignMin - lowerLeftMinX;
   if(shift != 0)
@@ -622,6 +626,7 @@ function xCoordinateAssignment(Graph)
     }
   }
 
+//get the balanced postion of each node
   var xCoordinateCandidate;
   for(i = 0; i < len; i++)
   {
