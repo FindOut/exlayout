@@ -489,6 +489,147 @@ function coordinateAsignment(graph)
   }
 }
 
+function xCoordinateAssignment(Graph)
+{
+  preprocessing(Graph);
+  var lowerRightGraph = (JSON.parse(JSON.stringify(Graph)));
+  var lowerLeftGraph = (JSON.parse(JSON.stringify(Graph)));
+  var upperRightGraph = (JSON.parse(JSON.stringify(Graph)));
+  var upperLeftGraph = (JSON.parse(JSON.stringify(Graph)));
+  alignLowerRight(lowerRightGraph);
+  alignLowerLeft(lowerLeftGraph);
+  alignUpperRight(upperRightGraph);
+  alignUpperLeft(upperLeftGraph);
+  coordinateAsignment(lowerRightGraph);
+  coordinateAsignment(lowerLeftGraph);
+  coordinateAsignment(upperRightGraph);
+  coordinateAsignment(upperLeftGraph);
+  var lowerRightMaxX = Number.MIN_VALUE;
+  var lowerRightMinX = Number.MAX_VALUE;
+  var lowerRightWidth;
+  var len = Graph.nodes.length;
+  for(var i = 0; i < len; i++)
+  {
+    if(lowerRightGraph.nodes[i].x < lowerRightMinX)
+    {
+      lowerRightMinX = lowerRightGraph.nodes[i].x;
+    }else if(lowerRightGraph.nodes[i].x > lowerRightMaxX){
+      lowerRightMaxX = lowerRightGraph.nodes[i].x;
+    }
+  }
+  lowerRightWidth = lowerRightMaxX - lowerRightMinX;
+
+  var lowerLeftMaxX = Number.MIN_VALUE;
+  var lowerLeftMinX = Number.MAX_VALUE;
+  var lowerLeftWidth;
+  for(i = 0; i < len; i++)
+  {
+    if(lowerLeftGraph.nodes[i].x < lowerLeftMinX)
+    {
+      lowerLeftMinX = lowerLeftGraph.nodes[i].x;
+    }else if(lowerLeftGraph.nodes[i].x > lowerLeftMaxX){
+      lowerLeftMaxX = lowerLeftGraph.nodes[i].x;
+  }
+}
+  lowerLeftWidth = lowerLeftMaxX - lowerLeftMinX;
+
+  var upperRightMaxX = Number.MIN_VALUE;
+  var upperRightMinX = Number.MAX_VALUE;
+  var upperRightWidth;
+  for(i = 0; i < len; i++)
+  {
+    if(upperRightGraph.nodes[i].x < upperRightMinX)
+    {
+      upperRightMinX = upperRightGraph.nodes[i].x;
+    }else if(upperRightGraph.nodes[i].x > upperRightMaxX){
+      upperRightMaxX = upperRightGraph.nodes[i].x;
+    }
+  }
+  upperRightWidth = upperRightMaxX - upperRightMinX;
+
+  var upperLeftMaxX = Number.MIN_VALUE;
+  var upperLeftMinX = Number.MAX_VALUE;
+  var upperLeftWidth;
+  for(i = 0; i < len; i++)
+  {
+    if(upperLeftGraph.nodes[i].x < upperLeftMinX)
+    {
+      upperLeftMinX = upperLeftGraph.nodes[i].x;
+    }else if(upperLeftGraph.nodes[i].x > upperLeftMaxX){
+      upperLeftMaxX = upperLeftGraph.nodes[i].x;
+    }
+  }
+  upperLeftWidth = upperLeftMaxX - upperLeftMinX;
+
+  var minWidth = lowerLeftWidth;
+  var alignMin = lowerLeftMinX;
+  var alignMax = lowerLeftMaxX;
+  if(lowerRightWidth < minWidth)
+  {
+    minWidth = lowerRightWidth;
+    alignMin = lowerRightMinX;
+    alignMax = lowerRightMaxX;
+  }
+  if(upperLeftWidth < minWidth)
+  {
+    minWidth = upperLeftWidth;
+    alignMin = upperLeftMinX;
+    alignMax = upperLeftMaxX;
+  }
+  if(upperRightWidth < minWidth)
+  {
+    minWidth = upperRightWidth;
+    alignMin = upperRightMinX;
+    alignMax = upperRightMaxX;
+  }
+
+  var shift;
+  shift = alignMin - lowerLeftMinX;
+  if(shift != 0)
+  {
+    for(i = 0; i < len; i++)
+    {
+      lowerLeftGraph.nodes[i].x = lowerLeftGraph.nodes[i].x + shift;
+    }
+  }
+  shift = alignMin - upperLeftMinX;
+  if(shift != 0)
+  {
+    for(i = 0; i < len; i++)
+    {
+      upperLeftGraph.nodes[i].x = upperLeftGraph.nodes[i].x + shift;
+    }
+  }
+  shift = alignMax - lowerRightMaxX;
+  if(shift != 0)
+  {
+    for(i = 0; i < len; i++)
+    {
+      lowerRightGraph.nodes[i].x = lowerRightGraph.nodes[i].x + shift;
+    }
+  }
+  shift = alignMax - upperRightMaxX;
+  if(shift != 0)
+  {
+    for(i = 0; i < len; i++)
+    {
+      upperRightGraph.nodes[i].x = upperRightGraph.nodes[i].x + shift;
+    }
+  }
+
+  var xCoordinateCandidate;
+  for(i = 0; i < len; i++)
+  {
+    xCoordinateCandidate = [];
+    xCoordinateCandidate.push(upperLeftGraph.nodes[i].x);
+    xCoordinateCandidate.push(upperRightGraph.nodes[i].x);
+    xCoordinateCandidate.push(lowerLeftGraph.nodes[i].x);
+    xCoordinateCandidate.push(lowerRightGraph.nodes[i].x);
+    xCoordinateCandidate.sort();
+    Graph.nodes[i].x = (xCoordinateCandidate[1]+xCoordinateCandidate[2])/2;
+  }
+}
+
 var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 5, "isDummy": false, "group": 1, "order": 1},
@@ -553,12 +694,7 @@ var Graph = {
     {"from": 23, "to": 26, "ismark": false}
   ]
 };
-
-
-preprocessing(Graph);
-alignLowerRight(Graph);
-//console.log(Graph);
-//coordinateAsignment(Graph);
+xCoordinateAssignment(Graph)
 console.log(Graph);
 /*for(var i = 0; i < Graph.nodes.length; i++)
 {
