@@ -23,12 +23,22 @@ var Graph = {
   "nodes": [
     {"id": 1, "label": "A"},
     {"id": 2, "label": "B"},
-    {"id": 3, "label": "C"}
+    {"id": 3, "label": "C"},
+    {"id": 4, "label": "D"},
+    {"id": 5, "label": "E"},
+    {"id": 6, "label": "F"}
   ],
   "links": [
     {"from": 1, "to": 2},
+    {"from": 1, "to": 5},
     {"from": 2, "to": 3},
-    {"from": 3, "to": 1}
+    {"from": 3, "to": 1},
+    {"from": 3, "to": 4},
+    {"from": 4, "to": 5},
+    {"from": 4, "to": 6},
+    {"from": 5, "to": 2},
+    {"from": 5, "to": 3},
+    {"from": 6, "to": 5}
   ]
 };
 
