@@ -1,14 +1,17 @@
 var d3 = require('d3');
 var CycleRemoval = require('./CycleRemoval.js');
-xCoordinateAssignment = require("./XCoordinateAssignment.js");
+var XCoordinateAssignment = require("./XCoordinateAssignment.js");
+var LongestPath = require("./LongestPath.js");
+var VertexOrdering = require("./VertexOrdering.js");
+
 
 function adjustEnds(fromPoint, toPoint) {
-  var dx = toPoint.x - fromPoint.x,
-    dy = toPoint.y - fromPoint.y,
+  var dx = xScale(toPoint.x) - xScale(fromPoint.x),
+    dy = yScale(toPoint.rank) - yScale(fromPoint.rank),
     length = Math.sqrt(dx * dx + dy * dy);
   dx = dx / length * r;
   dy = dy / length * r;
-  return {from: {x: fromPoint.x + dx, y: fromPoint.y + dy}, to: {x: toPoint.x - dx, y: toPoint.y - dy}};
+  return {from: {x: xScale(fromPoint.x) + dx, rank: yScale(fromPoint.rank) + dy}, to: {x: xScale(toPoint.x) - dx, rank: yScale(toPoint.rank) - dy}};
 }
 
 var width = 800;
@@ -43,6 +46,8 @@ var Graph = {
     {"id": 24, "label": "X", "rank": 1, "isDummy": false, "group": 1, "order": 1},
     {"id": 25, "label": "Y", "rank": 1, "isDummy": false, "group": 1, "order": 2},
     {"id": 26, "label": "Z", "rank": 1, "isDummy": false, "group": 1,"order": 3}
+
+
   ],
   "links": [
     {"from": 1, "to": 3, "ismark": false},
@@ -78,9 +83,36 @@ var Graph = {
   ]
 };
 
-var jsonNodes = [{"x": 20, "y": 20, "label": "A"},
-                 {"x": 100, "y": 100, "label": "B"}];
-var jsonLinks = [{"from": 1, "to": 2}];
+CycleRemoval.cycleRemoval(Graph);
+LongestPath.layering(Graph);
+VertexOrdering.vertexOrdering(Graph);
+XCoordinateAssignment.xCoordinateAssignment(Graph);
+var maxX = Number.MIN_VALUE;
+var minX = Number.MAX_VALUE;
+var maxY= Number.MIN_VALUE;
+var minY = Number.MAX_VALUE;
+var len = Graph.nodes.length;
+for(var i = 0; i < len; i++)
+{
+  if(Graph.nodes[i].x > maxX)
+  {
+    maxX = Graph.nodes[i].x;
+  }else if(Graph.nodes[i].x < minX){
+    minX = Graph.nodes[i].x;
+  }
+  if(Graph.nodes[i].rank > maxY)
+  {
+    maxY = Graph.nodes[i].rank;
+  }else if(Graph.nodes[i].rank < minY){
+    minY = Graph.nodes[i].rank;
+  }
+}
+var yScale = d3.scale.linear()
+                      .domain([maxY, minY])
+                      .range([2*r, height-2*r]);
+var xScale = d3.scale.linear()
+                      .domain([minX, maxX])
+                      .range([2*r, width-2*r]);
 
 var svg = d3.select('#graph').append('svg')
   .attr('width', width).attr('height', height);
@@ -99,42 +131,40 @@ svg.append('defs').append('marker')
     .attr('fill', 'black'); // Fill the triangle
 
 var nodes = svg.selectAll('circle')
-  .data(graph.nodes)
+  .data(Graph.nodes)
 
 var nodesEnter = nodes.enter().append('g')
-  .attr('class', 'node')
-  .attr('transform', 'translate(50, 50)');
+  .attr('class', 'node');
 
 nodesEnter.each(function(d){
   d3.select(this)
   .append('circle')
-    .attr("cx", d.x)
-    .attr("cy", d.y)
+    .attr("cx", xScale(d.x))
+    .attr("cy", yScale(d.rank))
     .attr("r", r)
     .style("fill", "white");
 
   d3.select(this)
   .append('text')
     .text(d.label)
-    .attr({x: d.x-r/4, y: d.y+r/4});
+    .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
 });
 
 nodes.exit().remove();
 
 var links = svg.selectAll('line')
-  .data(graph.links);
+  .data(Graph.links);
 
 var linksEnter = links.enter().append('line')
-  .attr('class', 'link')
-  .attr('transform', 'translate(50, 50)');
+  .attr('class', 'link');
 
 linksEnter.each(function (d){
-  var adjustedEnds = adjustEnds(CycleRemoval.getNodeById(d.from, graph.nodes), CycleRemoval.getNodeById(d.to, graph.nodes));
+  var adjustedEnds = adjustEnds(CycleRemoval.getNodeById(d.from, Graph.nodes), CycleRemoval.getNodeById(d.to, Graph.nodes));
   d3.select(this)
     .attr("x1", function(d) { return adjustedEnds.from.x; })
-    .attr("y1", function(d) { return adjustedEnds.from.y; })
+    .attr("y1", function(d) { return adjustedEnds.from.rank; })
     .attr("x2", function(d) { return adjustedEnds.to.x; })
-    .attr("y2", function(d) { return adjustedEnds.to.y; })
+    .attr("y2", function(d) { return adjustedEnds.to.rank; })
     .attr("marker-end", "url(#markerArrowEnd)");
 });
 
