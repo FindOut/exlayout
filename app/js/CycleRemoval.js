@@ -26,6 +26,9 @@ exports.getNodeById = function(id, nodes){
 };
 exports.deleteLinks = function(edges, e){
   deleteLinks(edges,e);
+};
+exports.reverse = function(edges){
+  reverse(edges);
 }
 
 // Removes cycle from input graph using greddy cycle removal
@@ -70,13 +73,28 @@ function cycleRemoval(graph)
       node = maximum(temporaryNodes, temporaryEdges); //choose the node with the most difference between outgoingEdges and ingoingEdges
       ingoingEdges = ingoing(node, temporaryEdges);
       outgoingEdges = outgoing(node, temporaryEdges);
+      reverse(ingoingEdges);
       edges = edges.concat(outgoingEdges);
+      edges = edges.concat(ingoingEdges);
       deleteNode(node, temporaryNodes);
       deleteLinks(ingoingEdges, temporaryEdges);
       deleteLinks(outgoingEdges, temporaryEdges);
     }
   }
   graph.links = edges;
+}
+
+function reverse(edges)
+{
+  var len = edges.length;
+  var to;
+  for(var i = 0; i < len; i++)
+  {
+    edges[i].isReversed = true;
+    to = edges[i].to;
+    edges[i].to = edges[i].from;
+    edges[i].from = to;
+  }
 }
 
 // Inputs array of vertex and array of edges. Outputs vertex with maximum difference

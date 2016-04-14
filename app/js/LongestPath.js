@@ -61,6 +61,7 @@ function addDummy(graph)
   var dummyNode;
   var dummyLink;
   var link;
+  var isReversed;
   for(var i = 0; i < len; i++)
   {
     current = graph.nodes[i].id;
@@ -74,22 +75,23 @@ function addDummy(graph)
     link = (JSON.parse(JSON.stringify(graph.links[i])));
     node = CycleRemoval.getNodeById(link.to, graph.nodes);
     diff = CycleRemoval.getNodeById(link.from, graph.nodes).rank - node.rank;
+    isReversed = link.isReversed;
     if(diff > 1)
     {
       CycleRemoval.deleteLinks([link], graph.links);
       i--;
       dummyNode = {"id": ++max, "label": "", "rank": node.rank+1, "order": 0, "isDummy": true};
-      dummyLink = {"from": max, "to": link.to};
+      dummyLink = {"from": max, "to": link.to, "ismark": false, "isReversed": isReversed};
       graph.nodes.push(dummyNode);
       graph.links.push(dummyLink);
       for(var j = 2; j < diff; j++)
       {
         dummyNode = {"id": ++max, "label": "", "rank": node.rank+j, "order": 0, "isDummy": true};
-        dummyLink = {"from": max, "to": max-1};
+        dummyLink = {"from": max, "to": max-1, "ismark": false, "isReversed": isReversed};
         graph.nodes.push(dummyNode);
         graph.links.push(dummyLink);
       }
-      dummyLink = {"from": link.from, "to": max};
+      dummyLink = {"from": link.from, "to": max, "ismark": false, "isReversed": isReversed};
       graph.links.push(dummyLink);
     }
   }
