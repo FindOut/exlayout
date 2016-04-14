@@ -24,6 +24,9 @@ function preprocessing(Graph) //mark type 1 conflict
       var kstart = 0;
       var l = 1;
       var NodesinRow = VertexOrdering.getLayer(Graph,height-i);  // get nodes in i + 1 row
+      NodesinRow.sort(function(a,b){
+        return a.order - b.order;
+      });
       //console.log(NodesinRow);
       var numberofNodesinRow = NodesinRow.length;
       var currentNode;
@@ -122,7 +125,9 @@ function alignUpperLeft(Graph)
     r = 0;
     xRowIndex = height-x+1;
     NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
-
+    NodesinRow.sort(function(a,b){
+      return a.order - b.order;
+    });
     for(var k = 1; k <= NodesinRow.length; k++)
     {
       currentNode = NodesinRow[k-1];
@@ -201,7 +206,9 @@ function alignUpperRight(Graph)
     r = Number.MAX_VALUE;   //R set to maximum value
     xRowIndex = height-x+1;
     NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
-
+    NodesinRow.sort(function(a,b){
+      return a.order - b.order;
+    });
     for(var k = NodesinRow.length; k >= 1; k--)
     {
       currentNode = NodesinRow[k-1];
@@ -280,7 +287,9 @@ function alignLowerLeft(Graph)
     r = 0;
     xRowIndex = height-x+1;
     NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
-
+    NodesinRow.sort(function(a,b){
+      return a.order - b.order;
+    });
     for(var k = 1; k <= NodesinRow.length; k++)
     {
       currentNode = NodesinRow[k-1];
@@ -484,10 +493,16 @@ function coordinateAsignment(graph)
   {
     node = graph.nodes[i];
     root = graph.nodes[node.root-1];
+    node.x = root.x;
+  }
+
+  for(i = 0; i < len; i++)
+  {
+    node = graph.nodes[i];
+    root = graph.nodes[node.root-1];
     sink = graph.nodes[root.sink-1];
     shift = sink.shift;
-    node.x = root.x;
-    if(node == root && shift < Number.MAX_VALUE)
+    if(shift < Number.MAX_VALUE)
     {
       node.x = node.x + shift;
     }
@@ -635,11 +650,13 @@ function xCoordinateAssignment(Graph)
     xCoordinateCandidate.push(upperRightGraph.nodes[i].x);
     xCoordinateCandidate.push(lowerLeftGraph.nodes[i].x);
     xCoordinateCandidate.push(lowerRightGraph.nodes[i].x);
+    console.log(xCoordinateCandidate);
+    console.log("######################");
     xCoordinateCandidate.sort();
     Graph.nodes[i].x = (xCoordinateCandidate[1]+xCoordinateCandidate[2])/2;
   }
 }
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 5, "isDummy": false, "group": 1, "order": 1},
     {"id": 2, "label": "B", "rank": 5, "isDummy": false, "group": 1, "order": 2},
@@ -703,3 +720,5 @@ var Graph = {
     {"from": 23, "to": 26, "ismark": false}
   ]
 };
+
+xCoordinateAssignment(Graph);*/
