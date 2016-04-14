@@ -27,7 +27,6 @@ var Graph = {
     {"id": 4, "label": "D"},
     {"id": 5, "label": "E"},
     {"id": 6, "label": "F"}
-
   ],
   "links": [
     {"from": 1, "to": 2},

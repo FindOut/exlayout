@@ -35,7 +35,7 @@ function preprocessing(Graph) //mark type 1 conflict
       for(var m= 1; m <= numberofNodesinRow; m++)
       {
         currentNode= NodesinRow[m-1];
-        dummiParNode = isdummyPar(currentNode, NodesinRow);  //get ingoing dummy Node to NodesinRow[m]
+        dummiParNode = isdummyPar(currentNode, NodesinRow, Graph);  //get ingoing dummy Node to NodesinRow[m]
         if(m == numberofNodesinRow || dummiParNode != null)
         {
           layer = height -i +1;
@@ -66,7 +66,7 @@ function preprocessing(Graph) //mark type 1 conflict
   return ignoreEdges;
 }
 
-function isdummyPar(node, NodesinRow)
+function isdummyPar(node, NodesinRow, Graph)
 {
   var index;
   var upperNeighbor;
@@ -639,7 +639,6 @@ function xCoordinateAssignment(Graph)
     Graph.nodes[i].x = (xCoordinateCandidate[1]+xCoordinateCandidate[2])/2;
   }
 }
-
 var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 5, "isDummy": false, "group": 1, "order": 1},
@@ -704,7 +703,3 @@ var Graph = {
     {"from": 23, "to": 26, "ismark": false}
   ]
 };
-/*for(var i = 0; i < Graph.nodes.length; i++)
-{
-  console.log(Graph.nodes[i].x);
-}*/

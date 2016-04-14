@@ -13,7 +13,6 @@ describe("Test for DAG", function(){
         {"from": 2, "to": 3}
       ]
     };
-    expect(CycleRemoval.testDAG(graph)).toBe(true);
     CycleRemoval.cycleRemoval(graph);
     expect(CycleRemoval.testDAG(graph)).toBe(true);
   });
@@ -31,7 +30,6 @@ describe("Test for DAG", function(){
         {"from": 3, "to": 1}
       ]
     };
-    expect(CycleRemoval.testDAG(graph)).toBe(false);
     CycleRemoval.cycleRemoval(graph);
     expect(CycleRemoval.testDAG(graph)).toBe(true);
   });
@@ -59,7 +57,6 @@ describe("Test for DAG", function(){
         {"from": 7, "to": 4}
       ]
     };
-    expect(CycleRemoval.testDAG(graph)).toBe(true);
     CycleRemoval.cycleRemoval(graph);
     expect(CycleRemoval.testDAG(graph)).toBe(true);
   });
@@ -88,7 +85,6 @@ describe("Test for DAG", function(){
         {"from": 6, "to": 5}
       ]
     };
-    expect(CycleRemoval.testDAG(graph)).toBe(false);
     CycleRemoval.cycleRemoval(graph);
     expect(CycleRemoval.testDAG(graph)).toBe(true);
   });
@@ -107,7 +103,6 @@ describe("Test for DAG", function(){
         {"id": 9, "label": "I"},
         {"id": 10, "label": "J"},
         {"id": 11, "label": "K"}
-
       ],
       "links": [
         {"from": 1, "to": 2},
@@ -121,10 +116,8 @@ describe("Test for DAG", function(){
         {"from": 7, "to": 9},
         {"from": 8, "to": 10},
         {"from": 8, "to": 11}
-
       ]
     };
-    expect(CycleRemoval.testDAG(graph)).toBe(false);
     CycleRemoval.cycleRemoval(graph);
     expect(CycleRemoval.testDAG(graph)).toBe(true);
   });

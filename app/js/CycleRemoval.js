@@ -29,6 +29,21 @@ exports.deleteLinks = function(edges, e){
 };
 exports.reverse = function(edges){
   reverse(edges);
+};
+exports.containsSource = function(nodes, links){
+  return containsSource(nodes, links);
+};
+exports.containsSink = function(nodes, links){
+  return containsSink(nodes, links);
+};
+exports.deleteNode = function(node, nodes){
+  deleteNode(node, nodes);
+};
+exports.isolatedNodes = function(v, e){
+  return isolatedNodes(v, e);
+};
+exports.maximum = function(v,e){
+  return maximum(v,e);
 }
 
 // Removes cycle from input graph using greddy cycle removal
