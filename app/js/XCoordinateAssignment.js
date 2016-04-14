@@ -1,5 +1,10 @@
 var VertexOrdering = require("./VertexOrdering.js");
 var CycleRemoval = require("./CycleRemoval.js");
+
+exports.xCoordinateAssignment = function(graph){
+  xCoordinateAssignment(graph);
+};
+
 function preprocessing(Graph) //mark type 1 conflict
 {
   var ignoreEdges = [];
