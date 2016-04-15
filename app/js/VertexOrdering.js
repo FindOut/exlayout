@@ -1,3 +1,14 @@
+/*******************************************************************************
+This class uses median with transpose to calculate order for each node in all
+layer. The algorithm set one layers order to be fixed and tries to permutate
+second layer to minimize number of crossing. This algorithm uses median order of
+its neighbor to get order for itself. When we run the algoritm for the first time.
+We pick random order for its first layer. When sorting upward we set lower layers
+order to be fixed. When sorting downward we set upper layers order to be fixed.
+After each sorting we run the transpose function to reduce crossing that are
+obvious. The algorithm runs until upwardSorting and downwardSorting can not
+reduce number of crossing furhter.
+*******************************************************************************/
 var CycleRemoval = require("./CycleRemoval.js");
 var LongestPath = require("./LongestPath.js");
 
@@ -9,6 +20,7 @@ exports.getLayer = function(graph, layer){
   return getLayer(graph, layer);
 };
 
+// This function calculates order each node in every layer
 function vertexOrdering(graph)
 {
   var a;
@@ -48,6 +60,7 @@ function vertexOrdering(graph)
   return a - getTotalCrossing(graph);
 }
 
+// setInitialOrder is an upwardSorting but first layers order is set to be random
 function setInitialOrder(graph){
   var currentRank = 1;
   var layer1 = getLayer(graph, currentRank);
@@ -156,6 +169,8 @@ function setInitialOrder(graph){
   }
 }
 
+// upwardSorting set lower layers order to be fixed and calculate order for each
+// nodes in upper layer. The method that we are using is median of its neighbor
 function upwardSorting(graph)
 {
   var copyGraph = (JSON.parse(JSON.stringify(graph)));
@@ -263,6 +278,9 @@ function upwardSorting(graph)
   return copyGraph;
 }
 
+
+// downwardSorting set upper layers order to be fixed and calculate order for each
+// nodes in lower layer. The method that we are using is median of its neighbor
 function downwardSorting(graph)
 {
   var copyGraph = (JSON.parse(JSON.stringify(graph)));
@@ -378,6 +396,8 @@ function downwardSorting(graph)
   return copyGraph;
 }
 
+// Transpose function reduces obvious crossing. This function checks if order
+// changed between two node beside each other will reduce the crossing.
 function transpose(graph)
 {
   var improved = true;
@@ -424,6 +444,9 @@ function transpose(graph)
   }
 }
 
+// Inputs node1(node with lower order), node2(node with higher order) and the
+// graph. Outputs number of crossing for node1s outgoingEdges and node2s
+// outgoingEdges.
 function getNodeCrossing(node1, node2, graph)
 {
   var number = 0;
@@ -446,6 +469,8 @@ function getNodeCrossing(node1, node2, graph)
   return number;
 }
 
+// Inputs layer that is array of node and the graph. Outsputs number of crossing
+// between input layer and its lower layer
 function getLayerCrossing(layer, graph)
 {
   layer.sort(function(a,b){
@@ -482,6 +507,7 @@ function getLayerCrossing(layer, graph)
   return number;
 }
 
+// Inputs graph. Outputs number of crossing for the graph
 function getTotalCrossing(graph)
 {
   var total = 0;
@@ -500,6 +526,8 @@ function getTotalCrossing(graph)
   return total;
 }
 
+// Inputs graph and layer as integer. Returns array of nodes that is in this
+// layer.
 function getLayer(graph, layer){
   var result = [];
   var len = graph.nodes.length;

@@ -1,3 +1,11 @@
+/*******************************************************************************
+This class uses Ulrik Brandes and Boris Köpfs algorithm descirbed in "Fast and
+Simple Horizontal Coordinate Assignment". For every node, we try to align it
+with its upper/lower left/right median neighbor. For each four alignment, we get
+four x-coordinate for each node. At the last step, we uses averge median of all
+four x-coordinate to set every nodes x-coordinate
+*******************************************************************************/
+
 var VertexOrdering = require("./VertexOrdering.js");
 var CycleRemoval = require("./CycleRemoval.js");
 
@@ -5,6 +13,7 @@ exports.xCoordinateAssignment = function(graph){
   xCoordinateAssignment(graph);
 };
 
+// Preprocessing, mark edge with type 1 conflict
 function preprocessing(Graph) //mark type 1 conflict
 {
   var ignoreEdges = [];
@@ -69,6 +78,10 @@ function preprocessing(Graph) //mark type 1 conflict
   return ignoreEdges;
 }
 
+// Inputs node and the graph. Outputs if node is dummy, and if it is, this
+// function checks if it has upper dummy node. Returns null if node is not dummy
+// or node is dummy but its neighbor is not dummy, otherwise returns its upper
+// dummy neighbor
 function isdummyPar(node, NodesinRow, Graph)
 {
   var index;
@@ -89,6 +102,7 @@ function isdummyPar(node, NodesinRow, Graph)
   }return null;  // it self is not dummy
 }
 
+// Align each node to its upper left neighbor
 function alignUpperLeft(Graph)
 {
   var numberofNodes = Graph.nodes.length;
@@ -170,6 +184,7 @@ function alignUpperLeft(Graph)
   }
 }
 
+// Align each node to its upper right neighbor
 function alignUpperRight(Graph)
 {
   var numberofNodes = Graph.nodes.length;
@@ -251,6 +266,7 @@ function alignUpperRight(Graph)
   }
 }
 
+// Align each node to its lower left neighbor
 function alignLowerLeft(Graph)
 {
   var numberofNodes = Graph.nodes.length;
@@ -332,6 +348,7 @@ function alignLowerLeft(Graph)
   }
 }
 
+// Align each node to its lower right neighbor
 function alignLowerRight(Graph)
 {
   var numberofNodes = Graph.nodes.length;
@@ -413,6 +430,8 @@ function alignLowerRight(Graph)
   }
 }
 
+// Checks if there exist edges from nodeA to nodeB. Returns the link if it exist,
+// otherwise returns null
 function edgeBetweenTwoNodes(nodeA, nodeB, Graph)
 {
   var link = null;
@@ -427,6 +446,8 @@ function edgeBetweenTwoNodes(nodeA, nodeB, Graph)
   return link;
 }
 
+// Place v that is root of one block in graph. This function is recursive and
+// also sets previos block
 function place_block(v, graph)
 {
   var alpha = 1;
@@ -464,6 +485,7 @@ function place_block(v, graph)
   }
 }
 
+// Assign x-coordinate for each node after alignment and place_block.
 function coordinateAsignment(graph)
 {
   var len = graph.nodes.length;
@@ -509,6 +531,7 @@ function coordinateAsignment(graph)
   }
 }
 
+// Assign x-coordinate for each node that is averge median of all four alignment
 function xCoordinateAssignment(Graph)
 {
   preprocessing(Graph);
@@ -653,7 +676,6 @@ function xCoordinateAssignment(Graph)
     xCoordinateCandidate.sort();
     Graph.nodes[i].x = (xCoordinateCandidate[1]+xCoordinateCandidate[2])/2;
   }
-  //console.log(Graph);
 }
 /*var Graph = {
   "nodes": [

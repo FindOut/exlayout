@@ -58,6 +58,7 @@ function cycleRemoval(graph)
   var ingoingEdges;
   var outgoingEdges;
   var isolated;
+  var len;
   while(temporaryNodes.length > 0)
   {
     sink = containsSink(temporaryNodes,temporaryEdges); //check if there is sink node
@@ -70,7 +71,8 @@ function cycleRemoval(graph)
       sink = containsSink(temporaryNodes,temporaryEdges);
     }
     isolated = isolatedNodes(temporaryNodes,temporaryEdges);  //find isolatedNodes and delete them
-    for(var i = 0; i < isolated.length; i++)
+    len = isolated.length;
+    for(var i = 0; i < len; i++)
     {
       deleteNode(isolated[i],temporaryNodes);
     }
@@ -119,7 +121,8 @@ function maximum(v,e)
   var max = -1;
   var current;
   var node;
-  for(var i = 0; i < v.length; i++)
+  var len = v.length;
+  for(var i = 0; i < len; i++)
   {
     current = outgoing(v[i],e).length - ingoing(v[i],e).length;
     if(current > max)
@@ -136,15 +139,17 @@ function maximum(v,e)
 function isolatedNodes(v,e)
 {
     var iso = [];
-    for(var i = 0; i < v.length; i++)
+    var len1 = v.length;
+    var len2 = e.length;
+    for(var i = 0; i < len1; i++)
     {
-      for(var j = 0; j < e.length; j++)
+      for(var j = 0; j < len2; j++)
       {
         if(e[j].from == v[i].id || e[j].to == v[i].id)
         {
           break;
         }
-        if(j == e.length-1)
+        if(j == len2-1)
         {
           iso.push(v[i]);
         }
