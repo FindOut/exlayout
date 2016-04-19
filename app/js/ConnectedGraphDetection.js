@@ -79,7 +79,7 @@ function connectedGraphDetect(graph)
   }
 }
 
-var graph = {
+/*var graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false, "group": 0},
     {"id": 2, "label": "B", "rank": 0, "isDummy": false, "group": 0},
@@ -110,4 +110,4 @@ var graph = {
 };
 
 connectedGraphDetect(graph);
-console.log(graph);
+console.log(graph);*/
