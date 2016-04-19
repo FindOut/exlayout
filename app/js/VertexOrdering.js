@@ -40,6 +40,9 @@ exports.getTotalCrossing = function(graph){
   return getTotalCrossing(graph);
 };
 
+exports.getTotalCrossing = function(graph){
+  return getTotalCrossing(graph);
+};
 // This function calculates order each node in every layer
 function vertexOrdering(graph)
 {
