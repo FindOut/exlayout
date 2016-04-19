@@ -1,6 +1,6 @@
 var CycleRemoval = require("../../app/js/CycleRemoval.js");
 
-describe("Test for DAG", function(){
+describe("Black box test for CycleRemoval", function(){
   it("Simple graph which is DAG", function() {
     var graph = {
       "nodes": [

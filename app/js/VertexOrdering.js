@@ -15,9 +15,29 @@ var LongestPath = require("./LongestPath.js");
 exports.vertexOrdering = function(graph){
   return vertexOrdering(graph);
 };
-
 exports.getLayer = function(graph, layer){
   return getLayer(graph, layer);
+};
+exports.setInitialOrder = function(graph){
+  setInitialOrder(graph);
+};
+exports.upwardSorting = function(graph){
+  return upwardSorting(graph);
+};
+exports.downwardSorting = function(graph){
+  return downwardSorting(graph);
+};
+exports.transpose = function(graph){
+  transpose(graph);
+};
+exports.getNodeCrossing = function(node1, node2, graph){
+  return getNodeCrossing(node1, node2, graph);
+};
+exports.getLayerCrossing = function(layer, graph){
+  return getLayerCrossing(layer, graph);
+};
+exports.getTotalCrossing = function(graph){
+  return getTotalCrossing(graph);
 };
 
 // This function calculates order each node in every layer

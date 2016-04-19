@@ -12,7 +12,30 @@ var CycleRemoval = require("./CycleRemoval.js");
 exports.xCoordinateAssignment = function(graph){
   xCoordinateAssignment(graph);
 };
-
+exports.preprocessing = function(graph){
+  return preprocessing(graph);
+};
+exports.isdummyPar = function(node, graph){
+  return isdummyPar(node, graph);
+};
+exports.alignUpperLeft = function(graph){
+  alignUpperLeft(graph);
+};
+exports.alignUpperRight = function(graph){
+  alignUpperRight(graph);
+};
+exports.alignLowerLeft = function(graph){
+  alignLowerLeft(graph);
+};
+exports.alignLowerRight = function(graph){
+  alignLowerRight(graph);
+};
+exports.edgeBetweenTwoNodes = function(nodeA, nodeB, Graph){
+  return edgeBetweenTwoNodes(nodeA, nodeB, Graph);
+};
+exports.coordinateAsignment = function(graph){
+  coordinateAsignment(graph);
+};
 // Preprocessing, mark edge with type 1 conflict
 function preprocessing(Graph) //mark type 1 conflict
 {
@@ -47,7 +70,7 @@ function preprocessing(Graph) //mark type 1 conflict
       for(var m= 1; m <= numberofNodesinRow; m++)
       {
         currentNode= NodesinRow[m-1];
-        dummiParNode = isdummyPar(currentNode, NodesinRow, Graph);  //get ingoing dummy Node to NodesinRow[m]
+        dummiParNode = isdummyPar(currentNode, Graph);  //get ingoing dummy Node to NodesinRow[m]
         if(m == numberofNodesinRow || dummiParNode != null)
         {
           layer = height -i +1;
@@ -82,7 +105,7 @@ function preprocessing(Graph) //mark type 1 conflict
 // function checks if it has upper dummy node. Returns null if node is not dummy
 // or node is dummy but its neighbor is not dummy, otherwise returns its upper
 // dummy neighbor
-function isdummyPar(node, NodesinRow, Graph)
+function isdummyPar(node, Graph)
 {
   var index;
   var upperNeighbor;
@@ -218,13 +241,13 @@ function alignUpperRight(Graph)
   var link;
   for(var x = 1; x <= height; x++)
   {
-    r = Number.MAX_VALUE;   //R set to maximum value
+    r = 0;   //R set to maximum value
     xRowIndex = height-x+1;
     NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
     NodesinRow.sort(function(a,b){
       return a.order - b.order;
     });
-    for(var k = NodesinRow.length; k >= 1; k--)
+    for(var k = 1; k <= NodesinRow.length; k++)
     {
       currentNode = NodesinRow[k-1];
       ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
@@ -252,7 +275,7 @@ function alignUpperRight(Graph)
           if(currentNode.align == currentNode.id)
           {
             link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
-            if(link != null && !link.ismark && r > averageNode.order)
+            if(link != null && !link.ismark && r < averageNode.order)
             {
                 averageNode.align = currentNode.id;
                 currentNode.root = averageNode.root;
@@ -382,13 +405,13 @@ function alignLowerRight(Graph)
   var link;
   for(var x = 1; x <= height; x++)
   {
-    r = Number.MAX_VALUE;   //R set to maximum value
+    r = 0;   //R set to maximum value
     xRowIndex = height-x+1;
     NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
     NodesinRow.sort(function(a,b){
       return a.order - b.order;
     });
-    for(var k = NodesinRow.length; k >= 1; k--)
+    for(var k = 1; k <= NodesinRow.length; k++)
     {
       currentNode = NodesinRow[k-1];
       outgoingEdges = CycleRemoval.outgoing(currentNode, Graph.links);
@@ -416,7 +439,7 @@ function alignLowerRight(Graph)
           if(currentNode.align == currentNode.root)
           {
             link = edgeBetweenTwoNodes(currentNode, averageNode, Graph);
-            if(link != null && !link.ismark && r > averageNode.order)
+            if(link != null && !link.ismark && r < averageNode.order)
             {
               currentNode.align = averageNode.id;
               averageNode.root = currentNode.root;

@@ -1,7 +1,7 @@
 var CycleRemoval = require("../../app/js/CycleRemoval.js");
 var Initialize = require("../../app/js/Initialize.js");
 
-describe("Test every single function in CycleRemoval", function(){
+describe("White box test for cycleRemoval", function(){
   it("Test topologicalOrder function", function(){
     var graph = {
       "nodes": [

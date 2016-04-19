@@ -56,6 +56,7 @@ function connectedGraphDetect(graph)
         for(var j = 0; j < outgoingEdges.length; j++)
         {
           var index = outgoingEdges[j].to;
+          outgoingEdges[j].group = groupnumber;
           if(!visited[index-1]) //check if neighbour node is unvisited, do this while loop again
           {
             S.push(CycleRemoval.getNodeById(index, Nodes));
@@ -67,6 +68,7 @@ function connectedGraphDetect(graph)
         for(var j = 0; j < ingoingEdges.length; j++)
         {
           var index = ingoingEdges[j].from;
+          ingoingEdges[j].group = groupnumber;
           if(!visited[index-1]) //check if neighbour node is unvisited, do this while loop again
           {
             S.push(CycleRemoval.getNodeById(index, Nodes));
@@ -77,7 +79,7 @@ function connectedGraphDetect(graph)
   }
 }
 
-/*var graph = {
+var graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false, "group": 0},
     {"id": 2, "label": "B", "rank": 0, "isDummy": false, "group": 0},
@@ -108,4 +110,4 @@ function connectedGraphDetect(graph)
 };
 
 connectedGraphDetect(graph);
-console.log(graph);*/
+console.log(graph);
