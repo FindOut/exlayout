@@ -5,7 +5,7 @@ var VertexOrdering = require("./VertexOrdering.js");
 var Initialize = require("./Initialize.js");
 
 exports.sugiyama = function(graph){
-  return sugiyama(graph);
+  sugiyama(graph);
 };
 
 function sugiyama(graph){
@@ -14,5 +14,4 @@ function sugiyama(graph){
   LongestPath.layering(graph);
   VertexOrdering.vertexOrdering(graph);
   XCoordinateAssignment.xCoordinateAssignment(graph);
-  return graph;
 }

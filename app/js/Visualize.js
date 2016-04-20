@@ -147,7 +147,7 @@ var r = 20;
   ]
 };*/
 
-/*var Graph = {
+var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false},
     {"id": 2, "label": "B", "rank": 0, "isDummy": false},
@@ -176,9 +176,9 @@ var r = 20;
     {"from": 8, "to": 10},
     {"from": 8, "to": 11}
   ]
-};*/
+};
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false},
     {"id": 2, "label": "B", "rank": 0, "isDummy": false},
@@ -225,7 +225,7 @@ var Graph = {
     {"from": 10, "to": 15},
     {"from": 11, "to": 15}
   ]
-};
+};*/
 
 /*var Graph = {
   "nodes": [
@@ -290,9 +290,6 @@ Initialize.initialize(Graph);
 CycleRemoval.cycleRemoval(Graph);
 LongestPath.layering(Graph);
 VertexOrdering.vertexOrdering(Graph);
-Graph.nodes.sort(function(a,b){
-  return a.id - b.id;
-});
 XCoordinateAssignment.xCoordinateAssignment(Graph);
 var len = Graph.links.length;
 var reversedEdges = [];

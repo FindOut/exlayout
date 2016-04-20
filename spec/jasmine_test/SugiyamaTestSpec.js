@@ -52,8 +52,8 @@ describe("Sugiyama integration test", function(){
     var leastRate = 0.2;
     Initialize.initialize(graph);
     var originalCrossing = VertexOrdering.getTotalCrossing(graph);
-    var changedGraph = Sugiyama.sugiyama(graph);
-    var reducedCrossing = VertexOrdering.getTotalCrossing(changedGraph);
+    Sugiyama.sugiyama(graph);
+    var reducedCrossing = VertexOrdering.getTotalCrossing(graph);
     var reducingRate = reducedCrossing/originalCrossing;
     expect(reducingRate).not.toBeLessThan(leastRate);
   });
@@ -79,8 +79,8 @@ describe("Sugiyama integration test", function(){
       ]
     };
     var leastDensity = 0.3;
-    var changedGraph = Sugiyama.sugiyama(graph);
-    var area = getArea(changedGraph);
+    Sugiyama.sugiyama(graph);
+    var area = getArea(graph);
     var density = graph.nodes.length / area;
     expect(density).not.toBeLessThan(leastDensity);
   });
@@ -105,8 +105,8 @@ describe("Sugiyama integration test", function(){
         {"from": 3, "to": 7}
       ]
     };
-    var changedGraph = Sugiyama.sugiyama(graph);
-    for(var i = 0; i < changedGraph.nodes.legth; i++)
+    Sugiyama.sugiyama(graph);
+    for(var i = 0; i < graph.nodes.legth; i++)
     {
       if(graph.nodes[i].isDummy == true)
       {

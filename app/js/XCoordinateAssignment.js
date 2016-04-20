@@ -59,7 +59,6 @@ function preprocessing(Graph) //mark type 1 conflict
       NodesinRow.sort(function(a,b){
         return a.order - b.order;
       });
-      //console.log(NodesinRow);
       var numberofNodesinRow = NodesinRow.length;
       var currentNode;
       var dummiParNode;
@@ -512,9 +511,6 @@ function place_block(v, graph)
 function coordinateAsignment(graph)
 {
   var len = graph.nodes.length;
-  graph.nodes.sort(function(a,b){
-    return a.id - b.id;
-  });
   for(var i = 0; i < len; i++)
   {
     graph.nodes[i].sink = graph.nodes[i].id;
@@ -557,6 +553,9 @@ function coordinateAsignment(graph)
 // Assign x-coordinate for each node that is averge median of all four alignment
 function xCoordinateAssignment(Graph)
 {
+  Graph.nodes.sort(function(a,b){
+    return a.id - b.id;
+  });
   preprocessing(Graph);
   var lowerRightGraph = (JSON.parse(JSON.stringify(Graph)));
   var lowerLeftGraph = (JSON.parse(JSON.stringify(Graph)));
