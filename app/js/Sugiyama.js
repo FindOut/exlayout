@@ -14,4 +14,14 @@ function sugiyama(graph){
   LongestPath.layering(graph);
   VertexOrdering.vertexOrdering(graph);
   XCoordinateAssignment.xCoordinateAssignment(graph);
+  var len = graph.links.length;
+  var reversedEdges = [];
+  for(var i = 0; i < len; i++)
+  {
+    if(graph.links[i].isReversed)
+    {
+      reversedEdges.push(graph.links[i]);
+    }
+  }
+  CycleRemoval.reverse(reversedEdges);
 }
