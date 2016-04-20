@@ -49,7 +49,6 @@ function preprocessing(Graph) //mark type 1 conflict
       height = Graph.nodes[i].rank;
     }
   }
-  //console.log(height);
 
   for(var i = 2; i < height-1; i++)
   {
@@ -66,7 +65,7 @@ function preprocessing(Graph) //mark type 1 conflict
       var ingoingEdges;
       var index;
       var upperNeighbor;
-      for(var m= 1; m <= numberofNodesinRow; m++)
+      for(var m = 1; m <= numberofNodesinRow; m++)
       {
         currentNode= NodesinRow[m-1];
         dummiParNode = isdummyPar(currentNode, Graph);  //get ingoing dummy Node to NodesinRow[m]

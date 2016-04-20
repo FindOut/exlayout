@@ -1,5 +1,5 @@
 var d3 = require('d3');
-var Sugiyama = require("./Sugiyama.js");
+var Main = require("./main.js");
 var CycleRemoval = require("./CycleRemoval.js");
 
 function adjustEnds(fromPoint, toPoint) {
@@ -143,7 +143,7 @@ var r = 20;
   ]
 };*/
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false},
     {"id": 2, "label": "B", "rank": 0, "isDummy": false},
@@ -172,7 +172,7 @@ var Graph = {
     {"from": 8, "to": 10},
     {"from": 8, "to": 11}
   ]
-};
+};*/
 
 /*var Graph = {
   "nodes": [
@@ -282,13 +282,74 @@ var Graph = {
   ]
 };*/
 
-graphArray = Sugiyama.sugiyama(Graph);
+/*var Graph = {
+  "nodes": [
+    {"id": 1, "label": "A"},
+    {"id": 2, "label": "B"},
+    {"id": 3, "label": "C"},
+    {"id": 4, "label": "D"},
+    {"id": 5, "label": "E"},
+    {"id": 6, "label": "F"},
+    {"id": 7, "label": "G"},
+
+    {"id": 8, "label": "H"},
+    {"id": 9, "label": "I"},
+    {"id": 10, "label": "J"},
+    {"id": 11, "label": "K"},
+    {"id": 12, "label": "L"},
+    {"id": 13, "label": "M"},
+    {"id": 14, "label": "N"}
+  ],
+  "links": [
+    {"from": 1, "to": 2},
+    {"from": 2, "to": 3},
+    {"from": 2, "to": 5},
+    {"from": 2, "to": 4},
+    {"from": 3, "to": 5},
+    {"from": 4, "to": 5},
+    {"from": 5, "to": 6},
+    {"from": 7, "to": 4},
+
+    {"from": 8, "to": 9},
+    {"from": 8, "to": 10},
+    {"from": 10, "to": 11},
+    {"from": 10, "to": 12},
+    {"from": 9, "to": 13},
+    {"from": 9, "to": 14}
+  ]
+}*/
+
+var Graph = {
+  "nodes": [
+    {"id": 1, "label": "H"},
+    {"id": 2, "label": "I"},
+    {"id": 3, "label": "J"},
+    {"id": 4, "label": "K"},
+    {"id": 5, "label": "L"},
+    {"id": 6, "label": "M"},
+    {"id": 7, "label": "N"}
+  ],
+  "links": [
+    {"from": 1, "to": 2},
+    {"from": 1, "to": 3},
+    {"from": 2, "to": 4},
+    {"from": 2, "to": 5},
+    {"from": 3, "to": 6},
+    {"from": 3, "to": 7}
+  ]
+}
+
+graphArray = Main.main(Graph);
 var len1 = graphArray.length;
 var len2;
 var maxX;
 var minX;
 var maxY;
 var minY;
+var globalMaxX = Number.MIN_VALUE;
+var globalMinX = Number.MAX_VALUE;
+var globalMaxY = Number.MIN_VALUE;
+var globalMinY = Number.MAX_VALUE;
 var currentGraph;
 for(var i = 0; i < len1; i++)
 {
@@ -313,6 +374,22 @@ for(var i = 0; i < len1; i++)
       minY = currentGraph.nodes[j].rank;
     }
   }
+  if(maxX > globalMaxX)
+  {
+    globalMaxX = maxX;
+  }
+  if(minX < globalMinX)
+  {
+    globalMinX = minX;
+  }
+  if(maxY > globalMaxY)
+  {
+    globalMaxY = maxY;
+  }
+  if(minY < globalMinY)
+  {
+    globalMinY = minY;
+  }
   currentGraph.maxX = maxX;
   currentGraph.minX = minX;
   currentGraph.maxY = maxY;
@@ -320,17 +397,20 @@ for(var i = 0; i < len1; i++)
 }
 var width = 0;;
 var height = 0;
-for(i = 0; i < len1; i++)
+/*for(i = 0; i < len1; i++)
 {
   width = (graphArray[i].maxX-graphArray[i].minX)*5*r+width;
   height = (graphArray[i].maxY-graphArray[i].minY)*5*r+height;
-}
-/*var yScale = d3.scale.linear()
-                      .domain([maxY, minY])
-                      .range([2*r, height-2*r]);
+}*/
+width = len1*(globalMaxX-globalMinX)*5*r;
+height = len1*(globalMaxY-globalMinY)*5*r;
+
+var yScale = d3.scale.linear()
+                      .domain([globalMaxY, globalMinY])
+                      .range([0, (globalMaxY-globalMinY)*5*r]);
 var xScale = d3.scale.linear()
-                      .domain([minX, maxX])
-                      .range([2*r, width-2*r]);*/
+                      .domain([globalMinX, globalMaxX])
+                      .range([0, (globalMaxX-globalMinX)*5*r]);
 
 var svg = d3.select('#graph').append('svg')
   .attr('width', width).attr('height', height);
@@ -348,20 +428,16 @@ svg.append('defs').append('marker')
     .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
     .attr('fill', 'black'); // Fill the triangle
 
-var force = d3.layout.force
-              .size([width, height])
-              .linkDistance()
-              .on("tick", tick);
-
 var graphs = svg.selectAll("Graph")
   .data(graphArray);
 
 var graphsEnter = graphs.enter().append('g')
   .attr('class', 'graph');
 
-graphEnter.each(function(d){
+graphsEnter.each(function(d,i){
+
   var nodes = d3.select(this).selectAll('circle')
-                .data(graphArray[d.groupnumber-1]);
+                .data(graphArray[i].nodes);
 
   var nodesEnter = nodes.enter().append('g')
                     .attr('class', 'node');
@@ -386,14 +462,14 @@ graphEnter.each(function(d){
   nodes.exit().remove();
 
   var links = d3.select(this).selectAll('line')
-    .data(Graph.links);
+    .data(graphArray[i].links);
 
   var linksEnter = links.enter().append('line')
     .attr('class', 'link');
 
   linksEnter.each(function (d){
-    var fromNode = CycleRemoval.getNodeById(d.from, Graph.nodes);
-    var toNode = CycleRemoval.getNodeById(d.to, Graph.nodes);
+    var fromNode = CycleRemoval.getNodeById(d.from, graphArray[i].nodes);
+    var toNode = CycleRemoval.getNodeById(d.to, graphArray[i].nodes);
     var adjustedEnds = adjustEnds(fromNode, toNode);
     if(!fromNode.isDummy && !toNode.isDummy)
     {
@@ -428,12 +504,15 @@ graphEnter.each(function(d){
   links.exit().remove();
 });
 
-graphArrayCoordinate = {"graphs": [], "links": []};
-for(i = 0; i < len1; i++)
-{
-  graphArrayCoordinate.graphs.push({"x": (graphArray[i].maxX+graphArray[i].minX)/2, "y": (graphArray[i].maxY+graphArray[i].minY)/2,
-                                    "old_x": (graphArray[i].maxX+graphArray[i].minX)/2, "old_y": (graphArray[i].maxY+graphArray[i].minY)/2});
-}
+var graphArrayCoordinate = {"graphs": [], "links": []};
+
+graphsEnter.each(function(d){
+  var bbox = this.getBBox();
+  var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+  graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
+                                    "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal});
+})
+
 for(i = 0; i < len1; i++)
 {
   for(j = i+1; j < len1; j++)
@@ -442,6 +521,13 @@ for(i = 0; i < len1; i++)
   }
 }
 
+var force = d3.layout.force()
+              .size([width, height])
+              .linkDistance(function(d){
+                return(graphArrayCoordinate.graphs[d.source.index].halfDigonal+graphArrayCoordinate.graphs[d.target.index].halfDigonal);
+              })
+              .on("tick", tick);
+
 force
   .nodes(graphArrayCoordinate.graphs)
   .links(graphArrayCoordinate.links)
@@ -449,79 +535,11 @@ force
 
 function tick()
 {
-  graphEnter.each(function(d,i){
-    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graph[i].old_x;
-    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graph[i].old_y;
-    //graphArrayCoordinate.graph[i].old_x = graphArrayCoordinate.graphs[i].x;
-    //graphArrayCoordinate.graph[i].old_y = graphArrayCoordinate.graphs[i].y;
+  graphsEnter.each(function(d,i){
+    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
+    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
 
     d3.select(this)
       .attr("transform", "translate("+dx+","+dy+")");
   })
 }
-
-/*var nodes = svg.selectAll('circle')
-  .data(Graph.nodes);
-
-var nodesEnter = nodes.enter().append('g')
-  .attr('class', 'node');
-
-nodesEnter.each(function(d){
-  if(!d.isDummy){
-    d3.select(this)
-    .append('circle')
-      .attr("cx", xScale(d.x))
-      .attr("cy", yScale(d.rank))
-      .attr("r", r)
-      .style("fill", "white");
-
-      d3.select(this)
-      .append('text')
-        .text(d.label)
-        .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
-  }
-});
-
-nodes.exit().remove();
-
-var links = svg.selectAll('line')
-  .data(Graph.links);
-
-var linksEnter = links.enter().append('line')
-  .attr('class', 'link');
-
-linksEnter.each(function (d){
-  var fromNode = CycleRemoval.getNodeById(d.from, Graph.nodes);
-  var toNode = CycleRemoval.getNodeById(d.to, Graph.nodes);
-  var adjustedEnds = adjustEnds(fromNode, toNode);
-  if(!fromNode.isDummy && !toNode.isDummy)
-  {
-    d3.select(this)
-      .attr("x1", function(d) { return adjustedEnds.from.x; })
-      .attr("y1", function(d) { return adjustedEnds.from.rank; })
-      .attr("x2", function(d) { return adjustedEnds.to.x; })
-      .attr("y2", function(d) { return adjustedEnds.to.rank; })
-      .attr("marker-end", "url(#markerArrowEnd)");
-  }else if(fromNode.isDummy && !toNode.isDummy){
-    d3.select(this)
-      .attr("x1", function(d) { return xScale(fromNode.x); })
-      .attr("y1", function(d) { return yScale(fromNode.rank); })
-      .attr("x2", function(d) { return adjustedEnds.to.x; })
-      .attr("y2", function(d) { return adjustedEnds.to.rank; })
-      .attr("marker-end", "url(#markerArrowEnd)");
-  }else if(!fromNode.isDummy && toNode.isDummy){
-    d3.select(this)
-      .attr("x1", function(d) { return adjustedEnds.from.x; })
-      .attr("y1", function(d) { return adjustedEnds.from.rank; })
-      .attr("x2", function(d) { return xScale(toNode.x); })
-      .attr("y2", function(d) { return yScale(toNode.rank); });
-  }else{
-    d3.select(this)
-      .attr("x1", function(d) { return xScale(fromNode.x); })
-      .attr("y1", function(d) { return yScale(fromNode.rank); })
-      .attr("x2", function(d) { return xScale(toNode.x); })
-      .attr("y2", function(d) { return yScale(toNode.rank); });
-  }
-});
-
-links.exit().remove();*/
