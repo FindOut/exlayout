@@ -4,7 +4,8 @@ var XCoordinateAssignment = require("./XCoordinateAssignment.js");
 var LongestPath = require("./LongestPath.js");
 var VertexOrdering = require("./VertexOrdering.js");
 var Initialize = require("./Initialize.js");
-
+var Sugiyama = require("./Sugiyama.js");
+var ConnectedGraphDetect = require("./ConnectedGraphDetect.js");
 
 function adjustEnds(fromPoint, toPoint) {
   var dx = xScale(toPoint.x) - xScale(fromPoint.x),
@@ -285,12 +286,7 @@ var Graph = {
     {"from": 6, "to": 5}
   ]
 };*/
-
-Initialize.initialize(Graph);
-CycleRemoval.cycleRemoval(Graph);
-LongestPath.layering(Graph);
-VertexOrdering.vertexOrdering(Graph);
-XCoordinateAssignment.xCoordinateAssignment(Graph);
+Sugiyama.sugiyama(Graph);
 var len = Graph.links.length;
 var reversedEdges = [];
 for(var i = 0; i < len; i++)
