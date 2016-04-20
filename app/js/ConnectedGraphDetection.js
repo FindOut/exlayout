@@ -12,7 +12,7 @@
          end while
       END DFS()*/
 exports.connectedGraphDetect = function(graph){
-        connectedGraphDetect(graph);
+      return connectedGraphDetect(graph);
 };
 var CycleRemoval = require("./CycleRemoval.js");
 function connectedGraphDetect(graph)
@@ -77,6 +77,38 @@ function connectedGraphDetect(graph)
       }
     }
   }
+//find max Group Number
+var maxGroupNum = 1;
+  for(var i = 0; i < Nodeslength; i++)
+  {
+    if(Nodes[i].group > maxGroupNum)
+    {
+      maxGroupNum = Nodes[i].group;
+    }
+  }
+
+var allGraphs = [];
+for(var counter = 1; counter <= maxGroupNum; counter++)
+{
+  allGraphs[counter-1] = {"nodes":[], "links": [], "groupnumber": counter};
+  for(var j = 0; j < Nodeslength; j++)
+  {
+    if(Nodes[j].group == counter)
+    {
+      allGraphs[counter-1].nodes.push(Nodes[j]);
+    }
+  }
+
+  for(var i = 0; i < Edges.length; i++)
+  {
+    if(Edges[i].group == counter)
+    {
+      allGraphs[counter-1].links.push(Edges[i]);
+    }
+  }
+}
+return allGraphs;
+
 }
 
 /*var graph = {
@@ -109,5 +141,6 @@ function connectedGraphDetect(graph)
   ]
 };
 
-connectedGraphDetect(graph);
-console.log(graph);*/
+
+
+console.log(JSON.stringify(connectedGraphDetect(graph)));*/

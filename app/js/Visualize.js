@@ -2,7 +2,6 @@ var d3 = require('d3');
 var Sugiyama = require("./Sugiyama.js");
 var CycleRemoval = require("./CycleRemoval.js");
 
-
 function adjustEnds(fromPoint, toPoint) {
   var dx = xScale(toPoint.x) - xScale(fromPoint.x),
     dy = yScale(toPoint.rank) - yScale(fromPoint.rank),

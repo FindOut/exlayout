@@ -5,7 +5,7 @@ var VertexOrdering = require("./VertexOrdering.js");
 var Initialize = require("./Initialize.js");
 
 exports.sugiyama = function(graph){
-  sugiyama(graph);
+  return sugiyama(graph);
 };
 
 function sugiyama(graph){
@@ -13,6 +13,7 @@ function sugiyama(graph){
   CycleRemoval.cycleRemoval(graph);
   LongestPath.layering(graph);
   VertexOrdering.vertexOrdering(graph);
+  //console.log(graph);
   XCoordinateAssignment.xCoordinateAssignment(graph);
   var len = graph.links.length;
   var reversedEdges = [];

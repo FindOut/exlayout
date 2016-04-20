@@ -533,15 +533,15 @@ function coordinateAsignment(graph)
   for(i = 0; i < len; i++)
   {
     node = graph.nodes[i];
-    root = graph.nodes[node.root-1];
+    root = CycleRemoval.getNodeById(node.root, graph.nodes);
     node.x = root.x;
   }
 
   for(i = 0; i < len; i++)
   {
     node = graph.nodes[i];
-    root = graph.nodes[node.root-1];
-    sink = graph.nodes[root.sink-1];
+    root = CycleRemoval.getNodeById(node.root, graph.nodes);
+    sink = CycleRemoval.getNodeById(root.sink, graph.nodes);
     shift = sink.shift;
     if(shift < Number.MAX_VALUE)
     {

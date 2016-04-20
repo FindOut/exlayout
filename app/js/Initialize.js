@@ -10,7 +10,6 @@ function initialize(graph){
     graph.nodes[i].rank = 0;
     graph.nodes[i].order = 0;
     graph.nodes[i].isDummy = false;
-    graph.nodes[i].group = 0;
   }
   for(i = 0; i < linksLength; i++)
   {
