@@ -302,7 +302,7 @@ describe("White box test for XCoordinateAssignment", function(){
     XCoordinateAssignment.preprocessing(graph);
     XCoordinateAssignment.alignUpperRight(graph);
     expect(graph.nodes[14].align).toBe(22);
-    expect(graph.nodes[18].align).toBe(24);
+    expect(graph.nodes[18].align).toBe(19);
     expect(graph.nodes[21].align).toBe(26);
 
     var graph = {
