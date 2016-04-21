@@ -282,7 +282,7 @@ var r = 20;
   ]
 };*/
 
-/*var Graph = {
+var Graph = {
   "nodes": [
     {"id": 1, "label": "A"},
     {"id": 2, "label": "B"},
@@ -317,9 +317,9 @@ var r = 20;
     {"from": 9, "to": 13},
     {"from": 9, "to": 14}
   ]
-}*/
+};
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "H"},
     {"id": 2, "label": "I"},
@@ -337,7 +337,7 @@ var Graph = {
     {"from": 3, "to": 6},
     {"from": 3, "to": 7}
   ]
-};
+};*/
 
 graphArray = Main.main(Graph);
 var len1 = graphArray.length;
@@ -407,10 +407,10 @@ height = len1*(globalMaxY-globalMinY)*5*r;
 
 var yScale = d3.scale.linear()
                       .domain([globalMaxY, globalMinY])
-                      .range([0, (globalMaxY-globalMinY)*5*r]);
+                      .range([r, (globalMaxY-globalMinY)*5*r-r]);
 var xScale = d3.scale.linear()
                       .domain([globalMinX, globalMaxX])
-                      .range([0, (globalMaxX-globalMinX)*5*r]);
+                      .range([r, (globalMaxX-globalMinX)*5*r-r]);
 
 var svg = d3.select('#graph').append('svg')
   .attr('width', width).attr('height', height);
