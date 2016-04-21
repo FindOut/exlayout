@@ -210,6 +210,30 @@ describe("White box test for XCoordinateAssignment", function(){
     expect(graph.nodes[8].align).toBe(9);
     expect(graph.nodes[9].align).toBe(15);
     expect(graph.nodes[20].align).toBe(26);
+
+    var graph = {
+      "nodes": [
+        {"id": 1, "label": "H", "rank": 3, "isDummy": false, "order": 1},
+        {"id": 2, "label": "I", "rank": 2, "isDummy": false, "order": 1},
+        {"id": 3, "label": "J", "rank": 2, "isDummy": false, "order": 2},
+        {"id": 4, "label": "K", "rank": 1, "isDummy": false, "order": 1},
+        {"id": 5, "label": "L", "rank": 1, "isDummy": false, "order": 2},
+        {"id": 6, "label": "M", "rank": 1, "isDummy": false, "order": 3},
+        {"id": 7, "label": "N", "rank": 1, "isDummy": false, "order": 4}
+      ],
+      "links": [
+        {"from": 1, "to": 2},
+        {"from": 1, "to": 3},
+        {"from": 2, "to": 4},
+        {"from": 2, "to": 5},
+        {"from": 3, "to": 6},
+        {"from": 3, "to": 7}
+      ]
+    };
+    XCoordinateAssignment.preprocessing(graph);
+    XCoordinateAssignment.alignUpperLeft(graph);
+    expect(graph.nodes[0].align).toBe(2);
+    expect(graph.nodes[2].align).toBe(6);
   });
 
   it("Test alignUpperRight", function(){
@@ -280,6 +304,30 @@ describe("White box test for XCoordinateAssignment", function(){
     expect(graph.nodes[14].align).toBe(22);
     expect(graph.nodes[18].align).toBe(24);
     expect(graph.nodes[21].align).toBe(26);
+
+    var graph = {
+      "nodes": [
+        {"id": 1, "label": "H", "rank": 3, "isDummy": false, "order": 1},
+        {"id": 2, "label": "I", "rank": 2, "isDummy": false, "order": 1},
+        {"id": 3, "label": "J", "rank": 2, "isDummy": false, "order": 2},
+        {"id": 4, "label": "K", "rank": 1, "isDummy": false, "order": 1},
+        {"id": 5, "label": "L", "rank": 1, "isDummy": false, "order": 2},
+        {"id": 6, "label": "M", "rank": 1, "isDummy": false, "order": 3},
+        {"id": 7, "label": "N", "rank": 1, "isDummy": false, "order": 4}
+      ],
+      "links": [
+        {"from": 1, "to": 2},
+        {"from": 1, "to": 3},
+        {"from": 2, "to": 4},
+        {"from": 2, "to": 5},
+        {"from": 3, "to": 6},
+        {"from": 3, "to": 7}
+      ]
+    };
+    XCoordinateAssignment.preprocessing(graph);
+    XCoordinateAssignment.alignUpperLeft(graph);
+    expect(graph.nodes[0].align).toBe(2);
+    expect(graph.nodes[2].align).toBe(6);
   });
 
   it("Test alignLowerLeft", function(){
@@ -350,10 +398,34 @@ describe("White box test for XCoordinateAssignment", function(){
     expect(graph.nodes[16].align).toBe(24);
     expect(graph.nodes[10].align).toBe(18);
     expect(graph.nodes[1].align).toBe(2);
+
+    var graph = {
+      "nodes": [
+        {"id": 1, "label": "H", "rank": 3, "isDummy": false, "order": 1},
+        {"id": 2, "label": "I", "rank": 2, "isDummy": false, "order": 1},
+        {"id": 3, "label": "J", "rank": 2, "isDummy": false, "order": 2},
+        {"id": 4, "label": "K", "rank": 1, "isDummy": false, "order": 1},
+        {"id": 5, "label": "L", "rank": 1, "isDummy": false, "order": 2},
+        {"id": 6, "label": "M", "rank": 1, "isDummy": false, "order": 3},
+        {"id": 7, "label": "N", "rank": 1, "isDummy": false, "order": 4}
+      ],
+      "links": [
+        {"from": 1, "to": 2},
+        {"from": 1, "to": 3},
+        {"from": 2, "to": 4},
+        {"from": 2, "to": 5},
+        {"from": 3, "to": 6},
+        {"from": 3, "to": 7}
+      ]
+    };
+    XCoordinateAssignment.preprocessing(graph);
+    XCoordinateAssignment.alignUpperLeft(graph);
+    expect(graph.nodes[0].align).toBe(2);
+    expect(graph.nodes[2].align).toBe(6);
   });
 
   it("Test alignLowerRight", function(){
-    var graph = {
+    /*var graph = {
       "nodes": [
         {"id": 1, "label": "A", "rank": 5, "isDummy": false, "group": 1, "order": 1},
         {"id": 2, "label": "B", "rank": 5, "isDummy": false, "group": 1, "order": 2},
@@ -419,7 +491,31 @@ describe("White box test for XCoordinateAssignment", function(){
     XCoordinateAssignment.alignLowerRight(graph);
     expect(graph.nodes[16].align).toBe(25);
     expect(graph.nodes[0].align).toBe(8);
-    expect(graph.nodes[4].align).toBe(5);
+    expect(graph.nodes[4].align).toBe(5);*/
+
+    var graph = {
+      "nodes": [
+        {"id": 1, "label": "H", "rank": 3, "isDummy": false, "order": 1},
+        {"id": 2, "label": "I", "rank": 2, "isDummy": false, "order": 1},
+        {"id": 3, "label": "J", "rank": 2, "isDummy": false, "order": 2},
+        {"id": 4, "label": "K", "rank": 1, "isDummy": false, "order": 1},
+        {"id": 5, "label": "L", "rank": 1, "isDummy": false, "order": 2},
+        {"id": 6, "label": "M", "rank": 1, "isDummy": false, "order": 3},
+        {"id": 7, "label": "N", "rank": 1, "isDummy": false, "order": 4}
+      ],
+      "links": [
+        {"from": 1, "to": 2},
+        {"from": 1, "to": 3},
+        {"from": 2, "to": 4},
+        {"from": 2, "to": 5},
+        {"from": 3, "to": 6},
+        {"from": 3, "to": 7}
+      ]
+    };
+    XCoordinateAssignment.preprocessing(graph);
+    XCoordinateAssignment.alignLowerRight(graph);
+    expect(graph.nodes[0].align).toBe(3);
+    expect(graph.nodes[2].align).toBe(7);
   });
 
   it("Test edgeBetweenTwoNodes", function(){

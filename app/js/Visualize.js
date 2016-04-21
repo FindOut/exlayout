@@ -337,7 +337,7 @@ var Graph = {
     {"from": 3, "to": 6},
     {"from": 3, "to": 7}
   ]
-}
+};
 
 graphArray = Main.main(Graph);
 var len1 = graphArray.length;
