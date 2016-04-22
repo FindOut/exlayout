@@ -298,7 +298,31 @@ var Graph = {
     {"id": 11, "label": "K"},
     {"id": 12, "label": "L"},
     {"id": 13, "label": "M"},
-    {"id": 14, "label": "N"}
+    {"id": 14, "label": "N"},
+    {"id": 15, "label": "O"},
+    {"id": 16, "label": "P"},
+    {"id": 17, "label": "Q"},
+    {"id": 18, "label": "R"},
+    {"id": 19, "label": "S"},
+    {"id": 20, "label": "T"},
+    {"id": 21, "label": "U"},
+    {"id": 22, "label": "V"}
+    /*{"id": 23, "label": "W"},
+    {"id": 24, "label": "X"},
+    {"id": 25, "label": "Y"},
+    {"id": 26, "label": "Z"},
+    {"id": 27, "label": "AA"},
+    {"id": 28, "label": "AB"},
+    {"id": 29, "label": "AC"},
+    {"id": 30, "label": "AD"},
+    {"id": 31, "label": "AE"},
+    {"id": 32, "label": "AF"},
+    {"id": 33, "label": "AG"},
+    {"id": 34, "label": "AH"},
+    {"id": 35, "label": "AI"},
+    {"id": 36, "label": "AJ"},
+    {"id": 37, "label": "AK"},
+    {"id": 38, "label": "AL"}*/
   ],
   "links": [
     {"from": 1, "to": 2},
@@ -315,7 +339,31 @@ var Graph = {
     {"from": 10, "to": 11},
     {"from": 10, "to": 12},
     {"from": 9, "to": 13},
-    {"from": 9, "to": 14}
+    {"from": 9, "to": 14},
+    {"from": 11, "to": 15},
+    {"from": 11, "to": 16},
+    {"from": 12, "to": 17},
+    {"from": 12, "to": 18},
+    {"from": 13, "to": 19},
+    {"from": 13, "to": 20},
+    {"from": 14, "to": 21},
+    {"from": 14, "to": 22}
+    /*{"from": 15, "to": 23},
+    {"from": 15, "to": 24},
+    {"from": 16, "to": 25},
+    {"from": 16, "to": 26},
+    {"from": 17, "to": 27},
+    {"from": 17, "to": 28},
+    {"from": 18, "to": 29},
+    {"from": 18, "to": 30},
+    {"from": 19, "to": 31},
+    {"from": 19, "to": 32},
+    {"from": 20, "to": 33},
+    {"from": 20, "to": 34},
+    {"from": 21, "to": 35},
+    {"from": 21, "to": 36},
+    {"from": 22, "to": 37},
+    {"from": 22, "to": 38}*/
   ]
 };
 
@@ -428,13 +476,13 @@ svg.append('defs').append('marker')
     .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
     .attr('fill', 'black'); // Fill the triangle
 
-var graphs = svg.selectAll("Graph")
+var graph = svg.selectAll(".graph")
   .data(graphArray);
 
-var graphsEnter = graphs.enter().append('g')
-  .attr('class', 'graph');
+var graphEnter = graph.enter().append('g')
+  .attr("class", "graph");
 
-graphsEnter.each(function(d,i){
+graphEnter.each(function(d,i){
 
   var nodes = d3.select(this).selectAll('circle')
                 .data(graphArray[i].nodes);
@@ -506,12 +554,12 @@ graphsEnter.each(function(d,i){
 
 var graphArrayCoordinate = {"graphs": [], "links": []};
 
-graphsEnter.each(function(d){
+graphEnter.each(function(d){
   var bbox = this.getBBox();
   var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
   graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
                                     "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal});
-})
+});
 
 for(i = 0; i < len1; i++)
 {
@@ -523,23 +571,101 @@ for(i = 0; i < len1; i++)
 
 var force = d3.layout.force()
               .size([width, height])
-              .linkDistance(function(d){
-                return(graphArrayCoordinate.graphs[d.source.index].halfDigonal+graphArrayCoordinate.graphs[d.target.index].halfDigonal);
+              //.linkDistance(function(d){
+                //return(graphArrayCoordinate.graphs[d.source.index].halfDigonal+graphArrayCoordinate.graphs[d.target.index].halfDigonal);
+              //})
+              .charge(function(d,i){
+                return 0;
+                //return (-graphArrayCoordinate.graphs[i].halfDigonal*50);
               })
-              .on("tick", tick);
+              .gravity(1)
+              .on("tick", tick)
+              .on("start", init(graphArrayCoordinate))
+              .on("end", debug(graphArrayCoordinate));
 
 force
   .nodes(graphArrayCoordinate.graphs)
-  .links(graphArrayCoordinate.links)
   .start();
+
+var graphRepresent = svg.selectAll(".graphRepresent")
+  .data(graphArrayCoordinate.graphs);
+
+var graphRepresentEnter = graphRepresent.enter().append('circle')
+  .attr('class', 'graphRepresent')
+  .attr("r", function(d,i){return graphArrayCoordinate.graphs[i].halfDigonal})
+  .attr("fill-opacity", 0);
+
+function debug(graphArrayCoordinate)
+{
+  var len = graphArrayCoordinate.graphs.length;
+  for(var i = 0; i < len; i++)
+  {
+    console.log(graphArrayCoordinate.graphs[i]);
+  }
+}
+
+function init(graphArrayCoordinate)
+{
+  var len = graphArrayCoordinate.graphs.length;
+  for(var i = 0; i < 0; i++)
+  {
+    graphArrayCoordinate.graphs[i].weight = graphArrayCoordinate.graphs[i].halfDigonal;
+  }
+}
 
 function tick()
 {
-  graphsEnter.each(function(d,i){
+  var q = d3.geom.quadtree(graphArrayCoordinate.graphs);
+  var i = 0;
+  var n = graphArrayCoordinate.graphs.length;
+
+  while(++i < n)
+  {
+    q.visit(collide(graphArrayCoordinate.graphs[i]));
+  }
+  graphEnter.each(function(d,i){
+    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
+    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
+    graphArrayCoordinate.graphs[i].weight = graphArrayCoordinate.graphs[i].halfDigonal;
+    d3.select(this)
+      .attr("transform", "translate("+dx+","+dy+")");
+  });
+  graphRepresentEnter
+    .attr("cx", function(d){return d.x})
+    .attr("cy", function(d){return d.y});
+
+  /*graphRepresentEnter.each(function(d,i){
     var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
     var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
 
     d3.select(this)
       .attr("transform", "translate("+dx+","+dy+")");
-  })
+  });*/
+}
+
+function collide(graph)
+{
+  var r = graph.halfDigonal + 16;
+  var nx1 = graph.x - r;
+  var nx2 = graph.y + r;
+  var ny1 = graph.x - r;
+  var ny2 = graph.y + r;
+  return function(quad,x1,y1,x2,y2){
+    if(quad.point && (quad.point !== graph))
+    {
+      var x = graph.x - quad.point.x;
+      var y = graph.y - quad.point.y;
+      var l = Math.sqrt(x*x + y*y);
+      var r = graph.halfDigonal + quad.point.halfDigonal;
+      if(l<r)
+      {
+        l = (l-r)/l*0.5;
+        graph.x -= x *= l;
+        graph.y -= y *= l;
+        quad.point.x += x;
+        quad.point.y += y;
+      }
+    }
+    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+  };
 }
