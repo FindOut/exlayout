@@ -1,6 +1,13 @@
 var d3 = require('d3');
+var CycleRemoval = require('./CycleRemoval.js');
+var XCoordinateAssignment = require("./XCoordinateAssignment.js");
+var LongestPath = require("./LongestPath.js");
+var VertexOrdering = require("./VertexOrdering.js");
+var Initialize = require("./Initialize.js");
+var Sugiyama = require("./Sugiyama.js");
+var ConnectedGraphDetect = require("./ConnectedGraphDetection.js");
+var DragHelper = require('./DragHelper.js');
 var Main = require("./main.js");
-var CycleRemoval = require("./CycleRemoval.js");
 
 function adjustEnds(fromPoint, toPoint) {
   var dx = xScale(toPoint.x) - xScale(fromPoint.x),
@@ -174,6 +181,25 @@ var r = 20;
   ]
 };*/
 
+var Graph = {
+  "nodes": [
+    {"id": 1, "label": "A"},
+    {"id": 2, "label": "B"},
+    {"id": 3, "label": "C"},
+    {"id": 4, "label": "D"},
+    {"id": 5, "label": "E"},
+    {"id": 6, "label": "F"},
+    {"id": 7, "label": "G"}
+  ],
+  "links": [
+    {"from": 1, "to": 2},
+    {"from": 1, "to": 3},
+    {"from": 2, "to": 4},
+    {"from": 2, "to": 5},
+    {"from": 3, "to": 6},
+    {"from": 3, "to": 7}
+  ]
+};
 /*var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false},
@@ -282,7 +308,7 @@ var r = 20;
   ]
 };*/
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "A"},
     {"id": 2, "label": "B"},
@@ -365,7 +391,7 @@ var Graph = {
     {"from": 22, "to": 37},
     {"from": 22, "to": 38}*/
   ]
-};
+};*/
 
 /*var Graph = {
   "nodes": [
@@ -476,13 +502,19 @@ svg.append('defs').append('marker')
     .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
     .attr('fill', 'black'); // Fill the triangle
 
-var graph = svg.selectAll(".graph")
+var drag = d3.behavior.drag()
+      .on("drag", dragmove(d,Graph));
+
+var nodes = svg.selectAll('circle')
+  .data(Graph.nodes);
+
+var graphs = svg.selectAll("Graph")
   .data(graphArray);
 
-var graphEnter = graph.enter().append('g')
-  .attr("class", "graph");
+var graphsEnter = graphs.enter().append('g')
+  .attr('class', 'graph');
 
-graphEnter.each(function(d,i){
+graphsEnter.each(function(d,i){
 
   var nodes = d3.select(this).selectAll('circle')
                 .data(graphArray[i].nodes);
@@ -493,12 +525,16 @@ graphEnter.each(function(d,i){
   nodesEnter.each(function(d){
     if(!d.isDummy)
     {
-      d3.select(this)
-      .append('circle')
-        .attr("cx", xScale(d.x))
-        .attr("cy", yScale(d.rank))
-        .attr("r", r)
-        .style("fill", "white");
+      nodesEnter.each(function(d){
+        if(!d.isDummy){
+          d3.select(this)
+          .append('circle')
+            .attr("cx", xScale(d.x))
+            .attr("cy", yScale(d.rank))
+            .attr("r", r)
+            .attr("id", d.id)
+            .style("fill", "white")
+            .call(drag);
 
       d3.select(this)
         .append('text')
@@ -508,6 +544,7 @@ graphEnter.each(function(d,i){
   });
 
   nodes.exit().remove();
+
 
   var links = d3.select(this).selectAll('line')
     .data(graphArray[i].links);
@@ -633,14 +670,6 @@ function tick()
   graphRepresentEnter
     .attr("cx", function(d){return d.x})
     .attr("cy", function(d){return d.y});
-
-  /*graphRepresentEnter.each(function(d,i){
-    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
-    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
-
-    d3.select(this)
-      .attr("transform", "translate("+dx+","+dy+")");
-  });*/
 }
 
 function collide(graph)
@@ -668,4 +697,19 @@ function collide(graph)
     }
     return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
   };
+}
+
+function dragmove(d, graph) {
+  var x = d3.event.x;
+  var y = d3.event.y;
+  d3.select(this).attr("transform", "translate(" + x + "," + y + ")");
+  var ingoingLinks = d3.selectAll("[to=" + d.attr("id") + "]");
+  ingoingLinks.each(function (d){
+    var fromNode = CycleRemoval.getNodeById(d.from, Graph.nodes);
+    var toNode = CycleRemoval.getNodeById(d.to, Graph.nodes);
+    var adjustedEnds = adjustEnds(fromNode, toNode);
+    d3.select(d)
+      .attr("x2", function(d) { return adjustEnds.to.x; })
+      .attr("y2", function(d) { return adjustEnds.to.rank; });
+  });
 }
