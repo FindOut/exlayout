@@ -2,6 +2,10 @@
 var Sugiyama = require("./Sugiyama.js");
 var ConnectedGraphDetect = require("./ConnectedGraphDetection.js");
 
+exports.main = function(graph){
+  return main(graph);
+};
+
 function main(graph)
 {
   var allGraphs = ConnectedGraphDetect.connectedGraphDetect(graph);
@@ -13,7 +17,7 @@ function main(graph)
   return allGraphs;
 }
 
-var graph = {
+/*var graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false, "group": 0},
     {"id": 2, "label": "B", "rank": 0, "isDummy": false, "group": 0},
@@ -43,4 +47,4 @@ var graph = {
   ]
 };
 
-console.log(JSON.stringify(main(graph)));
+console.log(JSON.stringify(main(graph)));*/

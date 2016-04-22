@@ -7,6 +7,7 @@ var Initialize = require("./Initialize.js");
 var Sugiyama = require("./Sugiyama.js");
 var ConnectedGraphDetect = require("./ConnectedGraphDetection.js");
 var DragHelper = require('./DragHelper.js');
+var Main = require("./main.js");
 
 function adjustEnds(fromPoint, toPoint) {
   var dx = xScale(toPoint.x) - xScale(fromPoint.x),
@@ -199,7 +200,6 @@ var Graph = {
     {"from": 3, "to": 7}
   ]
 };
-
 /*var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false},
@@ -307,46 +307,136 @@ var Graph = {
     {"from": 6, "to": 5}
   ]
 };*/
-Sugiyama.sugiyama(Graph);
-var len = Graph.links.length;
-var reversedEdges = [];
-for(var i = 0; i < len; i++)
-{
-  if(Graph.links[i].isReversed)
-  {
-    reversedEdges.push(Graph.links[i]);
-  }
-}
-CycleRemoval.reverse(reversedEdges);
-var maxX = Number.MIN_VALUE;
-var minX = Number.MAX_VALUE;
-var maxY= Number.MIN_VALUE;
-var minY = Number.MAX_VALUE;
-len = Graph.nodes.length;
-for(var i = 0; i < len; i++)
-{
-  if(Graph.nodes[i].x > maxX)
-  {
-    maxX = Graph.nodes[i].x;
-  }else if(Graph.nodes[i].x < minX){
-    minX = Graph.nodes[i].x;
-  }
-  if(Graph.nodes[i].rank > maxY)
-  {
-    maxY = Graph.nodes[i].rank;
-  }else if(Graph.nodes[i].rank < minY){
-    minY = Graph.nodes[i].rank;
-  }
-}
 
-var width = (maxX-minX)*4*r+4*r;
-var height = (maxY-minY)*5*r+4*r;
+/*var Graph = {
+  "nodes": [
+    {"id": 1, "label": "A"},
+    {"id": 2, "label": "B"},
+    {"id": 3, "label": "C"},
+    {"id": 4, "label": "D"},
+    {"id": 5, "label": "E"},
+    {"id": 6, "label": "F"},
+    {"id": 7, "label": "G"},
+
+    {"id": 8, "label": "H"},
+    {"id": 9, "label": "I"},
+    {"id": 10, "label": "J"},
+    {"id": 11, "label": "K"},
+    {"id": 12, "label": "L"},
+    {"id": 13, "label": "M"},
+    {"id": 14, "label": "N"}
+  ],
+  "links": [
+    {"from": 1, "to": 2},
+    {"from": 2, "to": 3},
+    {"from": 2, "to": 5},
+    {"from": 2, "to": 4},
+    {"from": 3, "to": 5},
+    {"from": 4, "to": 5},
+    {"from": 5, "to": 6},
+    {"from": 7, "to": 4},
+
+    {"from": 8, "to": 9},
+    {"from": 8, "to": 10},
+    {"from": 10, "to": 11},
+    {"from": 10, "to": 12},
+    {"from": 9, "to": 13},
+    {"from": 9, "to": 14}
+  ]
+};*/
+
+/*var Graph = {
+  "nodes": [
+    {"id": 1, "label": "H"},
+    {"id": 2, "label": "I"},
+    {"id": 3, "label": "J"},
+    {"id": 4, "label": "K"},
+    {"id": 5, "label": "L"},
+    {"id": 6, "label": "M"},
+    {"id": 7, "label": "N"}
+  ],
+  "links": [
+    {"from": 1, "to": 2},
+    {"from": 1, "to": 3},
+    {"from": 2, "to": 4},
+    {"from": 2, "to": 5},
+    {"from": 3, "to": 6},
+    {"from": 3, "to": 7}
+  ]
+};*/
+
+graphArray = Main.main(Graph);
+var len1 = graphArray.length;
+var len2;
+var maxX;
+var minX;
+var maxY;
+var minY;
+var globalMaxX = Number.MIN_VALUE;
+var globalMinX = Number.MAX_VALUE;
+var globalMaxY = Number.MIN_VALUE;
+var globalMinY = Number.MAX_VALUE;
+var currentGraph;
+for(var i = 0; i < len1; i++)
+{
+  maxX = Number.MIN_VALUE;
+  minX = Number.MAX_VALUE;
+  maxY= Number.MIN_VALUE;
+  minY = Number.MAX_VALUE;
+  currentGraph = graphArray[i];
+  len2 = currentGraph.nodes.length;
+  for(var j = 0; j < len2; j++)
+  {
+    if(currentGraph.nodes[j].x > maxX)
+    {
+      maxX = currentGraph.nodes[j].x;
+    }else if(currentGraph.nodes[j].x < minX){
+      minX = currentGraph.nodes[j].x;
+    }
+    if(currentGraph.nodes[j].rank > maxY)
+    {
+      maxY = currentGraph.nodes[j].rank;
+    }else if(currentGraph.nodes[j].rank < minY){
+      minY = currentGraph.nodes[j].rank;
+    }
+  }
+  if(maxX > globalMaxX)
+  {
+    globalMaxX = maxX;
+  }
+  if(minX < globalMinX)
+  {
+    globalMinX = minX;
+  }
+  if(maxY > globalMaxY)
+  {
+    globalMaxY = maxY;
+  }
+  if(minY < globalMinY)
+  {
+    globalMinY = minY;
+  }
+  currentGraph.maxX = maxX;
+  currentGraph.minX = minX;
+  currentGraph.maxY = maxY;
+  currentGraph.minY = minY;
+}
+var width = 0;;
+var height = 0;
+/*for(i = 0; i < len1; i++)
+{
+  width = (graphArray[i].maxX-graphArray[i].minX)*5*r+width;
+  height = (graphArray[i].maxY-graphArray[i].minY)*5*r+height;
+}*/
+width = len1*(globalMaxX-globalMinX)*5*r;
+height = len1*(globalMaxY-globalMinY)*5*r;
+
 var yScale = d3.scale.linear()
-                      .domain([maxY, minY])
-                      .range([2*r, height-2*r]);
+                      .domain([globalMaxY, globalMinY])
+                      .range([r, (globalMaxY-globalMinY)*5*r-r]);
 var xScale = d3.scale.linear()
-                      .domain([minX, maxX])
-                      .range([2*r, width-2*r]);
+                      .domain([globalMinX, globalMaxX])
+                      .range([r, (globalMaxX-globalMinX)*5*r-r]);
 
 var svg = d3.select('#graph').append('svg')
   .attr('width', width).attr('height', height);
@@ -370,9 +460,12 @@ var drag = d3.behavior.drag()
 var nodes = svg.selectAll('circle')
   .data(Graph.nodes);
 
+var graphs = svg.selectAll("Graph")
+  .data(graphArray);
 
-var nodesEnter = nodes.enter().append('g')
-  .attr('class', 'node');
+
+var graphsEnter = graphs.enter().append('g')
+  .attr('class', 'graph');
 
 
 
@@ -389,66 +482,115 @@ nodesEnter.each(function(d){
       .call(drag);
 
 
+graphsEnter.each(function(d,i){
+
+  var nodes = d3.select(this).selectAll('circle')
+                .data(graphArray[i].nodes);
+
+  var nodesEnter = nodes.enter().append('g')
+                    .attr('class', 'node');
+
+  nodesEnter.each(function(d){
+    if(!d.isDummy)
+    {
       d3.select(this)
-      .append('text')
-        .text(d.label)
-        .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+      .append('circle')
+        .attr("cx", xScale(d.x))
+        .attr("cy", yScale(d.rank))
+        .attr("r", r)
+        .style("fill", "white");
+
+      d3.select(this)
+        .append('text')
+          .text(d.label)
+          .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+    }
+  });
+
+  nodes.exit().remove();
 
 
-  }
+  var links = d3.select(this).selectAll('line')
+    .data(graphArray[i].links);
+
+  var linksEnter = links.enter().append('line')
+    .attr('class', 'link');
+
+  linksEnter.each(function (d){
+    var fromNode = CycleRemoval.getNodeById(d.from, graphArray[i].nodes);
+    var toNode = CycleRemoval.getNodeById(d.to, graphArray[i].nodes);
+    var adjustedEnds = adjustEnds(fromNode, toNode);
+    if(!fromNode.isDummy && !toNode.isDummy)
+    {
+      d3.select(this)
+        .attr("x1", function(d) { return adjustedEnds.from.x; })
+        .attr("y1", function(d) { return adjustedEnds.from.rank; })
+        .attr("x2", function(d) { return adjustedEnds.to.x; })
+        .attr("y2", function(d) { return adjustedEnds.to.rank; })
+        .attr("marker-end", "url(#markerArrowEnd)");
+    }else if(fromNode.isDummy && !toNode.isDummy){
+      d3.select(this)
+        .attr("x1", function(d) { return xScale(fromNode.x); })
+        .attr("y1", function(d) { return yScale(fromNode.rank); })
+        .attr("x2", function(d) { return adjustedEnds.to.x; })
+        .attr("y2", function(d) { return adjustedEnds.to.rank; })
+        .attr("marker-end", "url(#markerArrowEnd)");
+    }else if(!fromNode.isDummy && toNode.isDummy){
+      d3.select(this)
+        .attr("x1", function(d) { return adjustedEnds.from.x; })
+        .attr("y1", function(d) { return adjustedEnds.from.rank; })
+        .attr("x2", function(d) { return xScale(toNode.x); })
+        .attr("y2", function(d) { return yScale(toNode.rank); });
+    }else{
+      d3.select(this)
+        .attr("x1", function(d) { return xScale(fromNode.x); })
+        .attr("y1", function(d) { return yScale(fromNode.rank); })
+        .attr("x2", function(d) { return xScale(toNode.x); })
+        .attr("y2", function(d) { return yScale(toNode.rank); });
+    }
+  });
+
+  links.exit().remove();
 });
 
-nodes.exit().remove();
+var graphArrayCoordinate = {"graphs": [], "links": []};
 
-var links = svg.selectAll('line')
-  .data(Graph.links);
+graphsEnter.each(function(d){
+  var bbox = this.getBBox();
+  var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+  graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
+                                    "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal});
+})
 
-var linksEnter = links.enter().append('line')
-  .attr('class', 'link');
-
-linksEnter.each(function (d){
-  var fromNode = CycleRemoval.getNodeById(d.from, Graph.nodes);
-  var toNode = CycleRemoval.getNodeById(d.to, Graph.nodes);
-  var adjustedEnds = adjustEnds(fromNode, toNode);
-  if(!fromNode.isDummy && !toNode.isDummy)
+for(i = 0; i < len1; i++)
+{
+  for(j = i+1; j < len1; j++)
   {
-    d3.select(this)
-      .attr("x1", function(d) { return adjustedEnds.from.x; })
-      .attr("y1", function(d) { return adjustedEnds.from.rank; })
-      .attr("x2", function(d) { return adjustedEnds.to.x; })
-      .attr("y2", function(d) { return adjustedEnds.to.rank; })
-      .attr("marker-end", "url(#markerArrowEnd)")
-      .attr("from", d.from)
-      .attr("to", d.to);
-  }else if(fromNode.isDummy && !toNode.isDummy){
-    d3.select(this)
-      .attr("x1", function(d) { return xScale(fromNode.x); })
-      .attr("y1", function(d) { return yScale(fromNode.rank); })
-      .attr("x2", function(d) { return adjustedEnds.to.x; })
-      .attr("y2", function(d) { return adjustedEnds.to.rank; })
-      .attr("marker-end", "url(#markerArrowEnd)")
-      .attr("from", d.from)
-      .attr("to", d.to);
-  }else if(!fromNode.isDummy && toNode.isDummy){
-    d3.select(this)
-      .attr("x1", function(d) { return adjustedEnds.from.x; })
-      .attr("y1", function(d) { return adjustedEnds.from.rank; })
-      .attr("x2", function(d) { return xScale(toNode.x); })
-      .attr("y2", function(d) { return yScale(toNode.rank); })
-      .attr("from", d.from)
-      .attr("to", d.to);
-  }else{
-    d3.select(this)
-      .attr("x1", function(d) { return xScale(fromNode.x); })
-      .attr("y1", function(d) { return yScale(fromNode.rank); })
-      .attr("x2", function(d) { return xScale(toNode.x); })
-      .attr("y2", function(d) { return yScale(toNode.rank); })
-      .attr("from", d.from)
-      .attr("to", d.to);
+    graphArrayCoordinate.links.push({"source": i, "target": j});
   }
-});
+}
 
-links.exit().remove();
+var force = d3.layout.force()
+              .size([width, height])
+              .linkDistance(function(d){
+                return(graphArrayCoordinate.graphs[d.source.index].halfDigonal+graphArrayCoordinate.graphs[d.target.index].halfDigonal);
+              })
+              .on("tick", tick);
+
+  force
+    .nodes(graphArrayCoordinate.graphs)
+    .links(graphArrayCoordinate.links)
+    .start();
+
+function tick()
+    {
+      graphsEnter.each(function(d,i){
+      var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
+      var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
+
+      d3.select(this)
+      .attr("transform", "translate("+dx+","+dy+")");
+    }
 
 function dragmove(d, graph) {
   var x = d3.event.x;
@@ -462,7 +604,5 @@ function dragmove(d, graph) {
     d3.select(d)
       .attr("x2", function(d) { return adjustEnds.to.x; })
       .attr("y2", function(d) { return adjustEnds.to.rank; });
-
   });
-
 }

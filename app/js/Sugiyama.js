@@ -13,6 +13,28 @@ function sugiyama(graph){
   CycleRemoval.cycleRemoval(graph);
   LongestPath.layering(graph);
   VertexOrdering.vertexOrdering(graph);
-  //console.log(graph);
   XCoordinateAssignment.xCoordinateAssignment(graph);
+  var len = graph.links.length;
+  var reversedEdges = [];
+  for(var i = 0; i < len; i++)
+  {
+    if(graph.links[i].isReversed)
+    {
+      reversedEdges.push(graph.links[i]);
+    }
+  }
+  CycleRemoval.reverse(reversedEdges);
+  var minX = Number.MAX_VALUE;
+  len = graph.nodes.length;
+  for(i = 0; i < len; i++)
+  {
+    if(graph.nodes[i].x < minX)
+    {
+      minX = graph.nodes[i].x;
+    }
+  }
+  for(i = 0; i < len; i++)
+  {
+    graph.nodes[i].x += (0-minX);
+  }
 }

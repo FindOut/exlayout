@@ -49,7 +49,6 @@ function preprocessing(Graph) //mark type 1 conflict
       height = Graph.nodes[i].rank;
     }
   }
-  //console.log(height);
 
   for(var i = 2; i < height-1; i++)
   {
@@ -66,7 +65,7 @@ function preprocessing(Graph) //mark type 1 conflict
       var ingoingEdges;
       var index;
       var upperNeighbor;
-      for(var m= 1; m <= numberofNodesinRow; m++)
+      for(var m = 1; m <= numberofNodesinRow; m++)
       {
         currentNode= NodesinRow[m-1];
         dummiParNode = isdummyPar(currentNode, Graph);  //get ingoing dummy Node to NodesinRow[m]
@@ -240,13 +239,13 @@ function alignUpperRight(Graph)
   var link;
   for(var x = 1; x <= height; x++)
   {
-    r = 0;   //R set to maximum value
+    r = Number.MAX_VALUE;   //R set to maximum value
     xRowIndex = height-x+1;
     NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
     NodesinRow.sort(function(a,b){
       return a.order - b.order;
     });
-    for(var k = 1; k <= NodesinRow.length; k++)
+    for(var k = NodesinRow.length; k >= 1; k--)
     {
       currentNode = NodesinRow[k-1];
       ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
@@ -274,7 +273,7 @@ function alignUpperRight(Graph)
           if(currentNode.align == currentNode.id)
           {
             link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
-            if(link != null && !link.ismark && r < averageNode.order)
+            if(link != null && !link.ismark && r > averageNode.order)
             {
                 averageNode.align = currentNode.id;
                 currentNode.root = averageNode.root;
@@ -404,13 +403,13 @@ function alignLowerRight(Graph)
   var link;
   for(var x = 1; x <= height; x++)
   {
-    r = 0;   //R set to maximum value
+    r = Number.MAX_VALUE;   //R set to maximum value
     xRowIndex = height-x+1;
     NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
     NodesinRow.sort(function(a,b){
       return a.order - b.order;
     });
-    for(var k = 1; k <= NodesinRow.length; k++)
+    for(var k = NodesinRow.length; k >= 1; k--)
     {
       currentNode = NodesinRow[k-1];
       outgoingEdges = CycleRemoval.outgoing(currentNode, Graph.links);
@@ -438,7 +437,7 @@ function alignLowerRight(Graph)
           if(currentNode.align == currentNode.root)
           {
             link = edgeBetweenTwoNodes(currentNode, averageNode, Graph);
-            if(link != null && !link.ismark && r < averageNode.order)
+            if(link != null && !link.ismark && r > averageNode.order)
             {
               currentNode.align = averageNode.id;
               averageNode.root = currentNode.root;
