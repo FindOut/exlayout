@@ -5,7 +5,8 @@ var LongestPath = require("./LongestPath.js");
 var VertexOrdering = require("./VertexOrdering.js");
 var Initialize = require("./Initialize.js");
 var Sugiyama = require("./Sugiyama.js");
-var ConnectedGraphDetect = require("./ConnectedGraphDetect.js");
+var ConnectedGraphDetect = require("./ConnectedGraphDetection.js");
+var DragHelper = require('./DragHelper.js');
 
 function adjustEnds(fromPoint, toPoint) {
   var dx = xScale(toPoint.x) - xScale(fromPoint.x),
@@ -148,7 +149,7 @@ var r = 20;
   ]
 };*/
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false},
     {"id": 2, "label": "B", "rank": 0, "isDummy": false},
@@ -176,6 +177,26 @@ var Graph = {
     {"from": 6, "to": 11},
     {"from": 8, "to": 10},
     {"from": 8, "to": 11}
+  ]
+};*/
+
+var Graph = {
+  "nodes": [
+    {"id": 1, "label": "A"},
+    {"id": 2, "label": "B"},
+    {"id": 3, "label": "C"},
+    {"id": 4, "label": "D"},
+    {"id": 5, "label": "E"},
+    {"id": 6, "label": "F"},
+    {"id": 7, "label": "G"}
+  ],
+  "links": [
+    {"from": 1, "to": 2},
+    {"from": 1, "to": 3},
+    {"from": 2, "to": 4},
+    {"from": 2, "to": 5},
+    {"from": 3, "to": 6},
+    {"from": 3, "to": 7}
   ]
 };
 
@@ -343,11 +364,18 @@ svg.append('defs').append('marker')
     .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
     .attr('fill', 'black'); // Fill the triangle
 
+var drag = d3.behavior.drag()
+      .on("drag", dragmove(d,Graph));
+
 var nodes = svg.selectAll('circle')
-  .data(Graph.nodes)
+  .data(Graph.nodes);
+
 
 var nodesEnter = nodes.enter().append('g')
   .attr('class', 'node');
+
+
+
 
 nodesEnter.each(function(d){
   if(!d.isDummy){
@@ -356,12 +384,17 @@ nodesEnter.each(function(d){
       .attr("cx", xScale(d.x))
       .attr("cy", yScale(d.rank))
       .attr("r", r)
-      .style("fill", "white");
+      .attr("id", d.id)
+      .style("fill", "white")
+      .call(drag);
+
 
       d3.select(this)
       .append('text')
         .text(d.label)
         .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+
+
   }
 });
 
@@ -384,27 +417,52 @@ linksEnter.each(function (d){
       .attr("y1", function(d) { return adjustedEnds.from.rank; })
       .attr("x2", function(d) { return adjustedEnds.to.x; })
       .attr("y2", function(d) { return adjustedEnds.to.rank; })
-      .attr("marker-end", "url(#markerArrowEnd)");
+      .attr("marker-end", "url(#markerArrowEnd)")
+      .attr("from", d.from)
+      .attr("to", d.to);
   }else if(fromNode.isDummy && !toNode.isDummy){
     d3.select(this)
       .attr("x1", function(d) { return xScale(fromNode.x); })
       .attr("y1", function(d) { return yScale(fromNode.rank); })
       .attr("x2", function(d) { return adjustedEnds.to.x; })
       .attr("y2", function(d) { return adjustedEnds.to.rank; })
-      .attr("marker-end", "url(#markerArrowEnd)");
+      .attr("marker-end", "url(#markerArrowEnd)")
+      .attr("from", d.from)
+      .attr("to", d.to);
   }else if(!fromNode.isDummy && toNode.isDummy){
     d3.select(this)
       .attr("x1", function(d) { return adjustedEnds.from.x; })
       .attr("y1", function(d) { return adjustedEnds.from.rank; })
       .attr("x2", function(d) { return xScale(toNode.x); })
-      .attr("y2", function(d) { return yScale(toNode.rank); });
+      .attr("y2", function(d) { return yScale(toNode.rank); })
+      .attr("from", d.from)
+      .attr("to", d.to);
   }else{
     d3.select(this)
       .attr("x1", function(d) { return xScale(fromNode.x); })
       .attr("y1", function(d) { return yScale(fromNode.rank); })
       .attr("x2", function(d) { return xScale(toNode.x); })
-      .attr("y2", function(d) { return yScale(toNode.rank); });
+      .attr("y2", function(d) { return yScale(toNode.rank); })
+      .attr("from", d.from)
+      .attr("to", d.to);
   }
 });
 
 links.exit().remove();
+
+function dragmove(d, graph) {
+  var x = d3.event.x;
+  var y = d3.event.y;
+  d3.select(this).attr("transform", "translate(" + x + "," + y + ")");
+  var ingoingLinks = d3.selectAll("[to=" + d.attr("id") + "]");
+  ingoingLinks.each(function (d){
+    var fromNode = CycleRemoval.getNodeById(d.from, Graph.nodes);
+    var toNode = CycleRemoval.getNodeById(d.to, Graph.nodes);
+    var adjustedEnds = adjustEnds(fromNode, toNode);
+    d3.select(d)
+      .attr("x2", function(d) { return adjustEnds.to.x; })
+      .attr("y2", function(d) { return adjustEnds.to.rank; });
+
+  });
+
+}
