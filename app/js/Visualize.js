@@ -18,6 +18,16 @@ function adjustEnds(fromPoint, toPoint) {
   return {from: {x: xScale(fromPoint.x) + dx, rank: yScale(fromPoint.rank) + dy}, to: {x: xScale(toPoint.x) - dx, rank: yScale(toPoint.rank) - dy}};
 }
 
+function adjustDragEnds(fromPoint, toPoint) {
+  var dx = toPoint.x-fromPoint.x;
+  var dy = toPoint.y-fromPoint.y;
+  var length = Math.sqrt(dx * dx + dy * dy);
+  dx = dx / length * r;
+  dy = dy / length * r;
+  console.log(parseInt(fromPoint.y) + dy);
+  return {from: {x: parseInt(fromPoint.x) + dx, y: parseInt(fromPoint.y) + dy}, to: {x: parseInt(toPoint.x) - dx, y: parseInt(toPoint.y) - dy}};
+}
+
 var r = 20;
 
 /*var Graph = {
@@ -504,7 +514,9 @@ svg.append('defs').append('marker')
     .attr('fill', 'black'); // Fill the triangle
 
 var drag = d3.behavior.drag()
-      .on("drag", dragmove);
+      .on("drag", dragmove)
+      .on("dragstart", dragstart)
+      .on("dragend", dragend);
 
 var graph = svg.selectAll(".graph")
   .data(graphArray);
@@ -530,14 +542,18 @@ graphEnter.each(function(d,i){
           .attr("cx", xScale(d.x))
           .attr("cy", yScale(d.rank))
           .attr("r", r)
-          .attr("id", d.id)
+          .attr("init_x", xScale(d.x))
+          .attr("init_y", yScale(d.rank))
+          .attr("id", "name"+d.id)
           .style("fill", "white")
-          .call(drag);
 
       d3.select(this)
         .append('text')
           .text(d.label)
           .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+
+      d3.select(this)
+        .call(drag);
     }
   });
 
@@ -561,6 +577,8 @@ graphEnter.each(function(d,i){
         .attr("y1", function(d) { return adjustedEnds.from.rank; })
         .attr("x2", function(d) { return adjustedEnds.to.x; })
         .attr("y2", function(d) { return adjustedEnds.to.rank; })
+        .attr("from", d.from)
+        .attr("to", d.to)
         .attr("marker-end", "url(#markerArrowEnd)");
     }else if(fromNode.isDummy && !toNode.isDummy){
       d3.select(this)
@@ -568,19 +586,25 @@ graphEnter.each(function(d,i){
         .attr("y1", function(d) { return yScale(fromNode.rank); })
         .attr("x2", function(d) { return adjustedEnds.to.x; })
         .attr("y2", function(d) { return adjustedEnds.to.rank; })
+        .attr("from", d.from)
+        .attr("to", d.to)
         .attr("marker-end", "url(#markerArrowEnd)");
     }else if(!fromNode.isDummy && toNode.isDummy){
       d3.select(this)
         .attr("x1", function(d) { return adjustedEnds.from.x; })
         .attr("y1", function(d) { return adjustedEnds.from.rank; })
         .attr("x2", function(d) { return xScale(toNode.x); })
-        .attr("y2", function(d) { return yScale(toNode.rank); });
+        .attr("y2", function(d) { return yScale(toNode.rank); })
+        .attr("from", d.from)
+        .attr("to", d.to);
     }else{
       d3.select(this)
         .attr("x1", function(d) { return xScale(fromNode.x); })
         .attr("y1", function(d) { return yScale(fromNode.rank); })
         .attr("x2", function(d) { return xScale(toNode.x); })
-        .attr("y2", function(d) { return yScale(toNode.rank); });
+        .attr("y2", function(d) { return yScale(toNode.rank); })
+        .attr("from", d.from)
+        .attr("to", d.to);
     }
   });
 
@@ -589,46 +613,58 @@ graphEnter.each(function(d,i){
 
 var graphArrayCoordinate = {"graphs": [], "links": []};
 
+graphArrayCoordinate.graphs.push({"x": width/2, "y": height/2, "fixed": true, "halfDigonal": 0});
+
+var maxDigonal = Number.MIN_VALUE;
+
 graphEnter.each(function(d){
   var bbox = this.getBBox();
   var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+  if(halfDigonal > maxDigonal)
+  {
+    maxDigonal = halfDigonal;
+  }
   graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
                                     "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal});
 });
 
-for(i = 0; i < len1; i++)
+for(i = 1; i <= len1; i++)
 {
-  for(j = i+1; j < len1; j++)
-  {
-    graphArrayCoordinate.links.push({"source": i, "target": j});
-  }
+  graphArrayCoordinate.links.push({"source": 0, "target": i});
 }
+
 
 var force = d3.layout.force()
               .size([width, height])
-              //.linkDistance(function(d){
-                //return(graphArrayCoordinate.graphs[d.source.index].halfDigonal+graphArrayCoordinate.graphs[d.target.index].halfDigonal);
-              //})
-              .charge(function(d,i){
-                return 0;
-                //return (-graphArrayCoordinate.graphs[i].halfDigonal*50);
+              /*.linkStrength(function(d){
+                if(d.source.index == 0)
+                {
+                  console.log(d.target.halfDigonal/maxDigonal);
+                  return d.target.halfDigonal/maxDigonal;
+                }
               })
-              .gravity(1)
+              .linkDistance(function(d){
+                if(d.source.index == 0)
+                {
+                  return maxDigonal/d.target.halfDigonal;
+                }
+              })*/
               .on("tick", tick)
               .on("start", init(graphArrayCoordinate))
               .on("end", debug(graphArrayCoordinate));
 
 force
   .nodes(graphArrayCoordinate.graphs)
+  .links(graphArrayCoordinate.links)
   .start();
 
-var graphRepresent = svg.selectAll(".graphRepresent")
+/*var graphRepresent = svg.selectAll(".graphRepresent")
   .data(graphArrayCoordinate.graphs);
 
 var graphRepresentEnter = graphRepresent.enter().append('circle')
   .attr('class', 'graphRepresent')
   .attr("r", function(d,i){return graphArrayCoordinate.graphs[i].halfDigonal})
-  .attr("fill-opacity", 0);
+  .attr("fill-opacity", 0);*/
 
 function debug(graphArrayCoordinate)
 {
@@ -642,9 +678,9 @@ function debug(graphArrayCoordinate)
 function init(graphArrayCoordinate)
 {
   var len = graphArrayCoordinate.graphs.length;
-  for(var i = 0; i < 0; i++)
+  for(var i = 0; i < len; i++)
   {
-    graphArrayCoordinate.graphs[i].weight = graphArrayCoordinate.graphs[i].halfDigonal;
+    graphArrayCoordinate.graphs[i].weight = graphArrayCoordinate.graphs[i].halfDigonal/maxDigonal;
   }
 }
 
@@ -658,16 +694,18 @@ function tick()
   {
     q.visit(collide(graphArrayCoordinate.graphs[i]));
   }
+
   graphEnter.each(function(d,i){
-    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
-    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
-    graphArrayCoordinate.graphs[i].weight = graphArrayCoordinate.graphs[i].halfDigonal;
+    var dx = graphArrayCoordinate.graphs[i+1].x - graphArrayCoordinate.graphs[i+1].old_x;
+    var dy = graphArrayCoordinate.graphs[i+1].y - graphArrayCoordinate.graphs[i+1].old_y;
+    graphArrayCoordinate.graphs[i].weight = graphArrayCoordinate.graphs[i].halfDigonal/maxDigonal;
     d3.select(this)
       .attr("transform", "translate("+dx+","+dy+")");
   });
-  graphRepresentEnter
+
+  /*graphRepresentEnter
     .attr("cx", function(d){return d.x})
-    .attr("cy", function(d){return d.y});
+    .attr("cy", function(d){return d.y});*/
 }
 
 function collide(graph)
@@ -697,8 +735,8 @@ function collide(graph)
   };
 }
 
-function dragmove(d, graph) {
-  var x = d3.event.x;
+function dragmove(d) {
+  /*var x = d3.event.x;
   var y = d3.event.y;
   d3.select(this).attr("transform", "translate(" + x + "," + y + ")");
   var ingoingLinks = d3.selectAll("[to=" + d.attr("id") + "]");
@@ -709,5 +747,69 @@ function dragmove(d, graph) {
     d3.select(d)
       .attr("x2", function(d) { return adjustEnds.to.x; })
       .attr("y2", function(d) { return adjustEnds.to.rank; });
+  });*/
+  //d.cx += d3.event.dx;
+  //d.cy += d3.event.du;
+  var x = d3.select(this).select("circle").attr("init_x");
+  var y = d3.select(this).select("circle").attr("init_y");
+  d3.select(this)
+    .attr("transform", "translate("+(d3.event.x-x)+","+(d3.event.y-y)+")");
+
+  var fromNodes = [];
+  var toNodes = [];
+   d3.selectAll("line[to='"+d.id+"']").each(function(d){
+     fromNodes.push({"from": d.from});
+   });
+   d3.selectAll("line[from='"+d.id+"']").each(function(d){
+     toNodes.push({"to": d.to});
+   });
+   fromNodes.forEach(function(d){
+     d.x = d3.selectAll("#name"+d.from).attr("cx");
+     d.y = d3.selectAll("#name"+d.from).attr("cy");
+   })
+   toNodes.forEach(function(d){
+     d.x = d3.selectAll("#name"+d.to).attr("cx");
+     d.y = d3.selectAll("#name"+d.to).attr("cy");
+   })
+
+  d3.selectAll("line[to='"+d.id+"']").each(function(d,i)
+  {
+    var ends = adjustDragEnds({"x": d3.selectAll("#name"+d.from).attr("cx"), "y": d3.selectAll("#name"+d.from).attr("cy")}, {"x": d3.event.x, "y": d3.event.y})
+    /*console.log(d3.selectAll("#name"+d.from).attr("cx"));
+    console.log(d3.selectAll("#name"+d.from).attr("cy"));
+    console.log(x);
+    console.log(y);*/
+    d3.select(this)
+      .attr("x1", ends.from.x)
+      .attr("y1", ends.from.y)
+      .attr("x2", ends.to.x)
+      .attr("y2", ends.to.y);
   });
+
+  d3.selectAll("line[from='"+d.id+"']").each(function(d,i)
+  {
+    var ends = adjustDragEnds({"x": d3.event.x, "y": d3.event.y}, {"x": d3.selectAll("#name"+d.to).attr("cx"), "y": d3.selectAll("#name"+d.to).attr("cy")})
+    d3.select(this)
+      .attr("x1", ends.from.x)
+      .attr("y1", ends.from.y)
+      .attr("x2", ends.to.x)
+      .attr("y2", ends.to.y);
+  });
+    //.attr("cx", d3.event.x)
+    //.attr("cy", d3.event.y);
+  /*d.cx += d3.event.dx;
+  d.cy += d3.event.dy;
+  tick();*/
+}
+
+function dragstart()
+{
+  force.stop();
+}
+
+function dragend(d)
+{
+  d.fixed = true;
+  tick();
+  force.resume();
 }
