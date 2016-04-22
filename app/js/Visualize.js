@@ -181,7 +181,7 @@ var r = 20;
   ]
 };*/
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "A"},
     {"id": 2, "label": "B"},
@@ -199,7 +199,8 @@ var Graph = {
     {"from": 3, "to": 6},
     {"from": 3, "to": 7}
   ]
-};
+};*/
+
 /*var Graph = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false},
@@ -308,7 +309,7 @@ var Graph = {
   ]
 };*/
 
-/*var Graph = {
+var Graph = {
   "nodes": [
     {"id": 1, "label": "A"},
     {"id": 2, "label": "B"},
@@ -391,7 +392,7 @@ var Graph = {
     {"from": 22, "to": 37},
     {"from": 22, "to": 38}*/
   ]
-};*/
+};
 
 /*var Graph = {
   "nodes": [
@@ -503,18 +504,17 @@ svg.append('defs').append('marker')
     .attr('fill', 'black'); // Fill the triangle
 
 var drag = d3.behavior.drag()
-      .on("drag", dragmove(d,Graph));
+      .on("drag", dragmove);
 
-var nodes = svg.selectAll('circle')
-  .data(Graph.nodes);
-
-var graphs = svg.selectAll("Graph")
+var graph = svg.selectAll(".graph")
   .data(graphArray);
 
-var graphsEnter = graphs.enter().append('g')
+var graphEnter = graph.enter().append('g')
   .attr('class', 'graph');
 
-graphsEnter.each(function(d,i){
+
+
+graphEnter.each(function(d,i){
 
   var nodes = d3.select(this).selectAll('circle')
                 .data(graphArray[i].nodes);
@@ -525,16 +525,14 @@ graphsEnter.each(function(d,i){
   nodesEnter.each(function(d){
     if(!d.isDummy)
     {
-      nodesEnter.each(function(d){
-        if(!d.isDummy){
-          d3.select(this)
-          .append('circle')
-            .attr("cx", xScale(d.x))
-            .attr("cy", yScale(d.rank))
-            .attr("r", r)
-            .attr("id", d.id)
-            .style("fill", "white")
-            .call(drag);
+      d3.select(this)
+        .append('circle')
+          .attr("cx", xScale(d.x))
+          .attr("cy", yScale(d.rank))
+          .attr("r", r)
+          .attr("id", d.id)
+          .style("fill", "white")
+          .call(drag);
 
       d3.select(this)
         .append('text')
