@@ -542,8 +542,6 @@ graphEnter.each(function(d,i){
           .attr("cx", xScale(d.x))
           .attr("cy", yScale(d.rank))
           .attr("r", r)
-          .attr("init_x", xScale(d.x))
-          .attr("init_y", yScale(d.rank))
           .attr("id", "name"+d.id)
           .style("fill", "white")
 
@@ -750,8 +748,8 @@ function dragmove(d) {
   });*/
   //d.cx += d3.event.dx;
   //d.cy += d3.event.du;
-  var x = d3.select(this).select("circle").attr("init_x");
-  var y = d3.select(this).select("circle").attr("init_y");
+  var x = d3.select(this).select("circle").attr("cx");
+  var y = d3.select(this).select("circle").attr("cy");
   d3.select(this)
     .attr("transform", "translate("+(d3.event.x-x)+","+(d3.event.y-y)+")");
 
@@ -763,7 +761,8 @@ function dragmove(d) {
    d3.selectAll("line[from='"+d.id+"']").each(function(d){
      toNodes.push({"to": d.to});
    });
-   fromNodes.forEach(function(d){
+
+   fromNodes.forEach(function(d){   // useless?
      d.x = d3.selectAll("#name"+d.from).attr("cx");
      d.y = d3.selectAll("#name"+d.from).attr("cy");
    })
@@ -795,11 +794,12 @@ function dragmove(d) {
       .attr("x2", ends.to.x)
       .attr("y2", ends.to.y);
   });
-    //.attr("cx", d3.event.x)
-    //.attr("cy", d3.event.y);
-  /*d.cx += d3.event.dx;
-  d.cy += d3.event.dy;
-  tick();*/
+
+  d3.select(this).select("circle")
+    .attr("cx", d3.event.x)
+    .attr("cy", d3.event.y);
+  d3.select(this).select("text")
+    .attr({x: d3.event.x-r/4, y: d3.event.y+r/4});
 }
 
 function dragstart()
