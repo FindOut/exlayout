@@ -29,6 +29,7 @@ function adjustDragEnds(fromPoint, toPoint) {
 }
 
 var r = 20;
+var dummyR = 1;
 
 /*var Graph = {
   "nodes": [
@@ -530,7 +531,9 @@ graphEnter.each(function(d,i){
 
   var nodes = d3.select(this).selectAll('circle')
                 .data(graphArray[i].nodes);
-
+  //console.log(graphArray[i]);
+  var graphNumber = i+1;
+console.log(graphNumber);
   var nodesEnter = nodes.enter().append('g')
                     .attr('class', 'node');
 
@@ -549,6 +552,25 @@ graphEnter.each(function(d,i){
         .append('text')
           .text(d.label)
           .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+
+      d3.select(this)
+        .attr("graph",graphNumber)
+        .call(drag);
+    }
+    else {
+      d3.select(this)
+        .append('circle')
+          .attr("cx", xScale(d.x))
+          .attr("cy", yScale(d.rank))
+          .attr("r", dummyR)
+          .attr("id", "name"+d.id)
+          .attr("graph",graphNumber)
+          .style("fill", "white")
+
+      /*d3.select(this)
+        .append('text')
+          .text(d.label)
+          .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});*/
 
       d3.select(this)
         .call(drag);
@@ -577,7 +599,9 @@ graphEnter.each(function(d,i){
         .attr("y2", function(d) { return adjustedEnds.to.rank; })
         .attr("from", d.from)
         .attr("to", d.to)
+        .attr("graph", graphNumber)
         .attr("marker-end", "url(#markerArrowEnd)");
+      //  console.log(graphNumber);
     }else if(fromNode.isDummy && !toNode.isDummy){
       d3.select(this)
         .attr("x1", function(d) { return xScale(fromNode.x); })
@@ -586,6 +610,7 @@ graphEnter.each(function(d,i){
         .attr("y2", function(d) { return adjustedEnds.to.rank; })
         .attr("from", d.from)
         .attr("to", d.to)
+        .attr("graph", graphNumber)
         .attr("marker-end", "url(#markerArrowEnd)");
     }else if(!fromNode.isDummy && toNode.isDummy){
       d3.select(this)
@@ -594,7 +619,8 @@ graphEnter.each(function(d,i){
         .attr("x2", function(d) { return xScale(toNode.x); })
         .attr("y2", function(d) { return yScale(toNode.rank); })
         .attr("from", d.from)
-        .attr("to", d.to);
+        .attr("to", d.to)
+        .attr("graph", graphNumber);
     }else{
       d3.select(this)
         .attr("x1", function(d) { return xScale(fromNode.x); })
@@ -602,7 +628,8 @@ graphEnter.each(function(d,i){
         .attr("x2", function(d) { return xScale(toNode.x); })
         .attr("y2", function(d) { return yScale(toNode.rank); })
         .attr("from", d.from)
-        .attr("to", d.to);
+        .attr("to", d.to)
+        .attr("graph", graphNumber);
     }
   });
 
@@ -753,31 +780,32 @@ function dragmove(d) {
   d3.select(this)
     .attr("transform", "translate("+(d3.event.x-x)+","+(d3.event.y-y)+")");
 
+  var graphNumber = d3.select(this).attr("graph");
+  //console.log(d3.selectAll("line[graph='"+graphNumber+"']").selectAll("[to='"+d.id+"']"));
   var fromNodes = [];
   var toNodes = [];
-   d3.selectAll("line[to='"+d.id+"']").each(function(d){
+   d3.selectAll("line[graph='"+graphNumber+"'][to='"+d.id+"']").each(function(d){
      fromNodes.push({"from": d.from});
    });
-   d3.selectAll("line[from='"+d.id+"']").each(function(d){
+   d3.selectAll("line[graph='"+graphNumber+"'][from='"+d.id+"']").each(function(d){
      toNodes.push({"to": d.to});
    });
 
-   fromNodes.forEach(function(d){   // useless?
+   /*fromNodes.forEach(function(d){   // useless?
      d.x = d3.selectAll("#name"+d.from).attr("cx");
      d.y = d3.selectAll("#name"+d.from).attr("cy");
    })
    toNodes.forEach(function(d){
      d.x = d3.selectAll("#name"+d.to).attr("cx");
      d.y = d3.selectAll("#name"+d.to).attr("cy");
-   })
+   })*/
 
-  d3.selectAll("line[to='"+d.id+"']").each(function(d,i)
+  //console.log(d3.selectAll("line[graph='"+graphNumber+"'][to='"+d.id+"']"));
+  d3.selectAll("line[graph='"+graphNumber+"'][to='"+d.id+"']").each(function(d,i)
   {
-    var ends = adjustDragEnds({"x": d3.selectAll("#name"+d.from).attr("cx"), "y": d3.selectAll("#name"+d.from).attr("cy")}, {"x": d3.event.x, "y": d3.event.y})
-    /*console.log(d3.selectAll("#name"+d.from).attr("cx"));
-    console.log(d3.selectAll("#name"+d.from).attr("cy"));
-    console.log(x);
-    console.log(y);*/
+    var ends = adjustDragEnds({"x": d3.selectAll("#name"+d.from).attr("cx"),
+     "y": d3.selectAll("#name"+d.from).attr("cy")}, {"x": d3.event.x, "y": d3.event.y})
+    //console.log(d3.selectAll("#name"+d.from).attr("cx"));
     d3.select(this)
       .attr("x1", ends.from.x)
       .attr("y1", ends.from.y)
@@ -785,9 +813,10 @@ function dragmove(d) {
       .attr("y2", ends.to.y);
   });
 
-  d3.selectAll("line[from='"+d.id+"']").each(function(d,i)
+  d3.selectAll("line[graph='"+graphNumber+"'][from='"+d.id+"']").each(function(d,i)
   {
-    var ends = adjustDragEnds({"x": d3.event.x, "y": d3.event.y}, {"x": d3.selectAll("#name"+d.to).attr("cx"), "y": d3.selectAll("#name"+d.to).attr("cy")})
+    var ends = adjustDragEnds({"x": d3.event.x, "y": d3.event.y},
+    {"x": d3.selectAll("#name"+d.to).attr("cx"), "y": d3.selectAll("#name"+d.to).attr("cy")})
     d3.select(this)
       .attr("x1", ends.from.x)
       .attr("y1", ends.from.y)
