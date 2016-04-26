@@ -542,7 +542,6 @@ graphEnter.each(function(d,i){
                 .data(graphArray[i].nodes);
   //console.log(graphArray[i]);
   var graphNumber = i+1;
-console.log(graphNumber);
   var nodesEnter = nodes.enter().append('g')
                     .attr('class', 'node');
 
@@ -666,8 +665,7 @@ graphEnter.each(function(d){
 
 var force = d3.layout.force()
               .size([width, height])
-              .charge(-20000)
-              .gravity(0.2)
+              //.charge(20000)
               /*.linkStrength(function(d){
                 if(d.source.index == 0)
                 {
@@ -690,61 +688,80 @@ force
   //.links(graphArrayCoordinate.links)
   .start();
 
-/*var graphRepresent = svg.selectAll(".graphRepresent")
+var graphRepresent = svg.selectAll(".graphRepresent")
   .data(graphArrayCoordinate.graphs);
 
 var graphRepresentEnter = graphRepresent.enter().append('circle')
   .attr('class', 'graphRepresent')
   .attr("r", function(d,i){return graphArrayCoordinate.graphs[i].halfDigonal})
-  .attr("fill-opacity", 0);*/
+  .attr("fill-opacity", 0);
 
 function debug(graphArrayCoordinate)
 {
-  var len = graphArrayCoordinate.graphs.length;
-  for(var i = 0; i < len; i++)
-  {
-    console.log(graphArrayCoordinate.graphs[i]);
-  }
 }
 
 function init(graphArrayCoordinate)
 {
-  var len = graphArrayCoordinate.graphs.length;
-  for(var i = 0; i < len; i++)
-  {
-    graphArrayCoordinate.graphs[i].weight = graphArrayCoordinate.graphs[i].halfDigonal/maxDigonal;
-  }
 }
 
 function tick()
 {
-  /*var q = d3.geom.quadtree(graphArrayCoordinate.graphs);
+  var q = d3.geom.quadtree(graphArrayCoordinate.graphs);
   var i = 0;
   var n = graphArrayCoordinate.graphs.length;
 
-  while(++i < n)
+  while(i < n)
   {
     q.visit(collide(graphArrayCoordinate.graphs[i]));
-  }*/
+    i++;
+  }
 
-  graphEnter.each(function(d,i){
-    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
+  d3.selectAll(".graph").each(function(d,i){
+    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].px;
+    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].py;
+    if(i == 1)
+    {
+    console.log(graphArrayCoordinate.graphs[i].y);
+    }
+    d3.select(this).selectAll("g").each(function(d){
+      var cx = parseInt(d3.select(this).select("circle").attr("cx"))+dx;
+      var cy = parseInt(d3.select(this).select("circle").attr("cy"))+dy;
+      d3.select(this).select("circle")
+        .attr("cx", cx)
+        .attr("cy", cy);
+      d3.select(this).select("text")
+        .attr({x: cx-r/4, y: cy+r/4});
+
+    });
+
+    d3.select(this).selectAll("line").each(function(d){
+      var x1 = parseInt(d3.select(this).attr("x1")) + dx;
+      var y1 = parseInt(d3.select(this).attr("y1")) + dy;
+      var x2 = parseInt(d3.select(this).attr("x2")) + dx;
+      var y2 = parseInt(d3.select(this).attr("y2")) + dy;
+      d3.select(this)
+        .attr("x1", x1)
+        .attr("y1", y1)
+        .attr("x2", x2)
+        .attr("y2", y2);
+    });
+    /*var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
     var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
     d3.select(this)//.transition().ease("linear").duration(750)
-      .attr("transform", "translate("+dx+","+dy+")");
+      .attr("transform", "translate("+dx+","+dy+")");*/
   });
 
-  /*graphRepresentEnter
+  graphRepresentEnter
     .attr("cx", function(d){return d.x})
-    .attr("cy", function(d){return d.y});*/
+    .attr("cy", function(d){return d.y});
 }
 
 function collide(graph)
 {
   var r = graph.halfDigonal + 16;
   var nx1 = graph.x - r;
-  var nx2 = graph.y + r;
-  var ny1 = graph.x - r;
+  var nx2 = graph.x + r;
+  var ny1 = graph.y - r;
   var ny2 = graph.y + r;
   return function(quad,x1,y1,x2,y2){
     if(quad.point && (quad.point !== graph))
@@ -854,8 +871,11 @@ function dragend(d)
     }
     graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
     graphArrayCoordinate.graphs[i].y = bbox.y+bbox.height/2;
+    graphArrayCoordinate.graphs[i].old_x = bbox.x+bbox.width/2;
+    graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
     graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
   });
+  //tick();
   force.resume();
 }
 
