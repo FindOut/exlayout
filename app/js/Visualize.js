@@ -29,7 +29,7 @@ function adjustDragEnds(fromPoint, toPoint) {
 }
 
 var r = 20;
-var dummyR = 1;
+var dummyR = 0;
 
 /*var Graph = {
   "nodes": [
@@ -546,6 +546,7 @@ console.log(graphNumber);
           .attr("cy", yScale(d.rank))
           .attr("r", r)
           .attr("id", "name"+d.id)
+          .attr("isDummy", "false")
           .style("fill", "white")
 
       d3.select(this)
@@ -565,6 +566,7 @@ console.log(graphNumber);
           .attr("r", dummyR)
           .attr("id", "name"+d.id)
           .attr("graph",graphNumber)
+          .attr("isDummy", "true")
           .style("fill", "white")
 
       /*d3.select(this)
@@ -781,47 +783,48 @@ function dragmove(d) {
     .attr("transform", "translate("+(d3.event.x-x)+","+(d3.event.y-y)+")");
 
   var graphNumber = d3.select(this).attr("graph");
-  //console.log(d3.selectAll("line[graph='"+graphNumber+"']").selectAll("[to='"+d.id+"']"));
-  var fromNodes = [];
-  var toNodes = [];
-   d3.selectAll("line[graph='"+graphNumber+"'][to='"+d.id+"']").each(function(d){
-     fromNodes.push({"from": d.from});
-   });
-   d3.selectAll("line[graph='"+graphNumber+"'][from='"+d.id+"']").each(function(d){
-     toNodes.push({"to": d.to});
-   });
-
-   /*fromNodes.forEach(function(d){   // useless?
-     d.x = d3.selectAll("#name"+d.from).attr("cx");
-     d.y = d3.selectAll("#name"+d.from).attr("cy");
-   })
-   toNodes.forEach(function(d){
-     d.x = d3.selectAll("#name"+d.to).attr("cx");
-     d.y = d3.selectAll("#name"+d.to).attr("cy");
-   })*/
 
   //console.log(d3.selectAll("line[graph='"+graphNumber+"'][to='"+d.id+"']"));
   d3.selectAll("line[graph='"+graphNumber+"'][to='"+d.id+"']").each(function(d,i)
   {
     var ends = adjustDragEnds({"x": d3.selectAll("#name"+d.from).attr("cx"),
-     "y": d3.selectAll("#name"+d.from).attr("cy")}, {"x": d3.event.x, "y": d3.event.y})
+     "y": d3.selectAll("#name"+d.from).attr("cy")}, {"x": d3.event.x, "y": d3.event.y});
     //console.log(d3.selectAll("#name"+d.from).attr("cx"));
-    d3.select(this)
-      .attr("x1", ends.from.x)
-      .attr("y1", ends.from.y)
-      .attr("x2", ends.to.x)
-      .attr("y2", ends.to.y);
+    var isDummy = d3.selectAll("#name"+d.from).attr("isDummy");
+
+    if(isDummy === "false")
+    {
+      d3.select(this)
+        .attr("x1", ends.from.x)
+        .attr("y1", ends.from.y)
+        .attr("x2", ends.to.x)
+        .attr("y2", ends.to.y);
+    }else{
+      d3.select(this)
+        .attr("x2", ends.to.x)
+        .attr("y2", ends.to.y);
+    }
   });
 
   d3.selectAll("line[graph='"+graphNumber+"'][from='"+d.id+"']").each(function(d,i)
   {
     var ends = adjustDragEnds({"x": d3.event.x, "y": d3.event.y},
     {"x": d3.selectAll("#name"+d.to).attr("cx"), "y": d3.selectAll("#name"+d.to).attr("cy")})
-    d3.select(this)
-      .attr("x1", ends.from.x)
-      .attr("y1", ends.from.y)
-      .attr("x2", ends.to.x)
-      .attr("y2", ends.to.y);
+
+    var isDummy = d3.selectAll("#name"+d.to).attr("isDummy");
+
+    if(isDummy === "false")
+    {
+      d3.select(this)
+        .attr("x1", ends.from.x)
+        .attr("y1", ends.from.y)
+        .attr("x2", ends.to.x)
+        .attr("y2", ends.to.y);
+    }else{
+      d3.select(this)
+        .attr("x1", ends.from.x)
+        .attr("y1", ends.from.y);
+    }
   });
 
   d3.select(this).select("circle")
@@ -838,7 +841,16 @@ function dragstart()
 
 function dragend(d)
 {
-  d.fixed = true;
-  tick();
+  graphEnter.each(function(d,i){
+    var bbox = this.getBBox();
+    var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+    if(halfDigonal > maxDigonal)
+    {
+      maxDigonal = halfDigonal;
+    }
+    graphArrayCoordinate.graphs[i+1].x = bbox.x/2;
+    graphArrayCoordinate.graphs[i+1].y = bbox.y/2;
+    graphArrayCoordinate.graphs[i+1].halfDigonal = halfDigonal;
+  });
   force.resume();
 }
