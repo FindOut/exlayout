@@ -344,11 +344,11 @@ var Graph = {
     {"id": 19, "label": "S"},
     {"id": 20, "label": "T"},
     {"id": 21, "label": "U"},
-    {"id": 22, "label": "V"}
-    /*{"id": 23, "label": "W"},
+    {"id": 22, "label": "V"},
+    {"id": 23, "label": "W"},
     {"id": 24, "label": "X"},
-    {"id": 25, "label": "Y"},
-    {"id": 26, "label": "Z"},
+    {"id": 25, "label": "Y"}
+    /*{"id": 26, "label": "Z"},
     {"id": 27, "label": "AA"},
     {"id": 28, "label": "AB"},
     {"id": 29, "label": "AC"},
@@ -385,7 +385,11 @@ var Graph = {
     {"from": 13, "to": 19},
     {"from": 13, "to": 20},
     {"from": 14, "to": 21},
-    {"from": 14, "to": 22}
+    {"from": 14, "to": 22},
+
+    {"from": 23, "to": 24},
+    {"from": 24, "to": 25},
+    {"from": 25, "to": 23}
     /*{"from": 15, "to": 23},
     {"from": 15, "to": 24},
     {"from": 16, "to": 25},
@@ -498,8 +502,18 @@ var xScale = d3.scale.linear()
                       .domain([globalMinX, globalMaxX])
                       .range([r, (globalMaxX-globalMinX)*5*r-r]);
 
+var drag = d3.behavior.drag()
+            .on("drag", dragmove)
+            .on("dragstart", dragstart)
+            .on("dragend", dragend);
+
+var zoom = d3.behavior.zoom()
+            .on("zoom", zoomed);
+
 var svg = d3.select('#graph').append('svg')
-  .attr('width', width).attr('height', height);
+  .attr('width', width)
+  .attr('height', height)
+  .call(zoom);
 
 // Define marker
 svg.append('defs').append('marker')
@@ -513,11 +527,6 @@ svg.append('defs').append('marker')
   .append("path") // Used to draw line
     .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
     .attr('fill', 'black'); // Fill the triangle
-
-var drag = d3.behavior.drag()
-      .on("drag", dragmove)
-      .on("dragstart", dragstart)
-      .on("dragend", dragend);
 
 var graph = svg.selectAll(".graph")
   .data(graphArray);
@@ -640,8 +649,6 @@ console.log(graphNumber);
 
 var graphArrayCoordinate = {"graphs": [], "links": []};
 
-graphArrayCoordinate.graphs.push({"x": width/2, "y": height/2, "fixed": true, "halfDigonal": 0});
-
 var maxDigonal = Number.MIN_VALUE;
 
 graphEnter.each(function(d){
@@ -655,14 +662,12 @@ graphEnter.each(function(d){
                                     "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal});
 });
 
-for(i = 1; i <= len1; i++)
-{
-  graphArrayCoordinate.links.push({"source": 0, "target": i});
-}
 
 
 var force = d3.layout.force()
               .size([width, height])
+              .charge(-20000)
+              .gravity(0.2)
               /*.linkStrength(function(d){
                 if(d.source.index == 0)
                 {
@@ -682,7 +687,7 @@ var force = d3.layout.force()
 
 force
   .nodes(graphArrayCoordinate.graphs)
-  .links(graphArrayCoordinate.links)
+  //.links(graphArrayCoordinate.links)
   .start();
 
 /*var graphRepresent = svg.selectAll(".graphRepresent")
@@ -713,20 +718,19 @@ function init(graphArrayCoordinate)
 
 function tick()
 {
-  var q = d3.geom.quadtree(graphArrayCoordinate.graphs);
+  /*var q = d3.geom.quadtree(graphArrayCoordinate.graphs);
   var i = 0;
   var n = graphArrayCoordinate.graphs.length;
 
   while(++i < n)
   {
     q.visit(collide(graphArrayCoordinate.graphs[i]));
-  }
+  }*/
 
   graphEnter.each(function(d,i){
-    var dx = graphArrayCoordinate.graphs[i+1].x - graphArrayCoordinate.graphs[i+1].old_x;
-    var dy = graphArrayCoordinate.graphs[i+1].y - graphArrayCoordinate.graphs[i+1].old_y;
-    graphArrayCoordinate.graphs[i].weight = graphArrayCoordinate.graphs[i].halfDigonal/maxDigonal;
-    d3.select(this)
+    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
+    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
+    d3.select(this)//.transition().ease("linear").duration(750)
       .attr("transform", "translate("+dx+","+dy+")");
   });
 
@@ -848,9 +852,13 @@ function dragend(d)
     {
       maxDigonal = halfDigonal;
     }
-    graphArrayCoordinate.graphs[i+1].x = bbox.x/2;
-    graphArrayCoordinate.graphs[i+1].y = bbox.y/2;
-    graphArrayCoordinate.graphs[i+1].halfDigonal = halfDigonal;
+    graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
+    graphArrayCoordinate.graphs[i].y = bbox.y+bbox.height/2;
+    graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
   });
   force.resume();
+}
+
+function zoomed() {
+  svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
