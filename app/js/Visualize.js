@@ -485,7 +485,7 @@ for(var i = 0; i < len1; i++)
   currentGraph.maxY = maxY;
   currentGraph.minY = minY;
 }
-var width = 0;;
+var width = 0;
 var height = 0;
 /*for(i = 0; i < len1; i++)
 {
@@ -513,10 +513,20 @@ var zoom = d3.behavior.zoom()
 var svg = d3.select('#graph').append('svg')
   .attr('width', width)
   .attr('height', height)
-  .call(zoom);
+  .append("g")
+    .call(zoom);
+
+var rect = svg.append("rect")
+                .attr("width", width)
+                .attr("height", height)
+                .style("fill", "none")
+                .style("pointer-events", "all");
+
+var container = svg
+                  .append("g");
 
 // Define marker
-svg.append('defs').append('marker')
+container.append('defs').append('marker')
   .attr("id", 'markerArrowEnd') // ID of marker
   .attr("viewBox", "0 -5 10 10") // minX, minY, width and height of viewBox
   .attr("refX", 10) // Position where marker connect to the vertex
@@ -528,7 +538,7 @@ svg.append('defs').append('marker')
     .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
     .attr('fill', 'black'); // Fill the triangle
 
-var graph = svg.selectAll(".graph")
+var graph = container.selectAll(".graph")
   .data(graphArray);
 
 var graphEnter = graph.enter().append('g')
@@ -648,6 +658,8 @@ graphEnter.each(function(d,i){
 
 var graphArrayCoordinate = {"graphs": [], "links": []};
 
+//graphArrayCoordinate.graphs.push({"x": width/2, "y": height/2, "fixed": true, "halfDigonal": 0});
+
 var maxDigonal = Number.MIN_VALUE;
 
 graphEnter.each(function(d){
@@ -661,6 +673,11 @@ graphEnter.each(function(d){
                                     "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal});
 });
 
+/*var len = graphArrayCoordinate.graphs.length;
+for(var i = 1; i < len; i++)
+{
+  graphArrayCoordinate.links.push({"source": 0, "target": i});
+}*/
 
 
 var force = d3.layout.force()
@@ -669,14 +686,13 @@ var force = d3.layout.force()
               /*.linkStrength(function(d){
                 if(d.source.index == 0)
                 {
-                  console.log(d.target.halfDigonal/maxDigonal);
                   return d.target.halfDigonal/maxDigonal;
                 }
               })
               .linkDistance(function(d){
                 if(d.source.index == 0)
                 {
-                  return maxDigonal/d.target.halfDigonal;
+                  return maxDigonal/d.target.halfDigonal*20;
                 }
               })*/
               .on("tick", tick)
@@ -717,6 +733,23 @@ function tick()
     q.visit(collide(graphArrayCoordinate.graphs[i]));
     i++;
   }
+  /*d3.selectAll(".graph").each(function(d,i){
+    var dx = graphArrayCoordinate.graphs[i+1].x - graphArrayCoordinate.graphs[i+1].old_x;
+    var dy = graphArrayCoordinate.graphs[i+1].y - graphArrayCoordinate.graphs[i+1].old_y;
+    graphArrayCoordinate.graphs[i+1].old_x = graphArrayCoordinate.graphs[i+1].x;
+    graphArrayCoordinate.graphs[i+1].old_y = graphArrayCoordinate.graphs[i+1].y;
+    console.log(graphArrayCoordinate.graphs[i].y);
+    console.log(graphArrayCoordinate.graphs[i].old_y);
+    d3.select(this).selectAll("g").each(function(d){
+      var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
+      var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
+      d3.select(this).select("circle")
+        .attr("cx", cx)
+        .attr("cy", cy);
+      d3.select(this).select("text")
+        .attr({x: cx-r/4, y: cy+r/4});
+
+    });*/
 
   d3.selectAll(".graph").each(function(d,i){
     var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
@@ -860,6 +893,7 @@ function dragmove(d) {
 
 function dragstart()
 {
+  d3.event.sourceEvent.stopPropagation();
   force.stop();
 }
 
@@ -883,5 +917,5 @@ function dragend(d)
 }
 
 function zoomed() {
-  svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+  container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
