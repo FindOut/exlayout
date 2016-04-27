@@ -693,6 +693,8 @@ var graphRepresent = svg.selectAll(".graphRepresent")
 
 var graphRepresentEnter = graphRepresent.enter().append('circle')
   .attr('class', 'graphRepresent')
+  .attr("cx", function(d,i){return graphArrayCoordinate.graphs[i].x})
+  .attr("cy", function(d,i){return graphArrayCoordinate.graphs[i].y})
   .attr("r", function(d,i){return graphArrayCoordinate.graphs[i].halfDigonal})
   .attr("fill-opacity", 0);
 
@@ -717,15 +719,14 @@ function tick()
   }
 
   d3.selectAll(".graph").each(function(d,i){
-    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].px;
-    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].py;
-    if(i == 1)
-    {
-    console.log(graphArrayCoordinate.graphs[i].y);
-    }
+    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
+    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
+    graphArrayCoordinate.graphs[i].old_x = graphArrayCoordinate.graphs[i].x;
+    graphArrayCoordinate.graphs[i].old_y = graphArrayCoordinate.graphs[i].y;
+    //console.log(dy);
     d3.select(this).selectAll("g").each(function(d){
-      var cx = parseInt(d3.select(this).select("circle").attr("cx"))+dx;
-      var cy = parseInt(d3.select(this).select("circle").attr("cy"))+dy;
+      var cx = parseInt(d3.select(this).select("circle").attr("cx"), 10)+dx;
+      var cy = parseInt(d3.select(this).select("circle").attr("cy"), 10)+dy;
       d3.select(this).select("circle")
         .attr("cx", cx)
         .attr("cy", cy);
@@ -735,10 +736,10 @@ function tick()
     });
 
     d3.select(this).selectAll("line").each(function(d){
-      var x1 = parseInt(d3.select(this).attr("x1")) + dx;
-      var y1 = parseInt(d3.select(this).attr("y1")) + dy;
-      var x2 = parseInt(d3.select(this).attr("x2")) + dx;
-      var y2 = parseInt(d3.select(this).attr("y2")) + dy;
+      var x1 = parseInt(d3.select(this).attr("x1"), 10) + dx;
+      var y1 = parseInt(d3.select(this).attr("y1"), 10) + dy;
+      var x2 = parseInt(d3.select(this).attr("x2"), 10) + dx;
+      var y2 = parseInt(d3.select(this).attr("y2"), 10) + dy;
       d3.select(this)
         .attr("x1", x1)
         .attr("y1", y1)
@@ -753,7 +754,8 @@ function tick()
 
   graphRepresentEnter
     .attr("cx", function(d){return d.x})
-    .attr("cy", function(d){return d.y});
+    .attr("cy", function(d){return d.y})
+    .attr("r", function(d){return d.halfDigonal});
 }
 
 function collide(graph)
