@@ -6,7 +6,15 @@
     <link rel="stylesheet" type="text/css" href="Visualize.css">
   </head>
   <body>
-    <div><button id="reload">Reload</button></div>
+    <form name="deleteNodeForm">
+      Delete node: <input style="height:40px;width:300px;font-size:14pt;" type="text" id="deleteNode" placeholder="Node">
+      <button type="button" onclick="return handler1()">Delete</button>
+    </form>
+    <form name="deleteEdgeForm">
+      Delete edge: <input style="height:40px;width:300px;font-size:14pt;" type="text" id="deleteFrom" placeholder="Source">
+      <input style="height:40px;width:300px;font-size:14pt;" type="text" id="deleteTo" placeholder="Target">
+      <button type="button" onclick="return handler2()">Delete</button>
+    </form>
     <div id="graph"></div>
     <script type="text/javascript" src="bundle.js"></script>
   </body>

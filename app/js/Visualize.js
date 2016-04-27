@@ -9,6 +9,8 @@ var ConnectedGraphDetect = require("./ConnectedGraphDetection.js");
 var DragHelper = require('./DragHelper.js');
 var Main = require("./main.js");
 
+
+
 function adjustEnds(fromPoint, toPoint) {
   var dx = xScale(toPoint.x) - xScale(fromPoint.x),
     dy = yScale(toPoint.rank) - yScale(fromPoint.rank),
@@ -547,11 +549,13 @@ var graphEnter = graph.enter().append('g')
 
 
 graphEnter.each(function(d,i){
+  var graphNumber = graphArray[i].groupnumber;
+  d3.select(this)
+    .attr("graph", graphNumber);
 
   var nodes = d3.select(this).selectAll('circle')
                 .data(graphArray[i].nodes);
-  //console.log(graphArray[i]);
-  var graphNumber = i+1;
+
   var nodesEnter = nodes.enter().append('g')
                     .attr('class', 'node');
 
@@ -574,6 +578,7 @@ graphEnter.each(function(d,i){
 
       d3.select(this)
         .attr("graph",graphNumber)
+        .attr("id", "name"+d.id)
         .call(drag);
     }
     else {
@@ -593,7 +598,8 @@ graphEnter.each(function(d,i){
           .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});*/
 
       d3.select(this)
-        .call(drag);
+        .attr("id", "name"+d.id)
+        .attr("graph", graphNumber);
     }
   });
 
@@ -756,8 +762,6 @@ function tick()
     var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
     graphArrayCoordinate.graphs[i].old_x = graphArrayCoordinate.graphs[i].x;
     graphArrayCoordinate.graphs[i].old_y = graphArrayCoordinate.graphs[i].y;
-    console.log(graphArrayCoordinate.graphs[i].y);
-    console.log(graphArrayCoordinate.graphs[i].old_y);
     d3.select(this).selectAll("g").each(function(d){
       var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
       var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
@@ -820,20 +824,6 @@ function collide(graph)
 }
 
 function dragmove(d) {
-  /*var x = d3.event.x;
-  var y = d3.event.y;
-  d3.select(this).attr("transform", "translate(" + x + "," + y + ")");
-  var ingoingLinks = d3.selectAll("[to=" + d.attr("id") + "]");
-  ingoingLinks.each(function (d){
-    var fromNode = CycleRemoval.getNodeById(d.from, Graph.nodes);
-    var toNode = CycleRemoval.getNodeById(d.to, Graph.nodes);
-    var adjustedEnds = adjustEnds(fromNode, toNode);
-    d3.select(d)
-      .attr("x2", function(d) { return adjustEnds.to.x; })
-      .attr("y2", function(d) { return adjustEnds.to.rank; });
-  });*/
-  //d.cx += d3.event.dx;
-  //d.cy += d3.event.du;
   var x = d3.select(this).select("circle").attr("cx");
   var y = d3.select(this).select("circle").attr("cy");
   d3.select(this)
@@ -841,12 +831,10 @@ function dragmove(d) {
 
   var graphNumber = d3.select(this).attr("graph");
 
-  //console.log(d3.selectAll("line[graph='"+graphNumber+"'][to='"+d.id+"']"));
   d3.selectAll("line[graph='"+graphNumber+"'][to='"+d.id+"']").each(function(d,i)
   {
     var ends = adjustDragEnds({"x": d3.selectAll("#name"+d.from).attr("cx"),
      "y": d3.selectAll("#name"+d.from).attr("cy")}, {"x": d3.event.x, "y": d3.event.y});
-    //console.log(d3.selectAll("#name"+d.from).attr("cx"));
     var isDummy = d3.selectAll("#name"+d.from).attr("isDummy");
 
     if(isDummy === "false")
@@ -899,7 +887,7 @@ function dragstart()
 
 function dragend(d)
 {
-  graphEnter.each(function(d,i){
+  d3.selectAll(".graph").each(function(d,i){
     var bbox = this.getBBox();
     var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
     if(halfDigonal > maxDigonal)
@@ -912,10 +900,115 @@ function dragend(d)
     graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
     graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
   });
-  //tick();
   force.resume();
 }
 
 function zoomed() {
   container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
+
+function handler1()
+{
+  console.log(document.getElementById("deleteNode").value);
+  var label = document.getElementById("deleteNode").value;
+  document.getElementById("deleteNode").value = null;
+
+}
+window.handler1 = handler1;
+
+function handler2()
+{
+  var fromLabel = document.getElementById("deleteFrom").value;
+  var toLabel = document.getElementById("deleteTo").value;
+  document.getElementById("deleteFrom").value = null;
+  document.getElementById("deleteTo").value = null;
+
+  var fromId;
+  var toId;
+  var group;
+  var graph;
+  var len = Graph.nodes.length;
+  for(var i = 0; i < len; i++)
+  {
+    if(Graph.nodes[i].label.localeCompare(fromLabel) == 0)
+    {
+      fromId = Graph.nodes[i].id;
+      group = Graph.nodes[i].group;
+    }else if(Graph.nodes[i].label.localeCompare(toLabel) == 0)
+    {
+      toId = Graph.nodes[i].id;
+    }
+  }
+
+  console.log(fromId);
+  console.log(toId);
+  console.log(group);
+  graph = graphArray[group-1];
+  len = graph.links.length;
+  console.log(JSON.stringify(graph.links));
+  var edge;
+  for(i = 0; i < len; i++)
+  {
+    if(graph.links[i].from == fromId && graph.links[i].to == toId)
+    {
+      edge = graph.links.splice(i,1);
+      break;
+    }
+  }
+  console.log(JSON.stringify(graph.links));
+  if(edge === undefined)
+  {
+    alert("Link does not exist");
+  }
+
+  newGraph = ConnectedGraphDetect.connectedGraphDetect(graph);
+
+  var maxGraphNumber = Number.MIN_VALUE;
+  if(newGraph.length == 1)
+  {
+    d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
+  }else{
+    var a = {"nodes":[], "links": [], "groupnumber": maxGraphNumber};
+    d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
+    console.log(JSON.stringify(graph));
+    len = graphArray.length;
+    for(i = 0; i < len; i++)
+    {
+      if(graphArray[i].groupnumber > maxGraphNumber)
+      {
+        maxGraphNumber = graphArray[i].groupnumber;
+      }
+      maxGraphNumber++;
+    }
+    len = graph.nodes.length;
+    for(i = 0; i < len; i++)
+    {
+      if(graph.nodes[i].group == 1)
+      {
+        graph.nodes[i].group = group;
+      }else{
+        a.nodes.push(graph.nodes[i]);
+        graph.nodes[i].group = maxGraphNumber;
+        d3.select(".graph[graph='"+group+"']").select("g#name"+graph.nodes[i].id)
+          .attr("graph", maxGraphNumber);
+      }
+    }
+    len = graph.links.length;
+    for(i = 0; i < len; i++)
+    {
+      if(graph.links[i].group == 1)
+      {
+        graph.links[i].group = group;
+      }else{
+        a.links.push(graph.links[i]);
+        graph.links[i].group = maxGraphNumber;
+        d3.select(".graph[graph='"+group+"']").select("line[from='"+graph.links[i].from+"'][to='"+graph.links[i].to+"']")
+          .attr("graph", maxGraphNumber);
+      }
+    }
+    console.log(JSON.stringify(graph));
+    graphArray.push(a);
+    d3.select(".graph[graph='"+group+"']").selectAll("g[graph='"+maxGraphNumber+"'], line[graph='"+maxGraphNumber+"']").remove();
+  }
+}
+window.handler2 = handler2;
