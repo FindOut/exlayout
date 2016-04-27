@@ -688,7 +688,7 @@ force
   //.links(graphArrayCoordinate.links)
   .start();
 
-var graphRepresent = svg.selectAll(".graphRepresent")
+/*var graphRepresent = svg.selectAll(".graphRepresent")
   .data(graphArrayCoordinate.graphs);
 
 var graphRepresentEnter = graphRepresent.enter().append('circle')
@@ -696,7 +696,7 @@ var graphRepresentEnter = graphRepresent.enter().append('circle')
   .attr("cx", function(d,i){return graphArrayCoordinate.graphs[i].x})
   .attr("cy", function(d,i){return graphArrayCoordinate.graphs[i].y})
   .attr("r", function(d,i){return graphArrayCoordinate.graphs[i].halfDigonal})
-  .attr("fill-opacity", 0);
+  .attr("fill-opacity", 0);*/
 
 function debug(graphArrayCoordinate)
 {
@@ -723,10 +723,11 @@ function tick()
     var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
     graphArrayCoordinate.graphs[i].old_x = graphArrayCoordinate.graphs[i].x;
     graphArrayCoordinate.graphs[i].old_y = graphArrayCoordinate.graphs[i].y;
-    //console.log(dy);
+    console.log(graphArrayCoordinate.graphs[i].y);
+    console.log(graphArrayCoordinate.graphs[i].old_y);
     d3.select(this).selectAll("g").each(function(d){
-      var cx = parseInt(d3.select(this).select("circle").attr("cx"), 10)+dx;
-      var cy = parseInt(d3.select(this).select("circle").attr("cy"), 10)+dy;
+      var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
+      var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
       d3.select(this).select("circle")
         .attr("cx", cx)
         .attr("cy", cy);
@@ -736,10 +737,10 @@ function tick()
     });
 
     d3.select(this).selectAll("line").each(function(d){
-      var x1 = parseInt(d3.select(this).attr("x1"), 10) + dx;
-      var y1 = parseInt(d3.select(this).attr("y1"), 10) + dy;
-      var x2 = parseInt(d3.select(this).attr("x2"), 10) + dx;
-      var y2 = parseInt(d3.select(this).attr("y2"), 10) + dy;
+      var x1 = parseFloat(d3.select(this).attr("x1")) + dx;
+      var y1 = parseFloat(d3.select(this).attr("y1")) + dy;
+      var x2 = parseFloat(d3.select(this).attr("x2")) + dx;
+      var y2 = parseFloat(d3.select(this).attr("y2")) + dy;
       d3.select(this)
         .attr("x1", x1)
         .attr("y1", y1)
@@ -752,10 +753,10 @@ function tick()
       .attr("transform", "translate("+dx+","+dy+")");*/
   });
 
-  graphRepresentEnter
+  /*graphRepresentEnter
     .attr("cx", function(d){return d.x})
     .attr("cy", function(d){return d.y})
-    .attr("r", function(d){return d.halfDigonal});
+    .attr("r", function(d){return d.halfDigonal});*/
 }
 
 function collide(graph)
