@@ -27,14 +27,14 @@ function connectedGraphDetect(graph)
   var start;
   for(var i = 0; i < Nodeslength; i++)  //set all nodes as not visited
   {
-    visited[i] = false;
+    Nodes[i].visited = false;
   }
 
   while(conter != Nodeslength)
   {
     for(var m = 0; m < Nodeslength; m++) //find the first element which is not visited
     {
-      if(visited[m] == false)
+      if(Nodes[m].visited === false)
       {
         start = Nodes[m];
         groupnumber++;
@@ -45,9 +45,9 @@ function connectedGraphDetect(graph)
     while(S.length > 0)
     {
       var u = S.pop();
-      if(!visited[u.id -1])   //if node u is not visited, set it true
+      if(!u.visited)   //if node u is not visited, set it true
       {
-        visited[u.id -1] = true;
+        u.visited = true;
         u.group = groupnumber; // set group number
         conter++; //total visited node conter
         //console.log(Edges);
