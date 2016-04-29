@@ -5,6 +5,10 @@ exports.modifiedDFS = function(start, end, graph, path){
   return modifiedDFS(start, end, graph, path);
 };
 
+exports.randomGraph = function(numberOfNodes, p){
+  return randomGraph(numberOfNodes, p);
+}
+
 function modifiedDFS(start, end, graph, path)
 {
   console.log(arguments.length);
@@ -55,25 +59,50 @@ function modifiedDFS(start, end, graph, path)
   }
 }
 
-/*var graph = {
-  "nodes":[
-    {"id": 1, "label": "A", "isDummy": false},
-    {"id": 2, "label": "B", "isDummy": true},
-    {"id": 3, "label": "C", "isDummy": true},
-    {"id": 4, "label": "D", "isDummy": true},
-    {"id": 5, "label": "E", "isDummy": true},
-    {"id": 6, "label": "F", "isDummy": false},
-    {"id": 7, "label": "G", "isDummy": false}
-  ],
-  "links":[
-    {"from": 1, "to": 2},
-    {"from": 2, "to": 4},
-    {"from": 4, "to": 6},
-    {"from": 1, "to": 3},
-    {"from": 3, "to": 5},
-    {"from": 5, "to": 7}
-  ]
-};
+function randomGraph(numberOfNodes, p)
+{
+  var graph = {"nodes": [], "links": []};
+  for(var i = 0; i < numberOfNodes; i++)
+  {
+    graph.nodes.push({"id": i+1, "label": (i+1).toString()});
+  }
+  var neighbors = [];
+  for(i = 0; i < numberOfNodes; i++)
+  {
+    neighbors.push([]);
+  }
+  for(i = 0; i < numberOfNodes; i++)
+  {
+    for(var j = 0; j < numberOfNodes; j++)
+    {
+      neighbors[i][j] = 0;
+    }
+  }
+  for(i = 0; i < numberOfNodes; i++)
+  {
+    for(var j = 0; j < numberOfNodes; j++)
+    {
+      if(i != j)
+      {
+        if(Math.random() < p)
+        {
+          neighbors[i][j] = 1;
+        }
+      }
+    }
+  }
+  for(i = 0; i < numberOfNodes; i++)
+  {
+    for(var j = 0; j < numberOfNodes; j++)
+    {
+      if(neighbors[i][j] == 1)
+      {
+        graph.links.push({"from": i+1, "to": j+1});
+      }
+    }
+  }
+  console.log(graph);
+  return graph;
+}
 
-console.log(graph);
-console.log(modifiedDFS(graph.nodes[0], graph.nodes[6], graph));*/
+randomGraph(10, 0.2);

@@ -322,7 +322,7 @@ var dummyR = 0;
   ]
 };*/
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "A"},
     {"id": 2, "label": "B"},
@@ -350,7 +350,7 @@ var Graph = {
     {"id": 23, "label": "W"},
     {"id": 24, "label": "X"},
     {"id": 25, "label": "Y"},
-    {"id": 26, "label": "Z"}
+    {"id": 26, "label": "Z"}*/
     /*{"id": 26, "label": "Z"},
     {"id": 27, "label": "AA"},
     {"id": 28, "label": "AB"},
@@ -364,7 +364,7 @@ var Graph = {
     {"id": 36, "label": "AJ"},
     {"id": 37, "label": "AK"},
     {"id": 38, "label": "AL"}*/
-  ],
+  /*],
   "links": [
     {"from": 1, "to": 2},
     {"from": 2, "to": 3},
@@ -394,7 +394,7 @@ var Graph = {
     {"from": 24, "to": 25},
     {"from": 25, "to": 23},
     {"from": 25, "to": 26},
-    {"from": 26, "to": 23},
+    {"from": 26, "to": 23},*/
     /*{"from": 15, "to": 23},
     {"from": 15, "to": 24},
     {"from": 16, "to": 25},
@@ -411,8 +411,8 @@ var Graph = {
     {"from": 21, "to": 36},
     {"from": 22, "to": 37},
     {"from": 22, "to": 38}*/
-  ]
-};
+//  ]
+//};
 
 /*var Graph = {
   "nodes": [
@@ -434,7 +434,7 @@ var Graph = {
   ]
 };*/
 
-graphArray = Main.main(Graph);
+graphArray = Main.main(helpFunctions.randomGraph(100, 0.05));
 var len1 = graphArray.length;
 var len2;
 var maxX;
