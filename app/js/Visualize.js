@@ -324,33 +324,33 @@ var dummyR = 0;
 
 /*var Graph = {
   "nodes": [
-    {"id": 1, "label": "A"},
-    {"id": 2, "label": "B"},
-    {"id": 3, "label": "C"},
-    {"id": 4, "label": "D"},
-    {"id": 5, "label": "E"},
-    {"id": 6, "label": "F"},
-    {"id": 7, "label": "G"},
+    {"id": 1, "label": "1"},
+    {"id": 2, "label": "2"},
+    {"id": 3, "label": "3"},
+    {"id": 4, "label": "4"},
+    {"id": 5, "label": "5"},
+    {"id": 6, "label": "6"},
+    {"id": 7, "label": "7"},
 
-    {"id": 8, "label": "H"},
-    {"id": 9, "label": "I"},
-    {"id": 10, "label": "J"},
-    {"id": 11, "label": "K"},
-    {"id": 12, "label": "L"},
-    {"id": 13, "label": "M"},
-    {"id": 14, "label": "N"},
-    {"id": 15, "label": "O"},
-    {"id": 16, "label": "P"},
-    {"id": 17, "label": "Q"},
-    {"id": 18, "label": "R"},
-    {"id": 19, "label": "S"},
-    {"id": 20, "label": "T"},
-    {"id": 21, "label": "U"},
-    {"id": 22, "label": "V"},
-    {"id": 23, "label": "W"},
-    {"id": 24, "label": "X"},
-    {"id": 25, "label": "Y"},
-    {"id": 26, "label": "Z"}*/
+    {"id": 8, "label": "8"},
+    {"id": 9, "label": "9"},
+    {"id": 10, "label": "10"},
+    {"id": 11, "label": "11"},
+    {"id": 12, "label": "12"},
+    {"id": 13, "label": "13"},
+    {"id": 14, "label": "14"},
+    {"id": 15, "label": "15"},
+    {"id": 16, "label": "16"},
+    {"id": 17, "label": "17"},
+    {"id": 18, "label": "18"},
+    {"id": 19, "label": "19"},
+    {"id": 20, "label": "20"},
+    {"id": 21, "label": "21"},
+    {"id": 22, "label": "22"},
+    {"id": 23, "label": "23"},
+    {"id": 24, "label": "24"},
+    {"id": 25, "label": "25"},
+    {"id": 26, "label": "26"}*/
     /*{"id": 26, "label": "Z"},
     {"id": 27, "label": "AA"},
     {"id": 28, "label": "AB"},
@@ -377,6 +377,7 @@ var dummyR = 0;
 
     {"from": 8, "to": 9},
     {"from": 8, "to": 10},
+    {"from": 8, "to": 22},
     {"from": 10, "to": 11},
     {"from": 10, "to": 12},
     {"from": 9, "to": 13},
@@ -411,7 +412,7 @@ var dummyR = 0;
     {"from": 21, "to": 36},
     {"from": 22, "to": 37},
     {"from": 22, "to": 38}*/
-//  ]
+  //]
 //};
 
 /*var Graph = {
@@ -434,7 +435,21 @@ var dummyR = 0;
   ]
 };*/
 
-graphArray = Main.main(helpFunctions.randomGraph(100, 0.05));
+var Graph = {
+  "nodes": [
+    {"id": 1, "label": "1"},
+    {"id": 2, "label": "2"},
+    {"id": 3, "label": "3"},
+    {"id": 4, "label": "4"}
+  ],
+  "links": [
+    {"from": 1, "to": 2},
+    {"from": 3, "to": 2},
+    {"from": 4, "to": 2}
+  ]
+}
+
+graphArray = Main.main(Graph);
 var len1 = graphArray.length;
 var len2;
 var maxX;
@@ -858,7 +873,7 @@ function dragmove(d) {
     }
   });
 
-  console.log(d.id);
+
   d3.selectAll("line[graph='"+graphNumber+"'][from='"+d.id+"']").each(function(d,i)
   {
     var ends = adjustDragEnds({"x": x, "y": y},
@@ -927,6 +942,8 @@ function handler1()
   var graph;
   var outgoingEdges;
   var ingoingEdges;
+  var outgoingDummy;
+  var ingoingDummy;
   var found = false;
   var len = graphArray.length;
   var len1;
@@ -952,18 +969,32 @@ function handler1()
   }
 
   outgoingEdges = CycleRemoval.outgoing(node, graph.links);
-  ingoingEdges = CycleRemoval.ingoing(node, graph.links);
   len = outgoingEdges.length;
+  var fromId;
+  var toId;
   for(i = 0; i < len; i++)
   {
-    CycleRemoval.deleteLinks([outgoingEdges[i]], graph.links);
-    deleteLink(outgoingEdges[i], group, graph);
+    fromId = outgoingEdges[i].from;
+    toId = outgoingEdges[i].to;
+    while(CycleRemoval.getNodeById(toId, graph.nodes).isDummy)
+    {
+      toId = CycleRemoval.outgoing(CycleRemoval.getNodeById(toId, graph.nodes), graph.links)[0].to;
+    }
+    console.log("outgoing" + fromId + " " + toId);
+    deleteLink(fromId, toId, group, graph);
   }
+  ingoingEdges = CycleRemoval.ingoing(node, graph.links);
   len = ingoingEdges.length;
   for(i = 0; i < len; i++)
   {
-    CycleRemoval.deleteLinks([ingoingEdges[i]], graph.links);
-    deleteLink(ingoingEdges[i], group, graph)
+    fromId = ingoingEdges[i].from;
+    toId = ingoingEdges[i].to;
+    while(CycleRemoval.getNodeById(fromId, graph.nodes).isDummy)
+    {
+      fromId = CycleRemoval.ingoing(CycleRemoval.getNodeById(fromId, graph.nodes), graph.links)[0].from;
+    }
+    console.log("ingoing" + fromId + " " + toId);
+    deleteLink(fromId, toId, group, graph);
   }
 
   found = false;
@@ -981,6 +1012,7 @@ function handler1()
           graphArray.splice(i,1);
         }
         found = true;
+        break;
       }
     }
     if(found)
@@ -988,7 +1020,6 @@ function handler1()
       break;
     }
   }
-  console.log(JSON.stringify(graphArray, null, 2));
   d3.select(".graph[graph='"+node.group+"']").select("g#name"+node.id).remove();
   if(d3.select(".graph[graph='"+node.group+"']").selectAll("g").empty())
   {
@@ -996,6 +1027,92 @@ function handler1()
   }else{
     d3.select(".graph[graph='"+node.group+"']").selectAll("g")
       .data(nodes);
+    var newGraph = ConnectedGraphDetect.connectedGraphDetect(graph);
+    var maxGraphNumber = Number.MIN_VALUE;
+    len = graphArray.length;
+    for(i = 0; i < len; i++)
+    {
+      if(graphArray[i].groupnumber > maxGraphNumber)
+      {
+        maxGraphNumber = graphArray[i].groupnumber;
+      }
+    }
+    var a;
+    len = newGraph.length;
+    for(i = 1; i < len; i++)
+    {
+      a = {"nodes":[], "links":[], "groupnumber": maxGraphNumber+i};
+      for(j = 0; j < graph.nodes.length; j++)
+      {
+        if(graph.nodes[j].group == i+1){
+          graph.nodes[j].group = maxGraphNumber+i;
+          a.nodes.push(graph.nodes[j]);
+          d3.select(".graph[graph='"+group+"']").select("g#name"+graph.nodes[j].id)
+            .attr("graph", maxGraphNumber+i);
+          graph.nodes.splice(j,1);
+          j--;
+        }
+      }
+      for(var k = 0; k < graph.links.length; k++)
+      {
+        if(graph.links[k].group == i+1){
+          graph.links[k].group = maxGraphNumber+i;
+          a.links.push(graph.links[k]);
+          d3.select(".graph[graph='"+group+"']").select("line[from='"+graph.links[k].from+"'][to='"+graph.links[k].to+"']")
+            .attr("graph", maxGraphNumber+i);
+          graph.links.splice(k,1);
+          k--;
+        }
+      }
+      graphArray.push(a);
+      var newGraphNodes = d3.select(".graph[graph='"+group+"']").selectAll("g[graph='"+(maxGraphNumber+i)+"']")
+        .data(a.nodes)
+        .remove();
+      var newGraphLinks = d3.select(".graph[graph='"+group+"']").selectAll("line[graph='"+(maxGraphNumber+i)+"']")
+        .data(a.links)
+        .remove();
+      var nextGraph = d3.select("svg").select("g").select("g").append("g")
+        .attr("class", "graph")
+        .attr("graph", (maxGraphNumber+i))
+      newGraphNodes.each(function(){
+        nextGraph
+          .node()
+          .appendChild(this);
+      });
+      newGraphLinks.each(function(){
+        nextGraph
+          .node()
+          .appendChild(this);
+      });
+    }
+    len = graph.nodes.length;
+    for(i = 0; i < len; i++)
+    {
+      if(graph.nodes[i].group == 1)
+      {
+        graph.nodes[i].group == group;
+      }
+    }
+    d3.selectAll(".graph")
+      .data(graphArray)
+      .each(function(d,i){
+        if(graphArrayCoordinate.graphs[i] === undefined)
+        {
+          var bbox = this.getBBox();
+          var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+          graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
+                                            "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": maxGraphNumber});
+        }else{
+          var bbox = this.getBBox();
+          var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+          graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
+          graphArrayCoordinate.graphs[i].y = bbox.y+bbox.height/2;
+          graphArrayCoordinate.graphs[i].old_x = bbox.x+bbox.width/2;
+          graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
+          graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
+          graphArrayCoordinate.graphs[i].graph = d.groupnumber;
+        }
+      });
   }
   force.start();
 }
@@ -1143,7 +1260,7 @@ function handler2()
             var bbox = this.getBBox();
             var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
             graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
-                                              "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": maxGraphNumber, "fixed": true});
+                                              "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": maxGraphNumber});
           }else{
             var bbox = this.getBBox();
             var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
@@ -1153,10 +1270,6 @@ function handler2()
             graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
             graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
             graphArrayCoordinate.graphs[i].graph = d.groupnumber;
-            if(graphArrayCoordinate.graphs[i].graph == group)
-            {
-              graphArrayCoordinate.graphs[i].fixed = true;
-            }
           }
         });
     }
@@ -1167,19 +1280,21 @@ window.handler2 = handler2;
 
 function deleteNode(node, group, graph)
 {
-  outgoingEdges = CycleRemoval.outgoing(node, graph.links);
-  ingoingEdges = CycleRemoval.ingoing(node, graph.links);
+  if(node.id == 23)
+  {
+    console.log("haha");
+  }
+  var outgoingEdges = CycleRemoval.outgoing(node, graph.links);
   var len = outgoingEdges.length;
   for(var i = 0; i < len; i++)
   {
-    CycleRemoval.deleteLinks([outgoingEdges[i]], graph.links);
-    deleteLink(outgoingEdges[i], group, graph);
+    deleteLink(outgoingEdges[i].from, outgoingEdges[i].to, group, graph);
   }
+  var ingoingEdges = CycleRemoval.ingoing(node, graph.links);
   len = ingoingEdges.length;
   for(i = 0; i < len; i++)
   {
-    CycleRemoval.deleteLinks([ingoingEdges[i]], graph.links);
-    deleteLink(ingoingEdges[i], group, graph)
+    deleteLink(ingoingEdges[i].from, ingoingEdges[i].to, group, graph);
   }
 
   var found = false;
@@ -1197,6 +1312,7 @@ function deleteNode(node, group, graph)
           graphArray.splice(i,1);
         }
         found = true;
+        break;
       }
     }
     if(found)
@@ -1204,116 +1320,136 @@ function deleteNode(node, group, graph)
       break;
     }
   }
-  console.log(JSON.stringify(graphArray, null, 2));
   d3.select(".graph[graph='"+node.group+"']").select("g#name"+node.id).remove();
   if(d3.select(".graph[graph='"+node.group+"']").selectAll("g").empty())
   {
     d3.select(".graph[graph='"+node.group+"']").remove();
   }else{
     d3.select(".graph[graph='"+node.group+"']").selectAll("g")
-      .data(nodes);
+      .data(graph.nodes);
   }
 }
 
-function deleteLink(link, group, graph)
+function deleteLink(fromId, toId, group, graph)
 {
-  var fromId = link.from;
-  var toId = link.to;
-
-  var newGraph = ConnectedGraphDetect.connectedGraphDetect(graph);
-
-  var maxGraphNumber = Number.MIN_VALUE;
-  if(newGraph.length == 1)
+  var len = graph.links.length;
+  var edge;
+  for(var i = 0; i < len; i++)
   {
-    d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
-    d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
-      .data(graph.links);
+    if(graph.links[i].from == fromId && graph.links[i].to == toId)
+    {
+      edge = graph.links.splice(i,1);
+      break;
+    }
+  }
+  if(edge === undefined)
+  {
+    var path = helpFunctions.modifiedDFS(CycleRemoval.getNodeById(fromId, graph.nodes), CycleRemoval.getNodeById(toId, graph.nodes), graph, undefined);
+    len = path.length;
+    if(len > 0)
+    {
+      for(i = 0; i < len; i++)
+      {
+        deleteNode(path[i], group, graph);
+      }
+    }else{
+      alert("Edge does not exist!");
+    }
   }else{
+
     d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
     d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
       .data(graph.links);
-    var len = graphArray.length;
-    for(i = 0; i < len; i++)
+    /*var newGraph = ConnectedGraphDetect.connectedGraphDetect(graph);
+
+    var maxGraphNumber = Number.MIN_VALUE;
+    if(newGraph.length == 1)
     {
-      if(graphArray[i].groupnumber > maxGraphNumber)
+      d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
+      d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
+        .data(graph.links);
+    }else{
+      d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
+      d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
+        .data(graph.links);
+      len = graphArray.length;
+      for(i = 0; i < len; i++)
       {
-        maxGraphNumber = graphArray[i].groupnumber;
-      }
-    }
-    maxGraphNumber++;
-    var a = {"nodes":[], "links": [], "groupnumber": maxGraphNumber};
-    for(i = 0; i < graph.nodes.length; i++)
-    {
-      if(graph.nodes[i].group == 1)
-      {
-        graph.nodes[i].group = group;
-      }else{
-        graph.nodes[i].group = maxGraphNumber;
-        a.nodes.push(graph.nodes[i]);
-        d3.select(".graph[graph='"+group+"']").select("g#name"+graph.nodes[i].id)
-          .attr("graph", maxGraphNumber);
-        graph.nodes.splice(i,1);
-        i--;
-      }
-    }
-    for(i = 0; i < graph.links.length; i++)
-    {
-      if(graph.links[i].group == 1)
-      {
-        graph.links[i].group = group;
-      }else{
-        graph.links[i].group = maxGraphNumber;
-        a.links.push(graph.links[i]);
-        d3.select(".graph[graph='"+group+"']").select("line[from='"+graph.links[i].from+"'][to='"+graph.links[i].to+"']")
-          .attr("graph", maxGraphNumber);
-        graph.links.splice(i,1);
-        i--;
-      }
-    }
-    graphArray.push(a);
-    var newGraphNodes = d3.select(".graph[graph='"+group+"']").selectAll("g[graph='"+maxGraphNumber+"'], line[graph='"+maxGraphNumber+"']")
-      .data(a.nodes)
-      .remove();
-    var newGraphLinks = d3.select(".graph[graph='"+group+"']").selectAll("line[graph='"+maxGraphNumber+"']")
-      .data(a.links)
-      .remove();
-    var nextGraph = d3.select("svg").select("g").select("g").append("g")
-      .attr("class", "graph")
-      .attr("graph", maxGraphNumber)
-    newGraphNodes.each(function(){
-      nextGraph
-        .node()
-        .appendChild(this);
-    });
-    newGraphLinks.each(function(){
-      nextGraph
-        .node()
-        .appendChild(this);
-    });
-    d3.selectAll(".graph")
-      .data(graphArray)
-      .each(function(d,i){
-        if(graphArrayCoordinate.graphs[i] === undefined)
+        if(graphArray[i].groupnumber > maxGraphNumber)
         {
-          console.log(i);
-          var bbox = this.getBBox();
-          var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
-          graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
-                                            "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": maxGraphNumber, "fixed": true});
-        }else{
-          var bbox = this.getBBox();
-          var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
-          graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
-          graphArrayCoordinate.graphs[i].y = bbox.y+bbox.height/2;
-          graphArrayCoordinate.graphs[i].old_x = bbox.x+bbox.width/2;
-          graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
-          graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
-          graphArrayCoordinate.graphs[i].graph = d.groupnumber;
-          if(graphArrayCoordinate.graphs[i].graph == group)
-          {
-            graphArrayCoordinate.graphs[i].fixed = true;
-          }
+          maxGraphNumber = graphArray[i].groupnumber;
         }
+      }
+      maxGraphNumber++;
+      var a = {"nodes":[], "links": [], "groupnumber": maxGraphNumber};
+      for(i = 0; i < graph.nodes.length; i++)
+      {
+        if(graph.nodes[i].group == 1)
+        {
+          graph.nodes[i].group = group;
+        }else{
+          graph.nodes[i].group = maxGraphNumber;
+          a.nodes.push(graph.nodes[i]);
+          d3.select(".graph[graph='"+group+"']").select("g#name"+graph.nodes[i].id)
+            .attr("graph", maxGraphNumber);
+          graph.nodes.splice(i,1);
+          i--;
+        }
+      }
+      for(i = 0; i < graph.links.length; i++)
+      {
+        if(graph.links[i].group == 1)
+        {
+          graph.links[i].group = group;
+        }else{
+          graph.links[i].group = maxGraphNumber;
+          a.links.push(graph.links[i]);
+          d3.select(".graph[graph='"+group+"']").select("line[from='"+graph.links[i].from+"'][to='"+graph.links[i].to+"']")
+            .attr("graph", maxGraphNumber);
+          graph.links.splice(i,1);
+          i--;
+        }
+      }
+      graphArray.push(a);
+      var newGraphNodes = d3.select(".graph[graph='"+group+"']").selectAll("g[graph='"+maxGraphNumber+"'], line[graph='"+maxGraphNumber+"']")
+        .data(a.nodes)
+        .remove();
+      var newGraphLinks = d3.select(".graph[graph='"+group+"']").selectAll("line[graph='"+maxGraphNumber+"']")
+        .data(a.links)
+        .remove();
+      var nextGraph = d3.select("svg").select("g").select("g").append("g")
+        .attr("class", "graph")
+        .attr("graph", maxGraphNumber)
+      newGraphNodes.each(function(){
+        nextGraph
+          .node()
+          .appendChild(this);
       });
+      newGraphLinks.each(function(){
+        nextGraph
+          .node()
+          .appendChild(this);
+      });
+      d3.selectAll(".graph")
+        .data(graphArray)
+        .each(function(d,i){
+          if(graphArrayCoordinate.graphs[i] === undefined)
+          {
+            var bbox = this.getBBox();
+            var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+            graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
+                                              "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": maxGraphNumber});
+          }else{
+            var bbox = this.getBBox();
+            var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+            graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
+            graphArrayCoordinate.graphs[i].y = bbox.y+bbox.height/2;
+            graphArrayCoordinate.graphs[i].old_x = bbox.x+bbox.width/2;
+            graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
+            graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
+            graphArrayCoordinate.graphs[i].graph = d.groupnumber;
+          }
+        });
+    }*/
   }
 }

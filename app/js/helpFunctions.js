@@ -11,10 +11,8 @@ exports.randomGraph = function(numberOfNodes, p){
 
 function modifiedDFS(start, end, graph, path)
 {
-  console.log(arguments.length);
   if(path === undefined)
   {
-    console.log("a");
     var a;
     var len = graph.nodes.length;
     for(var i = 0; i < len; i++)
@@ -37,7 +35,6 @@ function modifiedDFS(start, end, graph, path)
     }
     return [];
   }else{
-    console.log("b");
     if(!start.visited)
     {
       start.visited = true;
@@ -101,8 +98,5 @@ function randomGraph(numberOfNodes, p)
       }
     }
   }
-  console.log(graph);
   return graph;
 }
-
-randomGraph(10, 0.2);
