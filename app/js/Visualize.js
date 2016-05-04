@@ -449,7 +449,7 @@ var Graph = {
   ]
 }
 
-graphArray = Main.main(Graph);
+graphArray = Main.main(helpFunctions.randomGraph(20,0.1));
 var len1 = graphArray.length;
 var len2;
 var maxX;
@@ -505,19 +505,17 @@ for(var i = 0; i < len1; i++)
   currentGraph.maxY = maxY;
   currentGraph.minY = minY;
 }
-var width = 0;
-var height = 0;
-/*for(i = 0; i < len1; i++)
-{
-  width = (graphArray[i].maxX-graphArray[i].minX)*5*r+width;
-  height = (graphArray[i].maxY-graphArray[i].minY)*5*r+height;
-}*/
-width = len1*(globalMaxX-globalMinX)*5*r;
-height = len1*(globalMaxY-globalMinY)*5*r;
+
+width = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
+height = window.innerHeight
+|| document.documentElement.clientHeight
+|| document.body.clientHeight;
 
 var yScale = d3.scale.linear()
                       .domain([globalMaxY, globalMinY])
-                      .range([r, (globalMaxY-globalMinY)*5*r-r]);
+                      .range([r, (globalMaxY-globalMinY)*6*r-r]);
 var xScale = d3.scale.linear()
                       .domain([globalMinX, globalMaxX])
                       .range([r, (globalMaxX-globalMinX)*5*r-r]);
@@ -610,11 +608,6 @@ graphEnter.each(function(d,i){
           .attr("isDummy", "true")
           .style("fill", "white")
 
-      /*d3.select(this)
-        .append('text')
-          .text(d.label)
-          .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});*/
-
       d3.select(this)
         .attr("graph", graphNumber)
         .attr("id", "name"+d.id);
@@ -622,7 +615,6 @@ graphEnter.each(function(d,i){
   });
 
   nodes.exit().remove();
-
 
   var links = d3.select(this).selectAll('line')
     .data(graphArray[i].links);
@@ -645,7 +637,6 @@ graphEnter.each(function(d,i){
         .attr("to", d.to)
         .attr("graph", graphNumber)
         .attr("marker-end", "url(#markerArrowEnd)");
-      //  console.log(graphNumber);
     }else if(fromNode.isDummy && !toNode.isDummy){
       d3.select(this)
         .attr("x1", function(d) { return xScale(fromNode.x); })
@@ -676,7 +667,6 @@ graphEnter.each(function(d,i){
         .attr("graph", graphNumber);
     }
   });
-
   links.exit().remove();
 });
 
@@ -706,7 +696,7 @@ for(var i = 1; i < len; i++)
 
 var force = d3.layout.force()
               .size([width, height])
-              //.charge(20000)
+              .friction(0.7)
               /*.linkStrength(function(d){
                 if(d.source.index == 0)
                 {
@@ -1114,7 +1104,6 @@ function handler1()
         }
       });
   }
-  force.start();
 }
 window.handler1 = handler1;
 
@@ -1274,16 +1263,11 @@ function handler2()
         });
     }
   }
-  force.start();
 }
 window.handler2 = handler2;
 
 function deleteNode(node, group, graph)
 {
-  if(node.id == 23)
-  {
-    console.log("haha");
-  }
   var outgoingEdges = CycleRemoval.outgoing(node, graph.links);
   var len = outgoingEdges.length;
   for(var i = 0; i < len; i++)
@@ -1453,3 +1437,9 @@ function deleteLink(fromId, toId, group, graph)
     }*/
   }
 }
+
+function resume()
+{
+  force.start();
+}
+window.resume = resume;
