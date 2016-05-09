@@ -15,7 +15,9 @@
       <input style="height:40px;width:300px;font-size:14pt;" type="text" id="deleteTo" placeholder="Target">
       <button type="button" onclick="return handler2()">Delete</button>
     </form>
-    <button type="button" onclick="return resume()" style="float: right;">Start animation again</button>
+    <button type="button" onclick="return stop()" style="float: right;">Stop animation</button>
+    <button type="button" onclick="return resume()" style="float: right;">Start animation</button>
+    <button type="button" onclick="return redraw()" style="float: right;">Redraw graph</button>
     <div id="graph"></div>
     <script type="text/javascript" src="bundle.js"></script>
   </body>
