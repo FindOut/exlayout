@@ -271,14 +271,14 @@ var dummyR = 0;
     {"id": 4, "label": "D"},
     {"id": 5, "label": "E"},
     {"id": 6, "label": "F"},
-    {"id": 7, "label": "G"}，
-    {"id": 8, "label": "H"}，
-    {"id": 9, "label": "I"}，
-    {"id": 10, "label": "J"}，
-    {"id": 11, "label": "K"}，
-    {"id": 12, "label": "L"}，
-    {"id": 13, "label": "M"}，
-    {"id": 14, "label": "N"}，
+    {"id": 7, "label": "G"},
+    {"id": 8, "label": "H"},
+    {"id": 9, "label": "I"},
+    {"id": 10, "label": "J"},
+    {"id": 11, "label": "K"},
+    {"id": 12, "label": "L"},
+    {"id": 13, "label": "M"},
+    {"id": 14, "label": "N"},
     {"id": 15, "label": "O"}
   ],
   "links": [
@@ -322,7 +322,7 @@ var dummyR = 0;
   ]
 };*/
 
-/*var Graph = {
+var Graph = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
@@ -350,21 +350,8 @@ var dummyR = 0;
     {"id": 23, "label": "23"},
     {"id": 24, "label": "24"},
     {"id": 25, "label": "25"},
-    {"id": 26, "label": "26"}*/
-    /*{"id": 26, "label": "Z"},
-    {"id": 27, "label": "AA"},
-    {"id": 28, "label": "AB"},
-    {"id": 29, "label": "AC"},
-    {"id": 30, "label": "AD"},
-    {"id": 31, "label": "AE"},
-    {"id": 32, "label": "AF"},
-    {"id": 33, "label": "AG"},
-    {"id": 34, "label": "AH"},
-    {"id": 35, "label": "AI"},
-    {"id": 36, "label": "AJ"},
-    {"id": 37, "label": "AK"},
-    {"id": 38, "label": "AL"}*/
-  /*],
+    {"id": 26, "label": "26"}
+  ],
   "links": [
     {"from": 1, "to": 2},
     {"from": 2, "to": 3},
@@ -395,25 +382,9 @@ var dummyR = 0;
     {"from": 24, "to": 25},
     {"from": 25, "to": 23},
     {"from": 25, "to": 26},
-    {"from": 26, "to": 23},*/
-    /*{"from": 15, "to": 23},
-    {"from": 15, "to": 24},
-    {"from": 16, "to": 25},
-    {"from": 16, "to": 26},
-    {"from": 17, "to": 27},
-    {"from": 17, "to": 28},
-    {"from": 18, "to": 29},
-    {"from": 18, "to": 30},
-    {"from": 19, "to": 31},
-    {"from": 19, "to": 32},
-    {"from": 20, "to": 33},
-    {"from": 20, "to": 34},
-    {"from": 21, "to": 35},
-    {"from": 21, "to": 36},
-    {"from": 22, "to": 37},
-    {"from": 22, "to": 38}*/
-  //]
-//};
+    {"from": 26, "to": 23}
+  ]
+};
 
 /*var Graph = {
   "nodes": [
@@ -435,7 +406,7 @@ var dummyR = 0;
   ]
 };*/
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
@@ -447,9 +418,10 @@ var Graph = {
     {"from": 3, "to": 2},
     {"from": 4, "to": 2}
   ]
-}
+}*/
 
-graphArray = Main.main(helpFunctions.randomGraph(20,0.1));
+//graphArray = Main.main(helpFunctions.randomGraph(20,0.1));
+graphArray = Main.main(Graph);
 var len1 = graphArray.length;
 var len2;
 var maxX;
