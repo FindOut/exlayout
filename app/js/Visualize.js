@@ -322,7 +322,7 @@ var dummyR = 0;
   ]
 };*/
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
@@ -384,7 +384,7 @@ var Graph = {
     {"from": 25, "to": 26},
     {"from": 26, "to": 23}
   ]
-};
+};*/
 
 /*var Graph = {
   "nodes": [
@@ -406,7 +406,7 @@ var Graph = {
   ]
 };*/
 
-/*var Graph = {
+var Graph = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
@@ -417,6 +417,23 @@ var Graph = {
     {"from": 1, "to": 2},
     {"from": 3, "to": 2},
     {"from": 4, "to": 2}
+  ]
+}
+
+//graph contains box
+/*var Graph = {
+  "nodes": [
+    {"id": 1, "label": "1", "box":null},
+    {"id": 2, "label": "2", "box":null},
+    {"id": 3, "label": "3", "box": 1},
+    {"id": 4, "label": "4", "box": 1}
+  ],
+  "links": [
+    {"from": 1, "to": 2, "box":null},
+    {"from": 3, "to": 4, "box":1},
+    {"from": 4, "to": 2, "box":null},
+    {"from": 1, "to": 4, "box":null},
+    {"from": 1, "to": 3, "box":null}
   ]
 }*/
 

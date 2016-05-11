@@ -1,3 +1,18 @@
+exports.boxgraphDetection = function(graph){
+  return boxgraphDetection(graph);
+};
+
+exports.boxGraphController = function(graph){
+  return boxGraphController(graph);
+};
+
+function boxGraphController(graph){
+  var boxGraphs = boxgraphDetection(graph);
+  hideBox(boxGraphs, graph.nodes, graph.links, graph);
+  deleteNodesAndLinksInBox(boxGraphs, graph);
+  return graph;
+}
+
 function boxgraphDetection(graph){
   var nodes = graph.nodes;
   var links = graph.links;
@@ -17,7 +32,7 @@ function boxgraphDetection(graph){
   //box number begins from 1, the first element in boxgraph is not used
   for(var counter = 1; counter <= maxBoxNum; counter++)
   {
-    boxgraphs[counter] = {"nodes":[], "links": [], "box": counter};
+    boxgraphs[counter] = {"nodes":[], "links": [], "box": counter, "groupnumber": null};
     //get nodes whose box is the same
     var nodetoDelete = [];
     for(var j = 0; j < nodeslength; j++)
@@ -36,22 +51,20 @@ function boxgraphDetection(graph){
       }
     }
   }
-  //console.log(JSON.stringify(boxgraphs));
-  hideBox(boxgraphs, nodes, links);
-  deleteNodesAndLinksInBox(boxgraphs, graph);
-  return graph;
+  return boxgraphs;
 }
 
 //se the whole box as one false node and all links to nodes in box will connect to the false node
-function hideBox(boxgraphs, nodes, links){
+function hideBox(boxgraphs, nodes, links, graph){
   for(var i = 1; i < boxgraphs.length; i++)
   {
     var boxNodes = boxgraphs[i].nodes;
-    var falseNode = {"id": null, "label": null, "box": null};
+    var falseNode = {"id": null, "label": "boxNode", "box": null};
     var minId = Number.MAX_VALUE;
     var currentBoxNumber = i;
     var changedlinks = [];
 
+    falseNode.box = currentBoxNumber;
     //add false node
     graph.nodes.push(falseNode);
 
@@ -136,7 +149,7 @@ function deleteDoubleLink(from, to, graph)
     }
   }
 }
-var graph = {
+/*var graph = {
   "nodes": [
     {"id": 1, "label": "1", "box":null},
     {"id": 2, "label": "2", "box":null},
@@ -151,4 +164,4 @@ var graph = {
     {"from": 1, "to": 3, "box":null}
   ]
 }
-console.log(boxgraphDetection(graph));
+console.log(boxGraphController(graph));*/
