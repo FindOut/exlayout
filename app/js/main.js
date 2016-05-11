@@ -57,7 +57,7 @@ function boxGraphSugiyama(graph){
     {"from": 1, "to": 3, "box":null}
   ]
 }*/
-var Graph = {
+var graph = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},

@@ -406,7 +406,7 @@ var dummyR = 0;
   ]
 };*/
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
@@ -418,10 +418,10 @@ var Graph = {
     {"from": 3, "to": 2},
     {"from": 4, "to": 2}
   ]
-}
+}*/
 
 //graph contains box
-/*var Graph = {
+var Graph = {
   "nodes": [
     {"id": 1, "label": "1", "box":null},
     {"id": 2, "label": "2", "box":null},
@@ -435,7 +435,7 @@ var Graph = {
     {"from": 1, "to": 4, "box":null},
     {"from": 1, "to": 3, "box":null}
   ]
-}*/
+}
 
 //graphArray = Main.main(helpFunctions.randomGraph(20,0.1));
 graphArray = Main.main(Graph);
@@ -567,24 +567,46 @@ graphEnter.each(function(d,i){
   nodesEnter.each(function(d){
     if(!d.isDummy)
     {
-      d3.select(this)
-        .append('circle')
-          .attr("cx", xScale(d.x))
-          .attr("cy", yScale(d.rank))
-          .attr("r", r)
+      if(d.box != null)
+      {
+        d3.select(this)
+          .append('circle')
+            .attr("cx", xScale(d.x))
+            .attr("cy", yScale(d.rank))
+            .attr("r", r)
+            .attr("id", "name"+d.id)
+            .attr("isDummy", "false")
+            .style("fill", "red")
+
+        d3.select(this)
+              .append('text')
+                .text(d.label)
+                .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+
+        d3.select(this)
+              .attr("graph",graphNumber)
+              .attr("id", "name"+d.id)
+              .call(drag);
+      }else{
+        d3.select(this)
+          .append('circle')
+            .attr("cx", xScale(d.x))
+            .attr("cy", yScale(d.rank))
+            .attr("r", r)
+            .attr("id", "name"+d.id)
+            .attr("isDummy", "false")
+            .style("fill", "white")
+
+        d3.select(this)
+          .append('text')
+            .text(d.label)
+            .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+
+        d3.select(this)
+          .attr("graph",graphNumber)
           .attr("id", "name"+d.id)
-          .attr("isDummy", "false")
-          .style("fill", "white")
-
-      d3.select(this)
-        .append('text')
-          .text(d.label)
-          .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
-
-      d3.select(this)
-        .attr("graph",graphNumber)
-        .attr("id", "name"+d.id)
-        .call(drag);
+          .call(drag);
+      }
     }
     else {
       d3.select(this)

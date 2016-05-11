@@ -21,7 +21,7 @@ function boxgraphDetection(graph){
   var boxgraphs = [];
 
   //find max box Number
-  var maxBoxNum = 1;
+  var maxBoxNum = Number.MIN_VALUE;
   for(var i = 0; i < nodeslength; i++)
   {
     if(nodes[i].box > maxBoxNum)
@@ -29,6 +29,7 @@ function boxgraphDetection(graph){
       maxBoxNum = nodes[i].box;
     }
   }
+
   //box number begins from 1, the first element in boxgraph is not used
   for(var counter = 1; counter <= maxBoxNum; counter++)
   {
@@ -162,6 +163,20 @@ function deleteDoubleLink(from, to, graph)
     {"from": 4, "to": 2, "box":null},
     {"from": 1, "to": 4, "box":null},
     {"from": 1, "to": 3, "box":null}
+  ]
+}
+
+var graph = {
+  "nodes": [
+    {"id": 1, "label": "1", "box":null},
+    {"id": 2, "label": "2","box":null},
+    {"id": 3, "label": "3","box":null},
+    {"id": 4, "label": "4","box":null}
+  ],
+  "links": [
+    {"from": 1, "to": 2,"box":null},
+    {"from": 3, "to": 2,"box":null},
+    {"from": 4, "to": 2,"box":null}
   ]
 }
 console.log(boxGraphController(graph));*/
