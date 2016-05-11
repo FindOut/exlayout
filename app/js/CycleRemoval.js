@@ -173,11 +173,9 @@ function deleteNode(node, nodes)
 // Delete edges from e
 function deleteLinks(edges, e)
 {
-  var length = edges.length;
-  var elength = e.length;
-  for(var i = 0; i < length; i++)
+  for(var i = 0; i < edges.length; i++)
   {
-    for(var j = 0; j < elength; j++)
+    for(var j = 0; j < e.length; j++)
     {
       if(edges[i].from == e[j].from && edges[i].to == e[j].to)
       {

@@ -351,6 +351,19 @@ var dummyR = 0;
     {"id": 24, "label": "24"},
     {"id": 25, "label": "25"},
     {"id": 26, "label": "26"}
+    /*{"id": 26, "label": "Z"},
+    {"id": 27, "label": "AA"},
+    {"id": 28, "label": "AB"},
+    {"id": 29, "label": "AC"},
+    {"id": 30, "label": "AD"},
+    {"id": 31, "label": "AE"},
+    {"id": 32, "label": "AF"},
+    {"id": 33, "label": "AG"},
+    {"id": 34, "label": "AH"},
+    {"id": 35, "label": "AI"},
+    {"id": 36, "label": "AJ"},
+    {"id": 37, "label": "AK"},
+    {"id": 38, "label": "AL"}
   ],
   "links": [
     {"from": 1, "to": 2},
@@ -384,6 +397,25 @@ var dummyR = 0;
     {"from": 25, "to": 26},
     {"from": 26, "to": 23}
   ]
+};
+    {"from": 26, "to": 23},
+    {"from": 15, "to": 23},
+    {"from": 15, "to": 24},
+    {"from": 16, "to": 25},
+    {"from": 16, "to": 26},
+    {"from": 17, "to": 27},
+    {"from": 17, "to": 28},
+    {"from": 18, "to": 29},
+    {"from": 18, "to": 30},
+    {"from": 19, "to": 31},
+    {"from": 19, "to": 32},
+    {"from": 20, "to": 33},
+    {"from": 20, "to": 34},
+    {"from": 21, "to": 35},
+    {"from": 21, "to": 36},
+    {"from": 22, "to": 37},
+    {"from": 22, "to": 38}
+  ]
 };*/
 
 /*var Graph = {
@@ -410,13 +442,12 @@ var dummyR = 0;
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
-    {"id": 3, "label": "3"},
-    {"id": 4, "label": "4"}
+    {"id": 3, "label": "3"}
   ],
   "links": [
     {"from": 1, "to": 2},
-    {"from": 3, "to": 2},
-    {"from": 4, "to": 2}
+    {"from": 2, "to": 3},
+    {"from": 1, "to": 3}
   ]
 }*/
 
@@ -437,7 +468,6 @@ var Graph = {
   ]
 }
 
-//graphArray = Main.main(helpFunctions.randomGraph(20,0.1));
 graphArray = Main.main(Graph);
 var len1 = graphArray.length;
 var len2;
@@ -924,7 +954,6 @@ function dragend(d)
     graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
     graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
   });
-  force.resume();
 }
 
 function zoomed() {
@@ -1454,3 +1483,322 @@ function resume()
   force.start();
 }
 window.resume = resume;
+
+function stop()
+{
+  force.stop();
+}
+window.stop = stop;
+
+function redraw()
+{
+  force.stop();
+  var Graph = {"nodes": [], "links": []};
+  var subGraph = {"nodes": [], "links": []};
+  d3.selectAll(".graph").each(function(){
+    d3.select(this).selectAll("g").each(function(d){
+      if(!d.isDummy)
+      {
+        subGraph.nodes.push({"id": d.id, "label": d.label});
+        Graph.nodes.push({"id": d.id, "label": d.label});
+      }
+    });
+    d3.select(this).selectAll("line").each(function(d){
+      subGraph.links.push({"from": d.from, "to": d.to});
+    });
+    var len = subGraph.nodes.length;
+    var len1;
+    var len2 = subGraph.links.length;;
+    var edges;
+    var fromId;
+    var toId;
+    for(var i = 0; i < len; i++)
+    {
+      edges = CycleRemoval.outgoing(subGraph.nodes[i], subGraph.links);
+      len1 = edges.length;
+      for(var j = 0; j < len1; j++)
+      {
+        fromId = edges[j].from;
+        toId = edges[j].to;
+        while(CycleRemoval.getNodeById(toId, subGraph.nodes) === null)
+        {
+          for(var k = 0; k < len2; k++)
+          {
+            if(subGraph.links[k].from == toId)
+            {
+              toId = subGraph.links[k].to;
+              break;
+            }
+          }
+        }
+        Graph.links.push({"from": fromId, "to": toId});
+      }
+    }
+    subGraph = {"nodes": [], "links": []};
+  });
+  d3.select("#graph").selectAll("*").remove();
+  graphArray = Main.main(Graph);
+  len1 = graphArray.length;
+  globalMaxX = Number.MIN_VALUE;
+  globalMinX = Number.MAX_VALUE;
+  globalMaxY = Number.MIN_VALUE;
+  globalMinY = Number.MAX_VALUE;
+  currentGraph;
+  for(var i = 0; i < len1; i++)
+  {
+    maxX = Number.MIN_VALUE;
+    minX = Number.MAX_VALUE;
+    maxY= Number.MIN_VALUE;
+    minY = Number.MAX_VALUE;
+    currentGraph = graphArray[i];
+    len2 = currentGraph.nodes.length;
+    for(var j = 0; j < len2; j++)
+    {
+      if(currentGraph.nodes[j].x > maxX)
+      {
+        maxX = currentGraph.nodes[j].x;
+      }else if(currentGraph.nodes[j].x < minX){
+        minX = currentGraph.nodes[j].x;
+      }
+      if(currentGraph.nodes[j].rank > maxY)
+      {
+        maxY = currentGraph.nodes[j].rank;
+      }else if(currentGraph.nodes[j].rank < minY){
+        minY = currentGraph.nodes[j].rank;
+      }
+    }
+    if(maxX > globalMaxX)
+    {
+      globalMaxX = maxX;
+    }
+    if(minX < globalMinX)
+    {
+      globalMinX = minX;
+    }
+    if(maxY > globalMaxY)
+    {
+      globalMaxY = maxY;
+    }
+    if(minY < globalMinY)
+    {
+      globalMinY = minY;
+    }
+    currentGraph.maxX = maxX;
+    currentGraph.minX = minX;
+    currentGraph.maxY = maxY;
+    currentGraph.minY = minY;
+  }
+
+  width = window.innerWidth
+  || document.documentElement.clientWidth
+  || document.body.clientWidth;
+  height = window.innerHeight
+  || document.documentElement.clientHeight
+  || document.body.clientHeight;
+
+  yScale = d3.scale.linear()
+                        .domain([globalMaxY, globalMinY])
+                        .range([r, (globalMaxY-globalMinY)*6*r-r]);
+  xScale = d3.scale.linear()
+                        .domain([globalMinX, globalMaxX])
+                        .range([r, (globalMaxX-globalMinX)*5*r-r]);
+
+  drag = d3.behavior.drag()
+              .on("drag", dragmove)
+              .on("dragstart", dragstart)
+              .on("dragend", dragend);
+
+  zoom = d3.behavior.zoom()
+              .on("zoom", zoomed);
+
+  svg = d3.select('#graph').append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .append("g")
+      .call(zoom);
+
+  rect = svg.append("rect")
+                  .attr("width", width)
+                  .attr("height", height)
+                  .style("fill", "none")
+                  .style("pointer-events", "all");
+
+  container = svg
+                    .append("g");
+
+  // Define marker
+  container.append('defs').append('marker')
+    .attr("id", 'markerArrowEnd') // ID of marker
+    .attr("viewBox", "0 -5 10 10") // minX, minY, width and height of viewBox
+    .attr("refX", 10) // Position where marker connect to the vertex
+    .attr("refY", 0) // Position where marker connect to the vertex
+    .attr("markerWidth", 8) // The width of marker
+    .attr("markerHeight", 8) // The height of marker
+    .attr("orient", "auto") // Rotation of marker
+    .append("path") // Used to draw line
+      .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
+      .attr('fill', 'black'); // Fill the triangle
+
+  graph = container.selectAll(".graph")
+    .data(graphArray);
+
+  graphEnter = graph.enter().append('g')
+    .attr('class', 'graph');
+
+
+
+  graphEnter.each(function(d,i){
+    var graphNumber = graphArray[i].groupnumber;
+    d3.select(this)
+      .attr("graph", graphNumber);
+
+    var nodes = d3.select(this).selectAll('circle')
+                  .data(graphArray[i].nodes);
+
+    var nodesEnter = nodes.enter().append('g')
+                      .attr('class', 'node');
+
+    nodesEnter.each(function(d){
+      if(!d.isDummy)
+      {
+        d3.select(this)
+          .append('circle')
+            .attr("cx", xScale(d.x))
+            .attr("cy", yScale(d.rank))
+            .attr("r", r)
+            .attr("id", "name"+d.id)
+            .attr("isDummy", "false")
+            .style("fill", "white")
+
+        d3.select(this)
+          .append('text')
+            .text(d.label)
+            .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+
+        d3.select(this)
+          .attr("graph",graphNumber)
+          .attr("id", "name"+d.id)
+          .call(drag);
+      }
+      else {
+        d3.select(this)
+          .append('circle')
+            .attr("cx", xScale(d.x))
+            .attr("cy", yScale(d.rank))
+            .attr("r", dummyR)
+            .attr("id", "name"+d.id)
+            .attr("graph",graphNumber)
+            .attr("isDummy", "true")
+            .style("fill", "white")
+
+        d3.select(this)
+          .attr("graph", graphNumber)
+          .attr("id", "name"+d.id);
+      }
+    });
+
+    nodes.exit().remove();
+
+    var links = d3.select(this).selectAll('line')
+      .data(graphArray[i].links);
+
+    var linksEnter = links.enter().append('line')
+      .attr('class', 'link');
+
+    linksEnter.each(function (d){
+      var fromNode = CycleRemoval.getNodeById(d.from, graphArray[i].nodes);
+      var toNode = CycleRemoval.getNodeById(d.to, graphArray[i].nodes);
+      var adjustedEnds = adjustEnds(fromNode, toNode);
+      if(!fromNode.isDummy && !toNode.isDummy)
+      {
+        d3.select(this)
+          .attr("x1", function(d) { return adjustedEnds.from.x; })
+          .attr("y1", function(d) { return adjustedEnds.from.rank; })
+          .attr("x2", function(d) { return adjustedEnds.to.x; })
+          .attr("y2", function(d) { return adjustedEnds.to.rank; })
+          .attr("from", d.from)
+          .attr("to", d.to)
+          .attr("graph", graphNumber)
+          .attr("marker-end", "url(#markerArrowEnd)");
+      }else if(fromNode.isDummy && !toNode.isDummy){
+        d3.select(this)
+          .attr("x1", function(d) { return xScale(fromNode.x); })
+          .attr("y1", function(d) { return yScale(fromNode.rank); })
+          .attr("x2", function(d) { return adjustedEnds.to.x; })
+          .attr("y2", function(d) { return adjustedEnds.to.rank; })
+          .attr("from", d.from)
+          .attr("to", d.to)
+          .attr("graph", graphNumber)
+          .attr("marker-end", "url(#markerArrowEnd)");
+      }else if(!fromNode.isDummy && toNode.isDummy){
+        d3.select(this)
+          .attr("x1", function(d) { return adjustedEnds.from.x; })
+          .attr("y1", function(d) { return adjustedEnds.from.rank; })
+          .attr("x2", function(d) { return xScale(toNode.x); })
+          .attr("y2", function(d) { return yScale(toNode.rank); })
+          .attr("from", d.from)
+          .attr("to", d.to)
+          .attr("graph", graphNumber);
+      }else{
+        d3.select(this)
+          .attr("x1", function(d) { return xScale(fromNode.x); })
+          .attr("y1", function(d) { return yScale(fromNode.rank); })
+          .attr("x2", function(d) { return xScale(toNode.x); })
+          .attr("y2", function(d) { return yScale(toNode.rank); })
+          .attr("from", d.from)
+          .attr("to", d.to)
+          .attr("graph", graphNumber);
+      }
+    });
+    links.exit().remove();
+  });
+
+  graphArrayCoordinate = {"graphs": [], "links": []};
+
+  //graphArrayCoordinate.graphs.push({"x": width/2, "y": height/2, "fixed": true, "halfDigonal": 0});
+
+  maxDigonal = Number.MIN_VALUE;
+
+  graphEnter.each(function(d){
+    var bbox = this.getBBox();
+    var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+    if(halfDigonal > maxDigonal)
+    {
+      maxDigonal = halfDigonal;
+    }
+    graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
+                                      "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": d.groupnumber});
+  });
+
+  /*var len = graphArrayCoordinate.graphs.length;
+  for(var i = 1; i < len; i++)
+  {
+    graphArrayCoordinate.links.push({"source": 0, "target": i});
+  }*/
+
+
+  force = d3.layout.force()
+                .size([width, height])
+                .friction(0.7)
+                /*.linkStrength(function(d){
+                  if(d.source.index == 0)
+                  {
+                    return d.target.halfDigonal/maxDigonal;
+                  }
+                })
+                .linkDistance(function(d){
+                  if(d.source.index == 0)
+                  {
+                    return maxDigonal/d.target.halfDigonal*20;
+                  }
+                })*/
+                .on("tick", tick)
+                .on("start", init(graphArrayCoordinate))
+                .on("end", debug(graphArrayCoordinate));
+
+  force
+    .nodes(graphArrayCoordinate.graphs)
+    //.links(graphArrayCoordinate.links)
+    .start();
+}
+window.redraw = redraw;

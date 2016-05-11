@@ -95,7 +95,7 @@ function addDummy(graph)
     {
       CycleRemoval.deleteLinks([link], graph.links);
       i--;
-      dummyNode = {"id": ++max, "label": "", "rank": node.rank+1, "order": 0, "isDummy": true};
+      dummyNode = {"id": ++max, "label": "", "group": group, "rank": node.rank+1, "order": 0, "isDummy": true};
       dummyLink = {"from": max, "to": link.to, "group": group, "ismark": false, "isReversed": isReversed};
       graph.nodes.push(dummyNode);
       graph.links.push(dummyLink);
