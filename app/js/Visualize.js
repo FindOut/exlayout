@@ -472,7 +472,7 @@ var Graph = {
 graphArray = Main.main(Graph); // get cleaned sub graphs
 var boxGraphs = Main.boxGraphSugiyama(Graph); // get cleaned box graphs
 var boxGraphsDatas = helpFunctions.boxGraphDataCalculater(boxGraphs); //get properties of boxGraph
-console.log(JSON.stringify(boxGraphsDatas, null, 2));
+//console.log(JSON.stringify(boxGraphsDatas, null, 2));
 var len1 = graphArray.length;
 var len2;
 var maxX;
@@ -622,6 +622,7 @@ graphEnter.each(function(d,i){
             .attr("cy", yScale(d.rank))
             .attr("r", r)
             .attr("id", "name"+d.id)
+            .attr("box",d.box)
             .attr("isDummy", "false")
             .style("fill", "red")
 
@@ -633,6 +634,7 @@ graphEnter.each(function(d,i){
         d3.select(this)
               .attr("graph",graphNumber)
               .attr("id", "name"+d.id)
+              .attr("box",d.box)
               .call(drag);
       }else{
         d3.select(this)
@@ -641,6 +643,7 @@ graphEnter.each(function(d,i){
             .attr("cy", yScale(d.rank))
             .attr("r", r)
             .attr("id", "name"+d.id)
+            .attr("box",d.box)
             .attr("isDummy", "false")
             .style("fill", "white")
 
@@ -652,6 +655,7 @@ graphEnter.each(function(d,i){
         d3.select(this)
           .attr("graph",graphNumber)
           .attr("id", "name"+d.id)
+          .attr("box",d.box)
           .call(drag);
       }
     }
@@ -781,7 +785,8 @@ var boxEnter = box.enter().append('g')
               .attr("cx", xScale(d.x))
               .attr("cy", yScale(d.rank))
               .attr("r", r)
-              .attr("id", "name"+d.id)
+              .attr("id", "boxname"+d.id)
+              .attr("box", boxNumber)
               .attr("isDummy", "false")
               .style("fill", "white")
 
@@ -792,7 +797,7 @@ var boxEnter = box.enter().append('g')
 
           d3.select(this)
             .attr("graph",graphNumber)
-            .attr("id", "name"+d.id)
+            .attr("id", "boxname"+d.id)
             .call(drag);
       }
       else {
@@ -801,14 +806,15 @@ var boxEnter = box.enter().append('g')
             .attr("cx", xScale(d.x))
             .attr("cy", yScale(d.rank))
             .attr("r", dummyR)
-            .attr("id", "name"+d.id)
+            .attr("id", "boxname"+d.id)
             .attr("graph",graphNumber)
+            .attr("box", boxNumber)
             .attr("isDummy", "true")
             .style("fill", "white")
 
         d3.select(this)
           .attr("graph", graphNumber)
-          .attr("id", "name"+d.id);
+          .attr("id", "boxname"+d.id);
       }
     });
 
@@ -877,20 +883,98 @@ var boxEnter = box.enter().append('g')
     var Radius = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
     var cx = bbox.x + bbox.width/2;
     var cy = bbox.y + bbox.height/2;
+
     d3.select(this).append('circle')
       .attr("cx", cx)
       .attr("cy", cy)
+      .attr("name","boxcircle")
       .attr("r", Radius)
       .style("fill", "none");
+    var graphNumber = d3.select(this).attr("graphNumber");
 
+    var box = d3.select(this).attr("boxNumber");
+    var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ box + "']").attr("cx"));
+    console.log(toCx);
+    var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ box + "']").attr("cy"));
+    console.log(toCy);
+    d3.select(this).select("circle[name = boxcircle]")
+      .attr("cx", toCx)
+      .attr("cy", toCy);
+
+    var circle = d3.select(this).select("circle[name = boxcircle]")
+        .remove();
+    var nextCircle = d3.select("svg").select("g").select("g").select("g[graph='" + graphNumber + "']");
+      circle.each(function(){
+        nextCircle
+          .node()
+          .appendChild(this);
+      });
+
+    //for each nodes upper, lower than falseNode, and the node to the left and right will be moved a radius
+    d3.select("g[graph= '"+ graphNumber + "']").selectAll(".node").each(function(d){
+      var oldcx = parseFloat(d3.select(this).select("circle").attr("cx")); //cx of each node in graph
+      var oldcy = parseFloat(d3.select(this).select("circle").attr("cy")); //cy of each node in graph
+      var newCx;
+      var newCy;
+      var l;
+      if(oldcx < toCx && oldcy < toCy)  //upper left
+      {
+        l = Math.sqrt((toCx-oldcx)*(toCx-oldcx) + (toCy-oldcy)*(toCy-oldcy));
+        newCx = oldcx - (Radius-r)*(toCx-oldcx)/l;
+        newCy = oldcy - (Radius-r)*(toCy-oldcy)/l;
+        d3.select(this).select("circle")
+        .attr("cx", newCx)
+        .attr("cy", newCy);
+      }else if(oldcx > toCx && oldcy < toCy) //upper right
+      {
+        l = Math.sqrt((oldcx-toCx)*(oldcx-toCx) + (toCy-oldcy)*(toCy-oldcy));
+        newCx = oldcx + (Radius-r)*(oldcx-toCx)/l;
+        newCy = oldcy - (Radius-r)*(toCy-oldcy)/l;
+        d3.select(this).select("circle")
+        .attr("cx", newCx)
+        .attr("cy", newCy);
+      }else if(oldcx < toCx && oldcy > toCy) //lower left
+      {
+        l = Math.sqrt((oldcx-toCx)*(oldcx-toCx) + (toCy-oldcy)*(toCy-oldcy));
+        newCx = oldcx - (Radius-r)*(toCx-oldcx)/l;
+        newCy = oldcy + (Radius-r)*(oldcy-toCy)/l;
+        d3.select(this).select("circle")
+        .attr("cx", newCx)
+        .attr("cy", newCy);
+      }
+      else if (oldcx > toCx && oldcy > toCy) //lower right
+      {
+        l = Math.sqrt((oldcx-toCx)*(oldcx-toCx) + (oldcy-toCy)*(oldcy-toCy));
+        newCx = oldcx + (Radius-r)*(oldcx-toCx)/l;
+        newCy = oldcy + (Radius-r)*(oldcy-toCy)/l;
+        d3.select(this).select("circle")
+        .attr("cx", newCx)
+        .attr("cy", newCy);
+      }
+      else if (oldcx < toCx && oldcy == toCy) // left
+      {
+        newCx = oldcx - (Radius - r);
+        d3.select(this).select("circle")
+        .attr("cx", newCx);
+      }
+      else if (oldcx > toCx && oldcy == toCy)  //right
+      {
+        newCx = oldcx + (Radius - r);
+        d3.select(this).select("circle")
+        .attr("cx", newCx);
+      }else if (oldcx == toCx && oldcy > toCy) //above
+      {
+        newCy = oldcy - (Radius - r);
+        d3.select(this).select("circle")
+        .attr("cy", newCy);
+      }else if (oldcx == toCx && oldcy < toCy) //under
+      {
+        newCy = oldcy + (Radius - r);
+        d3.select(this).select("circle")
+        .attr("cy", newCy);
+      }
+    });
   });
-
-/*var len = graphArrayCoordinate.graphs.length;
-for(var i = 1; i < len; i++)
-{
-  graphArrayCoordinate.links.push({"source": 0, "target": i});
-}*/
-
 
 var force = d3.layout.force()
               .size([width, height])
@@ -997,11 +1081,15 @@ function tick()
       d3.select(this)
         .attr("cx",cx)
         .attr("cy",cy);
+    });
+
+    d3.select(this).select("circle[name = boxcircle]").each(function(){
+      var cx = parseFloat(d3.select(this).attr("cx"))+dx;
+      var cy = parseFloat(d3.select(this).attr("cy"))+dy;
+      d3.select(this)
+        .attr("cx",cx)
+        .attr("cy",cy);
     })
-    /*var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
-    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
-    d3.select(this)//.transition().ease("linear").duration(750)
-      .attr("transform", "translate("+dx+","+dy+")");*/
   });
 
   /*graphRepresentEnter
@@ -1169,7 +1257,7 @@ function graphMoveEnd()
     graphArrayCoordinate.graphs[i].py = bbox.y+bbox.height/2;
     graphArrayCoordinate.graphs[i].old_x = bbox.x+bbox.width/2;
     graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
-    console.log(bbox.x + " " + bbox.y);
+    //console.log(bbox.x + " " + bbox.y);
   });
   var len = graphArrayCoordinate.graphs.length;
   for(var i = 0; i < len; i++)
