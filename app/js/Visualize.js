@@ -438,18 +438,19 @@ var dummyR = 0;
   ]
 };*/
 
-/*var Graph = {
+var Graph1 = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
-    {"id": 3, "label": "3"}
+    {"id": 3, "label": "3"},
+    {"id": 4, "label": "4"}
   ],
   "links": [
     {"from": 1, "to": 2},
-    {"from": 2, "to": 3},
-    {"from": 1, "to": 3}
+    {"from": 3, "to": 2},
+    {"from": 4, "to": 2}
   ]
-}*/
+}
 
 //graph contains box
 var Graph = {
@@ -546,6 +547,11 @@ var drag = d3.behavior.drag()
             .on("drag", dragmove)
             .on("dragstart", dragstart)
             .on("dragend", dragend);
+
+var dragGraph = d3.behavior.drag()
+                  .on("drag", graphMove)
+                  .on("dragstart", dragstart)
+                  .on("dragend", graphMoveEnd);
 
 var zoom = d3.behavior.zoom()
             .on("zoom", zoomed);
@@ -737,6 +743,14 @@ graphEnter.each(function(d){
   }
   graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
                                     "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": d.groupnumber});
+  container.append("circle")
+    .attr("id", "moveButton")
+    .attr("cx", bbox.x+r/2)
+    .attr("cy", bbox.y+r/2)
+    .attr("r", r/2)
+    .attr("fill", "black")
+    .attr("graph", d.groupnumber)
+    .call(dragGraph);
 });
 
 //draw boxGraphs and get radius of boxGraphs
@@ -976,6 +990,14 @@ function tick()
         .attr("x2", x2)
         .attr("y2", y2);
     });
+
+    d3.select("#moveButton[graph='"+graphArrayCoordinate.graphs[i].graph+"']").each(function(d){
+      var cx = parseFloat(d3.select(this).attr("cx"))+dx;
+      var cy = parseFloat(d3.select(this).attr("cy"))+dy;
+      d3.select(this)
+        .attr("cx",cx)
+        .attr("cy",cy);
+    })
     /*var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
     var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
     d3.select(this)//.transition().ease("linear").duration(750)
@@ -1096,9 +1118,68 @@ function dragend(d)
     graphArrayCoordinate.graphs[i].old_x = bbox.x+bbox.width/2;
     graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
     graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
+    d3.select("#moveButton[graph='"+graphArrayCoordinate.graphs[i].graph+"']")
+      .attr("cx",bbox.x+r/4)
+      .attr("cy",bbox.y+r/4);
   });
 }
 
+function graphMove()
+{
+  var dx = d3.event.x - parseFloat(d3.select(this).attr("cx"));
+  var dy = d3.event.y - parseFloat(d3.select(this).attr("cy"));
+  d3.select(this)
+    .attr("cx", d3.event.x)
+    .attr("cy", d3.event.y);
+
+  var graphNumber = parseInt(d3.select(this).attr("graph"));
+
+  d3.select(".graph[graph='"+graphNumber+"']").selectAll("g").each(function(){
+    var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
+    var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
+    d3.select(this).select("circle")
+      .attr("cx", cx)
+      .attr("cy", cy);
+
+    d3.select(this).select("text")
+      .attr({x: cx-r/4, y: cy+r/4})
+  });
+
+  d3.select(".graph[graph='"+graphNumber+"']").selectAll("line").each(function(){
+    var x1 = parseFloat(d3.select(this).attr("x1")) + dx;
+    var y1 = parseFloat(d3.select(this).attr("y1")) + dy;
+    var x2 = parseFloat(d3.select(this).attr("x2")) + dx;
+    var y2 = parseFloat(d3.select(this).attr("y2")) + dy;
+    d3.select(this)
+      .attr("x1", x1)
+      .attr("y1", y1)
+      .attr("x2", x2)
+      .attr("y2", y2);
+  });
+}
+
+function graphMoveEnd()
+{
+  var graphNumber = parseInt(d3.select(this).attr("graph"));
+  d3.selectAll(".graph").each(function(d,i){
+    var bbox = this.getBBox();
+    graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
+    graphArrayCoordinate.graphs[i].y = bbox.y+bbox.height/2;
+    graphArrayCoordinate.graphs[i].px = bbox.x+bbox.width/2;
+    graphArrayCoordinate.graphs[i].py = bbox.y+bbox.height/2;
+    graphArrayCoordinate.graphs[i].old_x = bbox.x+bbox.width/2;
+    graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
+    console.log(bbox.x + " " + bbox.y);
+  });
+  var len = graphArrayCoordinate.graphs.length;
+  for(var i = 0; i < len; i++)
+  {
+    if(graphArrayCoordinate.graphs[i].graph == graphNumber)
+    {
+      graphArrayCoordinate.graphs[i].fixed = true;
+    }
+  }
+}
 function zoomed() {
   container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
@@ -1197,6 +1278,7 @@ function handler1()
   if(d3.select(".graph[graph='"+node.group+"']").selectAll("g").empty())
   {
     d3.select(".graph[graph='"+node.group+"']").remove();
+    d3.select("#moveButton[graph='"+node.group+"']").remove();
   }else{
     d3.select(".graph[graph='"+node.group+"']").selectAll("g")
       .data(nodes);
@@ -1274,7 +1356,15 @@ function handler1()
           var bbox = this.getBBox();
           var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
           graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
-                                            "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": maxGraphNumber});
+                                            "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": d.groupnumber});
+          container.append("circle")
+                  .attr("id", "moveButton")
+                  .attr("cx", bbox.x+r/2)
+                  .attr("cy", bbox.y+r/2)
+                  .attr("r", r/2)
+                  .attr("fill", "black")
+                  .attr("graph", d.groupnumber)
+                  .call(dragGraph);
         }else{
           var bbox = this.getBBox();
           var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
@@ -1284,6 +1374,9 @@ function handler1()
           graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
           graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
           graphArrayCoordinate.graphs[i].graph = d.groupnumber;
+          d3.select("#moveButton[graph='"+d.groupnumber+"']")
+            .attr("cx", bbox.x+r/2)
+            .attr("cy", bbox.y+r/2);
         }
       });
   }
@@ -1433,6 +1526,14 @@ function handler2()
             var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
             graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
                                               "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": maxGraphNumber});
+            container.append("circle")
+                      .attr("id", "moveButton")
+                      .attr("cx", bbox.x+r/2)
+                      .attr("cy", bbox.y+r/2)
+                      .attr("r", r/2)
+                      .attr("fill", "black")
+                      .attr("graph", d.groupnumber)
+                      .call(dragGraph);
           }else{
             var bbox = this.getBBox();
             var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
@@ -1442,6 +1543,9 @@ function handler2()
             graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
             graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
             graphArrayCoordinate.graphs[i].graph = d.groupnumber;
+            d3.select("#moveButton[graph='"+d.groupnumber+"']")
+              .attr("cx", bbox.x+r/2)
+              .attr("cy", bbox.y+r/2);
           }
         });
     }
@@ -1623,7 +1727,7 @@ function deleteLink(fromId, toId, group, graph)
 
 function resume()
 {
-  force.start();
+  force.resume();
 }
 window.resume = resume;
 
@@ -1911,6 +2015,14 @@ function redraw()
     }
     graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
                                       "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": d.groupnumber});
+    container.append("circle")
+                .attr("id", "moveButton")
+                .attr("cx", bbox.x+r/2)
+                .attr("cy", bbox.y+r/2)
+                .attr("r", r/2)
+                .attr("fill", "black")
+                .attr("graph", d.groupnumber)
+                .call(dragGraph);
   });
 
   /*var len = graphArrayCoordinate.graphs.length;
@@ -1945,3 +2057,14 @@ function redraw()
     .start();
 }
 window.redraw = redraw;
+
+function release()
+{
+  var len = graphArrayCoordinate.graphs.length;
+  for(var i = 0; i < len; i++)
+  {
+    graphArrayCoordinate.graphs[i].fixed = false;
+  }
+  force.resume();
+}
+window.release = release;
