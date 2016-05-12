@@ -271,14 +271,14 @@ var dummyR = 0;
     {"id": 4, "label": "D"},
     {"id": 5, "label": "E"},
     {"id": 6, "label": "F"},
-    {"id": 7, "label": "G"}，
-    {"id": 8, "label": "H"}，
-    {"id": 9, "label": "I"}，
-    {"id": 10, "label": "J"}，
-    {"id": 11, "label": "K"}，
-    {"id": 12, "label": "L"}，
-    {"id": 13, "label": "M"}，
-    {"id": 14, "label": "N"}，
+    {"id": 7, "label": "G"},
+    {"id": 8, "label": "H"},
+    {"id": 9, "label": "I"},
+    {"id": 10, "label": "J"},
+    {"id": 11, "label": "K"},
+    {"id": 12, "label": "L"},
+    {"id": 13, "label": "M"},
+    {"id": 14, "label": "N"},
     {"id": 15, "label": "O"}
   ],
   "links": [
@@ -322,7 +322,7 @@ var dummyR = 0;
   ]
 };*/
 
-var Graph = {
+/*var Graph = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
@@ -363,7 +363,7 @@ var Graph = {
     {"id": 35, "label": "AI"},
     {"id": 36, "label": "AJ"},
     {"id": 37, "label": "AK"},
-    {"id": 38, "label": "AL"}*/
+    {"id": 38, "label": "AL"}
   ],
   "links": [
     {"from": 1, "to": 2},
@@ -395,8 +395,11 @@ var Graph = {
     {"from": 24, "to": 25},
     {"from": 25, "to": 23},
     {"from": 25, "to": 26},
+    {"from": 26, "to": 23}
+  ]
+};
     {"from": 26, "to": 23},
-    /*{"from": 15, "to": 23},
+    {"from": 15, "to": 23},
     {"from": 15, "to": 24},
     {"from": 16, "to": 25},
     {"from": 16, "to": 26},
@@ -411,9 +414,9 @@ var Graph = {
     {"from": 21, "to": 35},
     {"from": 21, "to": 36},
     {"from": 22, "to": 37},
-    {"from": 22, "to": 38}*/
+    {"from": 22, "to": 38}
   ]
-};
+};*/
 
 /*var Graph = {
   "nodes": [
@@ -446,6 +449,23 @@ var Graph1 = {
     {"from": 1, "to": 2},
     {"from": 3, "to": 2},
     {"from": 4, "to": 2}
+  ]
+}
+
+//graph contains box
+var Graph = {
+  "nodes": [
+    {"id": 1, "label": "1", "box":null},
+    {"id": 2, "label": "2", "box":null},
+    {"id": 3, "label": "3", "box": 1},
+    {"id": 4, "label": "4", "box": 1}
+  ],
+  "links": [
+    {"from": 1, "to": 2, "box":null},
+    {"from": 3, "to": 4, "box":1},
+    {"from": 4, "to": 2, "box":null},
+    {"from": 1, "to": 4, "box":null},
+    {"from": 1, "to": 3, "box":null}
   ]
 }
 
@@ -583,24 +603,46 @@ graphEnter.each(function(d,i){
   nodesEnter.each(function(d){
     if(!d.isDummy)
     {
-      d3.select(this)
-        .append('circle')
-          .attr("cx", xScale(d.x))
-          .attr("cy", yScale(d.rank))
-          .attr("r", r)
+      if(d.box != null)
+      {
+        d3.select(this)
+          .append('circle')
+            .attr("cx", xScale(d.x))
+            .attr("cy", yScale(d.rank))
+            .attr("r", r)
+            .attr("id", "name"+d.id)
+            .attr("isDummy", "false")
+            .style("fill", "red")
+
+        d3.select(this)
+              .append('text')
+                .text(d.label)
+                .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+
+        d3.select(this)
+              .attr("graph",graphNumber)
+              .attr("id", "name"+d.id)
+              .call(drag);
+      }else{
+        d3.select(this)
+          .append('circle')
+            .attr("cx", xScale(d.x))
+            .attr("cy", yScale(d.rank))
+            .attr("r", r)
+            .attr("id", "name"+d.id)
+            .attr("isDummy", "false")
+            .style("fill", "white")
+
+        d3.select(this)
+          .append('text')
+            .text(d.label)
+            .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
+
+        d3.select(this)
+          .attr("graph",graphNumber)
           .attr("id", "name"+d.id)
-          .attr("isDummy", "false")
-          .style("fill", "white")
-
-      d3.select(this)
-        .append('text')
-          .text(d.label)
-          .attr({x: xScale(d.x)-r/4, y: yScale(d.rank)+r/4});
-
-      d3.select(this)
-        .attr("graph",graphNumber)
-        .attr("id", "name"+d.id)
-        .call(drag);
+          .call(drag);
+      }
     }
     else {
       d3.select(this)
