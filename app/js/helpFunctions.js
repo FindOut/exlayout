@@ -9,6 +9,10 @@ exports.randomGraph = function(numberOfNodes, p){
   return randomGraph(numberOfNodes, p);
 }
 
+exports.boxGraphDataCalculater = function(boxGraphs){
+  return boxGraphDataCalculater(boxGraphs);
+}
+
 function modifiedDFS(start, end, graph, path)
 {
   if(path === undefined)
@@ -99,4 +103,36 @@ function randomGraph(numberOfNodes, p)
     }
   }
   return graph;
+}
+
+//function boxGraphLocationCalculater calculate the postions for each boxgraph
+function boxGraphDataCalculater(boxGraphs)
+{
+  var boxGraphDatas = [];
+    for(var i = 0; i < boxGraphs.length; i++)
+    {
+      var currentBoxGraph = boxGraphs[i];
+      var biggestY = 0;
+      var biggestX = 0;
+      var boxGraphData = {"x": null, "y": null, "r": null, "groupnumber":null, "box":null};
+      for(var j = 0; j < currentBoxGraph.nodes.length; j++)
+      {
+        if(biggestY < currentBoxGraph.nodes[j].rank)
+        {
+          biggestY = currentBoxGraph.nodes[j].rank;
+        }
+        if(biggestX < currentBoxGraph.nodes[j].order)
+        {
+          biggestX = currentBoxGraph.nodes[j].order;
+        }
+      }
+      var radius = Math.sqrt(biggestX*biggestX + biggestY*biggestY)/2;
+      boxGraphData.x = biggestX;
+      boxGraphData.y = biggestY;
+      boxGraphData.r = radius;
+      boxGraphData.groupnumber = currentBoxGraph.groupnumber;
+      boxGraphData.box = currentBoxGraph.box;
+      boxGraphDatas.push(boxGraphData);
+    }
+  return boxGraphDatas;
 }

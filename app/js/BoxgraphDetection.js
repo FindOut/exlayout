@@ -60,12 +60,13 @@ function hideBox(boxgraphs, nodes, links, graph){
   for(var i = 1; i < boxgraphs.length; i++)
   {
     var boxNodes = boxgraphs[i].nodes;
-    var falseNode = {"id": null, "label": "boxNode", "box": null};
+    var falseNode = {"id": null, "label": "boxNode", "box": null, "group": null};
     var minId = Number.MAX_VALUE;
     var currentBoxNumber = i;
     var changedlinks = [];
 
     falseNode.box = currentBoxNumber;
+    falseNode.group = boxNodes[0].group;
     //add false node
     graph.nodes.push(falseNode);
 

@@ -7,6 +7,10 @@ exports.main = function(graph){
   return main(graph);
 };
 
+exports.boxGraphSugiyama = function(graph){
+  return boxGraphSugiyama(graph);
+};
+
 //sugiyama should be executed for each subgraph in graph array
 function main(graph)
 {
@@ -27,7 +31,7 @@ function main(graph)
 function boxGraphSugiyama(graph){
   //get graph array
   var allGraphs = ConnectedGraphDetect.connectedGraphDetect(graph);
-
+  var allboxGraphs = [];
   for(var i = 0; i < allGraphs.length; i++)
   {
     var boxgraphs = BoxGraphController.boxgraphDetection(allGraphs[i]);
@@ -37,9 +41,10 @@ function boxGraphSugiyama(graph){
       boxgraphs[j].groupnumber = currentGroupNum;
       //console.log(boxgraphs[j]);
       Sugiyama.sugiyama(boxgraphs[j]); // do sugiyama on each boxgraph
+      allboxGraphs.push(boxgraphs[j]);
     }
   }
-  //return boxgraphs;
+  return allboxGraphs;
 }
 
 /*var graph = {
@@ -56,8 +61,8 @@ function boxGraphSugiyama(graph){
     {"from": 1, "to": 4, "box":null},
     {"from": 1, "to": 3, "box":null}
   ]
-}*/
-var graph = {
+}
+/*var graph = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
@@ -71,4 +76,4 @@ var graph = {
   ]
 }
 
-console.log(JSON.stringify(main(graph), null, 2));
+console.log(JSON.stringify(main(graph), null, 2));*/
