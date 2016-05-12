@@ -781,7 +781,6 @@ function tick()
   d3.selectAll(".graph").each(function(d,i){
     var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
     var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
-    console.log(JSON.stringify(i));
     graphArrayCoordinate.graphs[i].old_x = graphArrayCoordinate.graphs[i].x;
     graphArrayCoordinate.graphs[i].old_y = graphArrayCoordinate.graphs[i].y;
     d3.select(this).selectAll("g").each(function(d){
@@ -981,8 +980,11 @@ function graphMoveEnd()
     var bbox = this.getBBox();
     graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
     graphArrayCoordinate.graphs[i].y = bbox.y+bbox.height/2;
+    graphArrayCoordinate.graphs[i].px = bbox.x+bbox.width/2;
+    graphArrayCoordinate.graphs[i].py = bbox.y+bbox.height/2;
     graphArrayCoordinate.graphs[i].old_x = bbox.x+bbox.width/2;
     graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
+    console.log(bbox.x + " " + bbox.y);
   });
   var len = graphArrayCoordinate.graphs.length;
   for(var i = 0; i < len; i++)
@@ -1870,3 +1872,14 @@ function redraw()
     .start();
 }
 window.redraw = redraw;
+
+function release()
+{
+  var len = graphArrayCoordinate.graphs.length;
+  for(var i = 0; i < len; i++)
+  {
+    graphArrayCoordinate.graphs[i].fixed = false;
+  }
+  force.resume();
+}
+window.release = release;
