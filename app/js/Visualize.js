@@ -1008,6 +1008,8 @@ graphEnter.each(function(d,i){
     }
   });
   falseNodeId = falseNodeIdString.match(/\d/g);
+  d3.select(this).select(".boxgraph").select("circle[name ='" + "boxcircle']").attr("id", "name"+ falseNodeId);
+
   d3.select(this).selectAll("line").each(function(d){
     if(d3.select(this).attr("boxNumber") == null)
     {
@@ -1165,7 +1167,7 @@ function tick()
     var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
     graphArrayCoordinate.graphs[i].old_x = graphArrayCoordinate.graphs[i].x;
     graphArrayCoordinate.graphs[i].old_y = graphArrayCoordinate.graphs[i].y;
-    d3.select(this).selectAll("g").each(function(d){
+    d3.select(this).selectAll("g.node").each(function(d){
       var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
       var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
       d3.select(this).select("circle")
@@ -1255,12 +1257,12 @@ function dragmove(d) {
     var ends = adjustDragEnds({"x": d3.selectAll(".graph").select("circle#name"+d.from).attr("cx"),
      "y": d3.selectAll(".graph").select("circle#name"+d.from).attr("cy")}, {"x": x, "y": y});
     var isDummy = d3.selectAll(".graph").select("circle#name"+d.from).attr("isDummy");
-    d3.select(this)
+    /*d3.select(this)
       .attr("x1", ends.from.x)
       .attr("y1", ends.from.y)
       .attr("x2", ends.to.x)
-      .attr("y2", ends.to.y);
-    /*if(isDummy === "false")
+      .attr("y2", ends.to.y);*/
+    if(isDummy === "false")
     {
       d3.select(this)
         .attr("x1", ends.from.x)
@@ -1271,7 +1273,7 @@ function dragmove(d) {
       d3.select(this)
         .attr("x2", ends.to.x)
         .attr("y2", ends.to.y);
-    }*/
+    }
   });
 
 
@@ -1282,12 +1284,12 @@ function dragmove(d) {
 
     var isDummy = d3.selectAll(".graph").select("circle#name"+d.to).attr("isDummy");
 
-    d3.select(this)
+    /*d3.select(this)
       .attr("x1", ends.from.x)
       .attr("y1", ends.from.y)
       .attr("x2", ends.to.x)
-      .attr("y2", ends.to.y);
-    /*if(isDummy === "false")
+      .attr("y2", ends.to.y);*/
+    if(isDummy === "false")
     {
       d3.select(this)
         .attr("x1", ends.from.x)
@@ -1298,7 +1300,7 @@ function dragmove(d) {
       d3.select(this)
         .attr("x1", ends.from.x)
         .attr("y1", ends.from.y);
-    }*/
+    }
   });
 
   /*d3.select(this).select("circle")
