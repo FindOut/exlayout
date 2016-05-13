@@ -21,6 +21,18 @@ function adjustEnds(fromPoint, toPoint) {
   return {from: {x: xScale(fromPoint.x) + dx, rank: yScale(fromPoint.rank) + dy}, to: {x: xScale(toPoint.x) - dx, rank: yScale(toPoint.rank) - dy}};
 }
 
+function adjustEndsBox(fromPoint, toPoint) {
+  //console.log(JSON.stringify(fromPoint));
+  //console.log(JSON.stringify(toPoint));
+  var dx = toPoint.x-fromPoint.x;
+  var dy = toPoint.y-fromPoint.y;
+
+  var length = Math.sqrt(dx * dx + dy * dy);
+  dx = dx / length * r;
+  dy = dy / length * r;
+  return {from: {x: parseFloat(fromPoint.x) + dx, y: parseFloat(fromPoint.y) + dy}, to: {x: parseFloat(toPoint.x) - dx, y: parseFloat(toPoint.y) - dy}};
+}
+
 function adjustDragEnds(fromPoint, toPoint) {
   var dx = toPoint.x-fromPoint.x;
   var dy = toPoint.y-fromPoint.y;
@@ -892,9 +904,15 @@ var boxEnter = box.enter().append('g')
       .style("fill", "none");
     var graphNumber = d3.select(this).attr("graphNumber");
 
+<<<<<<< HEAD
     var boxNumber = d3.select(this).attr("boxNumber");
     var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cx"));
     var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cy"));
+=======
+    var box = d3.select(this).attr("boxNumber");
+    var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ box + "']").attr("cx"));
+    var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ box + "']").attr("cy"));
+>>>>>>> 221d94c1ca550d71d9ba972f69f27cbbd94ec1b3
     d3.select(this).select("circle[name = boxcircle]")
       .attr("cx", toCx)
       .attr("cy", toCy);
@@ -1003,6 +1021,61 @@ var boxEnter = box.enter().append('g')
       }*/
     });
   });
+
+graphEnter.each(function(d,i){
+  var graphNumber = d3.select(this).attr("graph");
+  var nodes = graphArray[i].nodes;
+  d3.select(this).selectAll('line').each(function(d){
+    //console.log("2222222222");
+    var fromNode = d3.select(this.parentNode).select("circle#name"+d.from);
+    var toNode = d3.select(this.parentNode).select("circle#name"+d.to);
+    var adjustedEnds = adjustEndsBox({"x":fromNode.attr("cx"), "y":fromNode.attr("cy")},{"x":toNode.attr("cx"), "y":toNode.attr("cy")});
+    //console.log(JSON.stringify(adjustedEnds));
+    //console.log(toNode.attr("isDummy"));
+    console.log(JSON.stringify(d3.select(this).attr("x1")));
+    console.log(adjustedEnds.from.x);
+    if(!fromNode.attr("isDummy") && !toNode.attr("isDummy"))
+    {
+      d3.select(this)
+        .attr("x1", function(d) { return adjustedEnds.from.x; })
+        .attr("y1", function(d) { return adjustedEnds.from.y; })
+        .attr("x2", function(d) { return adjustedEnds.to.x; })
+        .attr("y2", function(d) { return adjustedEnds.to.y; })
+        .attr("from", d.from)
+        .attr("to", d.to)
+        .attr("graph", graphNumber)
+        .attr("marker-end", "url(#markerArrowEnd)");
+    }else if(fromNode.attr("isDummy") && !toNode.attr("isDummy")){
+      d3.select(this)
+        .attr("x1", function(d) { return adjustedEnds.from.x; })
+        .attr("y1", function(d) { return adjustedEnds.from.y; })
+        .attr("x2", function(d) { return adjustedEnds.to.x; })
+        .attr("y2", function(d) { return adjustedEnds.to.y; })
+        .attr("from", d.from)
+        .attr("to", d.to)
+        .attr("graph", graphNumber)
+        .attr("marker-end", "url(#markerArrowEnd)");
+    }else if(!fromNode.attr("isDummy") && toNode.attr("isDummy")){
+      d3.select(this)
+        .attr("x1", function(d) { return adjustedEnds.from.x; })
+        .attr("y1", function(d) { return adjustedEnds.from.y; })
+        .attr("x2", function(d) { return adjustedEnds.to.x; })
+        .attr("y2", function(d) { return adjustedEnds.to.y; })
+        .attr("from", d.from)
+        .attr("to", d.to)
+        .attr("graph", graphNumber);
+    }else{
+      d3.select(this)
+        .attr("x1", function(d) { return adjustedEnds.from.x; })
+        .attr("y1", function(d) { return adjustedEnds.from.y; })
+        .attr("x2", function(d) { return adjustedEnds.to.x; })
+        .attr("y2", function(d) { return adjustedEnds.to.y; })
+        .attr("from", d.from)
+        .attr("to", d.to)
+        .attr("graph", graphNumber);
+    }
+  });
+});
 
 var force = d3.layout.force()
               .size([width, height])
