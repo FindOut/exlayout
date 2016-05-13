@@ -904,15 +904,9 @@ var boxEnter = box.enter().append('g')
       .style("fill", "none");
     var graphNumber = d3.select(this).attr("graphNumber");
 
-<<<<<<< HEAD
     var boxNumber = d3.select(this).attr("boxNumber");
     var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cx"));
     var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cy"));
-=======
-    var box = d3.select(this).attr("boxNumber");
-    var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ box + "']").attr("cx"));
-    var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ box + "']").attr("cy"));
->>>>>>> 221d94c1ca550d71d9ba972f69f27cbbd94ec1b3
     d3.select(this).select("circle[name = boxcircle]")
       .attr("cx", toCx)
       .attr("cy", toCy);
