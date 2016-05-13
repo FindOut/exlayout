@@ -917,7 +917,17 @@ var boxEnter = box.enter().append('g')
       var newCx;
       var newCy;
       var l;
-      if(oldcx < toCx && oldcy < toCy)  //upper left
+      if(oldcx != toCx && oldcy != toCy)
+      {
+      var dx = oldcx - toCx;
+      var dy = oldcy - toCy;
+      newCx = oldcx + dx*(Radius-r)/Math.sqrt(dx*dx+dy*dy);
+      newCy = oldcy + dy*(Radius-r)/Math.sqrt(dx*dx+dy*dy);
+      d3.select(this).select("circle")
+        .attr("cx", newCx)
+        .attr("cy", newCy);
+      }
+      /*if(oldcx < toCx && oldcy < toCy)  //upper left
       {
         l = Math.sqrt((toCx-oldcx)*(toCx-oldcx) + (toCy-oldcy)*(toCy-oldcy));
         newCx = oldcx - (Radius-r)*(toCx-oldcx)/l;
@@ -972,7 +982,7 @@ var boxEnter = box.enter().append('g')
         newCy = oldcy + (Radius - r);
         d3.select(this).select("circle")
         .attr("cy", newCy);
-      }
+      }*/
     });
   });
 
