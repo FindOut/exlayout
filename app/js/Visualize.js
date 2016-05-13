@@ -892,15 +892,23 @@ var boxEnter = box.enter().append('g')
       .style("fill", "none");
     var graphNumber = d3.select(this).attr("graphNumber");
 
-    var box = d3.select(this).attr("boxNumber");
-    var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ box + "']").attr("cx"));
-    console.log(toCx);
-    var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ box + "']").attr("cy"));
-    console.log(toCy);
+    var boxNumber = d3.select(this).attr("boxNumber");
+    var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cx"));
+    var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cy"));
     d3.select(this).select("circle[name = boxcircle]")
       .attr("cx", toCx)
       .attr("cy", toCy);
-
+    d3.select(this).selectAll(".node").each(function(){
+      var dx = toCx - cx;
+      var dy = toCy - cy;
+      var oldx = parseFloat(d3.select(this).select("circle").attr("cx"));
+      var oldy = parseFloat(d3.select(this).select("circle").attr("cy"));
+      d3.select(this).select("circle")
+          .attr("cx", oldx + dx)
+          .attr("cy", oldy + dy);
+      d3.select(this).select("text")
+          .attr({x: oldx + dx-r/4, y: oldy + dy+r/4});
+    })
     var circle = d3.select(this).select("circle[name = boxcircle]")
         .remove();
     var nextCircle = d3.select("svg").select("g").select("g").select("g[graph='" + graphNumber + "']");
@@ -909,6 +917,13 @@ var boxEnter = box.enter().append('g')
           .node()
           .appendChild(this);
       });
+    var box = d3.select(this)
+                  .remove();
+    box.each(function(){
+      nextCircle
+        .node()
+        .appendChild(this);
+    })
 
     //for each nodes upper, lower than falseNode, and the node to the left and right will be moved a radius
     d3.select("g[graph= '"+ graphNumber + "']").selectAll(".node").each(function(d){
@@ -917,7 +932,8 @@ var boxEnter = box.enter().append('g')
       var newCx;
       var newCy;
       var l;
-      if(oldcx != toCx && oldcy != toCy)
+      console.log(JSON.stringify(d));
+      if(oldcx !== toCx || oldcy !== toCy)
       {
       var dx = oldcx - toCx;
       var dy = oldcy - toCy;
@@ -926,6 +942,8 @@ var boxEnter = box.enter().append('g')
       d3.select(this).select("circle")
         .attr("cx", newCx)
         .attr("cy", newCy);
+      console.log(oldcx);
+      console.log(newCx);
       }
       /*if(oldcx < toCx && oldcy < toCy)  //upper left
       {
@@ -1152,8 +1170,12 @@ function dragmove(d) {
     var ends = adjustDragEnds({"x": d3.selectAll(".graph").select("circle#name"+d.from).attr("cx"),
      "y": d3.selectAll(".graph").select("circle#name"+d.from).attr("cy")}, {"x": x, "y": y});
     var isDummy = d3.selectAll(".graph").select("circle#name"+d.from).attr("isDummy");
-
-    if(isDummy === "false")
+    d3.select(this)
+      .attr("x1", ends.from.x)
+      .attr("y1", ends.from.y)
+      .attr("x2", ends.to.x)
+      .attr("y2", ends.to.y);
+    /*if(isDummy === "false")
     {
       d3.select(this)
         .attr("x1", ends.from.x)
@@ -1164,7 +1186,7 @@ function dragmove(d) {
       d3.select(this)
         .attr("x2", ends.to.x)
         .attr("y2", ends.to.y);
-    }
+    }*/
   });
 
 
@@ -1175,7 +1197,12 @@ function dragmove(d) {
 
     var isDummy = d3.selectAll(".graph").select("circle#name"+d.to).attr("isDummy");
 
-    if(isDummy === "false")
+    d3.select(this)
+      .attr("x1", ends.from.x)
+      .attr("y1", ends.from.y)
+      .attr("x2", ends.to.x)
+      .attr("y2", ends.to.y);
+    /*if(isDummy === "false")
     {
       d3.select(this)
         .attr("x1", ends.from.x)
@@ -1186,7 +1213,7 @@ function dragmove(d) {
       d3.select(this)
         .attr("x1", ends.from.x)
         .attr("y1", ends.from.y);
-    }
+    }*/
   });
 
   /*d3.select(this).select("circle")
@@ -1332,7 +1359,6 @@ function handler1()
     {
       toId = CycleRemoval.outgoing(CycleRemoval.getNodeById(toId, graph.nodes), graph.links)[0].to;
     }
-    console.log("outgoing" + fromId + " " + toId);
     deleteLink(fromId, toId, group, graph);
   }
   ingoingEdges = CycleRemoval.ingoing(node, graph.links);
@@ -1345,7 +1371,6 @@ function handler1()
     {
       fromId = CycleRemoval.ingoing(CycleRemoval.getNodeById(fromId, graph.nodes), graph.links)[0].from;
     }
-    console.log("ingoing" + fromId + " " + toId);
     deleteLink(fromId, toId, group, graph);
   }
 
