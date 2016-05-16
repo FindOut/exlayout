@@ -19,10 +19,7 @@ function main(graph)
   //do sugiyama to subgraph in which boxes are instead by falseNode
   for(var i = 0; i < allGraphs.length; i++)
   {
-    var graphWithFalseNode = BoxGraphController.boxGraphController(allGraphs[i]);
-    //console.log(allGraphs[i]);
-    Sugiyama.sugiyama(graphWithFalseNode);
-    //console.log(graphWithFalseNode);
+    Sugiyama.sugiyama(allGraphs[i]);
   }
   return allGraphs;
 }

@@ -37,4 +37,5 @@ function sugiyama(graph){
   {
     graph.nodes[i].x += (0-minX);
   }
+  //console.log(graph);
 }

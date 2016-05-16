@@ -1,16 +1,15 @@
-exports.boxgraphDetection = function(graph){
-  return boxgraphDetection(graph);
+exports.getBoxGraph = function(graph){
+  return getBoxGraph(graph);
 };
 
-exports.boxGraphController = function(graph){
-  return boxGraphController(graph);
-};
-
-function boxGraphController(graph){
+function getBoxGraph(graph){
   var boxGraphs = boxgraphDetection(graph);
-  hideBox(boxGraphs, graph.nodes, graph.links, graph);
-  deleteNodesAndLinksInBox(boxGraphs, graph);
-  return graph;
+  if(boxGraphs.length > 0)
+  {
+    hideBox(graph, boxGraphs);
+    return boxGraphs;
+  }
+  return [];
 }
 
 function boxgraphDetection(graph){
@@ -18,156 +17,90 @@ function boxgraphDetection(graph){
   var links = graph.links;
   var nodeslength = nodes.length;
   var linkslength = links.length;
-  var boxgraphs = [];
+  var box;
+  var boxGraphs = [];
 
   //find max box Number
   var maxBoxNum = Number.MIN_VALUE;
   for(var i = 0; i < nodeslength; i++)
   {
-    if(nodes[i].box > maxBoxNum)
+    if(nodes[i].box !== null && nodes[i].box > maxBoxNum)
     {
       maxBoxNum = nodes[i].box;
     }
   }
 
   //box number begins from 1, the first element in boxgraph is not used
-  for(var counter = 1; counter <= maxBoxNum; counter++)
+  for(var counter = 0; counter <= maxBoxNum; counter++)
   {
-    boxgraphs[counter] = {"nodes":[], "links": [], "box": counter, "groupnumber": null};
+    box = {"nodes":[], "links": [], "box": counter, "graph": null};
+    boxGraphs.push(box);
     //get nodes whose box is the same
-    var nodetoDelete = [];
     for(var j = 0; j < nodeslength; j++)
     {
-      if(nodes[j].box == counter)
+      if(nodes[j].box === counter)
       {
-        boxgraphs[counter].nodes.push(nodes[j]);
+        box.nodes.push(nodes[j]);
       }
     }
     //get links whose box is the same
     for(var i = 0; i < linkslength; i++)
     {
-      if(links[i].box == counter)
+      if(links[i].box === counter)
       {
-        boxgraphs[counter].links.push(links[i]);
+        box.links.push(links[i]);
       }
     }
   }
-  return boxgraphs;
+  return boxGraphs;
 }
 
 //se the whole box as one false node and all links to nodes in box will connect to the false node
-function hideBox(boxgraphs, nodes, links, graph){
-  for(var i = 1; i < boxgraphs.length; i++)
+function hideBox(graph, boxGraphs){
+  var len = boxGraphs.length;
+  var len1;
+  var minId;
+  for(var i = 0; i < len; i++)
   {
-    var boxNodes = boxgraphs[i].nodes;
-    var falseNode = {"id": null, "label": "boxNode", "box": null, "group": null};
-    var minId = Number.MAX_VALUE;
-    var currentBoxNumber = i;
-    var changedlinks = [];
-
-    falseNode.box = currentBoxNumber;
-    falseNode.group = boxNodes[0].group;
-    //add false node
-    graph.nodes.push(falseNode);
-
-    //get minId as the falseNode ID
-    for(var j = 0; j < boxNodes.length; j++)
+    len1 = boxGraphs[i].nodes.length;
+    minId = Number.MAX_VALUE;
+    for(var j = 0; j < len1; j++)
     {
-      if(minId > boxNodes[j].id)
+      if(boxGraphs[i].nodes[j].id < minId)
       {
-        minId = boxNodes[j].id;
+        minId = boxGraphs[i].nodes[j].id;
       }
     }
-    falseNode.id = minId;
-
-
-    //check the links connect to each node in box
-    for(var m = 0; m < boxNodes.length; m++)
+    boxGraphs[i].minId = minId;
+    for(var k = 0; k < graph.links.length; k++)
     {
-      for(var n = 0; n < links.length; n++)
+      if(graph.links[k].from === ("box"+boxGraphs[i].box))
       {
-        if(links[n].from == boxNodes[m].id && links[n].box != currentBoxNumber) //start from box, end outside
-        {
-          changedlinks.push(links[n]);
-          links[n].from = falseNode.id;
-          deleteDoubleLink(links[n].from, links[n].to, graph);
-        }
-        if(links[n].to == boxNodes[m].id && links[n].box != currentBoxNumber)//start from outside node, end in box
-        {
-          changedlinks.push(links[n]);
-          links[n].to = falseNode.id;
-          deleteDoubleLink(links[n].from, links[n].to, graph);
-        }
+        graph.links[k].from = minId;
+      }else if(graph.links[k].to === ("box"+boxGraphs[i].box)){
+        graph.links[k].to = minId;
+      }
+    }
+    for(j = 0; j < graph.nodes.length; j++)
+    {
+      if(graph.nodes[j].box === boxGraphs[i].box && graph.nodes[j].id != minId)
+      {
+        graph.nodes.splice(j,1);
+        j--;
+      }
+    }
+    for(j = 0; j < graph.links.length; j++)
+    {
+      if(graph.links[j].box !== null)
+      {
+        graph.links.splice(j,1);
+        j--;
       }
     }
   }
 }
 
-function deleteNodesAndLinksInBox(boxgraphs, graph){
-  for(var i = 1; i < boxgraphs.length; i++)
-  {
-    var boxgraph = boxgraphs[i];
-    //delete node in box
-    for(var j = 0; j < boxgraph.nodes.length; j++)
-    {
-      for(var m = 0; m < graph.nodes.length; m++)
-      {
-        if(graph.nodes[m].id == boxgraph.nodes[j].id && graph.nodes[m].box != null)
-        {
-          graph.nodes.splice(m,1);
-          //console.log(graph);
-          break;
-        }
-      }
-    }
-    //delete links in box
-    for(var i = 0; i < boxgraph.links.length; i++)
-    {
-      for(var j = 0; j < graph.links.length; j++)
-      {
-        if(graph.links[j].from == boxgraph.links[i].from && graph.links[j].to == boxgraph.links[i].to)
-        {
-          graph.links.splice(j, 1);
-          //console.log(graph);
-          break;
-        }
-      }
-    }
-  }
-}
-
-function deleteDoubleLink(from, to, graph)
-{
-  counter = 0;
-  for(var i = 0; i < graph.links.length; i++)
-  {
-    if(graph.links[i].from == from && graph.links[i].to == to)
-    {
-      counter++;
-      if(counter > 1)
-      {
-        graph.links.splice(i, 1);
-      }
-    }
-  }
-}
 /*var graph = {
-  "nodes": [
-    {"id": 1, "label": "1", "box":null},
-    {"id": 2, "label": "2", "box":null},
-    {"id": 3, "label": "3", "box": 1},
-    {"id": 4, "label": "4", "box": 1}
-  ],
-  "links": [
-    {"from": 1, "to": 2, "box":null},
-    {"from": 3, "to": 4, "box":1},
-    {"from": 4, "to": 2, "box":null},
-    {"from": 1, "to": 4, "box":null},
-    {"from": 1, "to": 3, "box":null}
-  ]
-}
-
-var graph = {
   "nodes": [
     {"id": 1, "label": "1", "box":null},
     {"id": 2, "label": "2","box":null},
@@ -179,5 +112,6 @@ var graph = {
     {"from": 3, "to": 2,"box":null},
     {"from": 4, "to": 2,"box":null}
   ]
-}
-console.log(boxGraphController(graph));*/
+}*/
+/*hideBox(graph, boxgraphDetection(graph));
+console.log(graph);*/
