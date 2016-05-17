@@ -21,7 +21,7 @@ function boxgraphDetection(graph){
   var boxGraphs = [];
 
   //find max box Number
-  var maxBoxNum = Number.MIN_VALUE;
+  var maxBoxNum = -1;
   for(var i = 0; i < nodeslength; i++)
   {
     if(nodes[i].box !== null && nodes[i].box > maxBoxNum)
@@ -30,7 +30,7 @@ function boxgraphDetection(graph){
     }
   }
 
-  //box number begins from 1, the first element in boxgraph is not used
+  //box number begins from 0
   for(var counter = 0; counter <= maxBoxNum; counter++)
   {
     box = {"nodes":[], "links": [], "box": counter, "graph": null};
