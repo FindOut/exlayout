@@ -3,9 +3,10 @@ exports.getGraph = function(){
 }
 
 function getGraph(){
-  return Graph9;
+  return Graph6;
 }
 
+//general graph (LongestPath disadvantage, too big width)
 var Graph1 = {
   "nodes": [
     {"id": 1, "label": "A"},
@@ -49,6 +50,7 @@ var Graph1 = {
   ]
 };
 
+//general graph, heuristic disadvantage, not best solution
 var Graph2 = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 5, "isDummy": false, "group": 1, "order": 1},
@@ -114,7 +116,7 @@ var Graph2 = {
   ]
 };
 
-var Graph3 = {
+/*var Graph3 = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "order": 0, "isDummy": false},
     {"id": 2, "label": "B", "rank": 0, "order": 0, "isDummy": false},
@@ -134,9 +136,9 @@ var Graph3 = {
     {"from": 5, "to": 6},
     {"from": 7, "to": 4}
   ]
-};
+};*/
 
-var Graph4 = {
+/*var Graph3 = {
   "nodes": [
     {"id": 1, "label": "A", "rank": 0, "isDummy": false},
     {"id": 2, "label": "B", "rank": 0, "isDummy": false},
@@ -165,94 +167,105 @@ var Graph4 = {
     {"from": 8, "to": 10},
     {"from": 8, "to": 11}
   ]
-};
+};*/
 
-var Graph5 = {
+//too many crossing between two layers. improvement that increase gap between two layers should be considered.
+var Graph3 = {
   "nodes": [
-    {"id": 1, "label": "A"},
-    {"id": 2, "label": "B"},
-    {"id": 3, "label": "C"},
-    {"id": 4, "label": "D"},
-    {"id": 5, "label": "E"},
-    {"id": 6, "label": "F"},
-    {"id": 7, "label": "G"}
+    {"id": 1, "label": "1"},
+    {"id": 2, "label": "2"},
+    {"id": 3, "label": "3"},
+    {"id": 4, "label": "4"},
+    {"id": 5, "label": "5"},
+    {"id": 6, "label": "6"},
+    {"id": 7, "label": "7"},
+    {"id": 8, "label": "8"},
+    {"id": 9, "label": "9"},
+    {"id": 10, "label": "10"},
+    {"id": 11, "label": "11"},
+    {"id": 12, "label": "12"},
+    {"id": 13, "label": "13"},
+    {"id": 14, "label": "14"},
+    {"id": 15, "label": "15"},
+    {"id": 16, "label": "16"},
+    {"id": 17, "label": "17"},
+    {"id": 18, "label": "18"},
+    {"id": 19, "label": "19"},
+    {"id": 20, "label": "20"}
   ],
   "links": [
     {"from": 1, "to": 2},
     {"from": 1, "to": 3},
     {"from": 2, "to": 4},
     {"from": 2, "to": 5},
-    {"from": 3, "to": 6},
-    {"from": 3, "to": 7}
-  ]
-};
-
-var Graph6 = {
-  "nodes": [
-    {"id": 1, "label": "A", "rank": 0, "isDummy": false},
-    {"id": 2, "label": "B", "rank": 0, "isDummy": false},
-    {"id": 3, "label": "C", "rank": 0, "isDummy": false},
-    {"id": 4, "label": "D", "rank": 0, "isDummy": false},
-    {"id": 5, "label": "E", "rank": 0, "isDummy": false},
-    {"id": 6, "label": "F", "rank": 0, "isDummy": false},
-    {"id": 7, "label": "G", "rank": 0, "isDummy": false},
-    {"id": 8, "label": "H", "rank": 0, "isDummy": false},
-    {"id": 9, "label": "I", "rank": 0, "isDummy": false},
-    {"id": 10, "label": "J", "rank": 0, "isDummy": false},
-    {"id": 11, "label": "K", "rank": 0, "isDummy": false},
-    {"id": 12, "label": "L", "rank": 0, "isDummy": false},
-    {"id": 13, "label": "M", "rank": 0, "isDummy": false},
-    {"id": 14, "label": "N", "rank": 0, "isDummy": false},
-    {"id": 15, "label": "O", "rank": 0, "isDummy": false},
-    {"id": 16, "label": "P", "rank": 0, "isDummy": false}
-  ],
-  "links": [
-    {"from": 1, "to": 14},
-    {"from": 1, "to": 9},
-    {"from": 1, "to": 15},
-    {"from": 1, "to": 8},
-    {"from": 2, "to": 3},
-    {"from": 2, "to": 14},
-    {"from": 2, "to": 10},
-    {"from": 3, "to": 13},
-    {"from": 3, "to": 14},
-    {"from": 3, "to": 11},
-    {"from": 3, "to": 15},
-    {"from": 4, "to": 10},
-    {"from": 4, "to": 7},
-    {"from": 4, "to": 12},
-    {"from": 4, "to": 9},
-    {"from": 5, "to": 8},
-    {"from": 6, "to": 11},
-    {"from": 6, "to": 8},
-    {"from": 6, "to": 10},
-    {"from": 6, "to": 7},
+    {"from": 2, "to": 6},
+    {"from": 2, "to": 7},
+    {"from": 3, "to": 8},
+    {"from": 3, "to": 9},
+    {"from": 3, "to": 10},
+    {"from": 4, "to": 13},
+    {"from": 4, "to": 14},
+    {"from": 4, "to": 15},
+    {"from": 5, "to": 11},
+    {"from": 5, "to": 12},
+    {"from": 5, "to": 18},
+    {"from": 17, "to": 18},
+    {"from": 5, "to": 15},
+    {"from": 5, "to": 19},
+    {"from": 7, "to": 13},
     {"from": 7, "to": 16},
-    {"from": 8, "to": 15},
-    {"from": 9, "to": 16},
+    {"from": 7, "to": 17},
+    {"from": 8, "to": 12},
     {"from": 10, "to": 12},
-    {"from": 10, "to": 15},
-    {"from": 11, "to": 15}
+    {"from": 9, "to": 11},
+    {"from": 9, "to": 15},
+    {"from": 6, "to": 10},
+    {"from": 10, "to": 16},
+    {"from": 13, "to": 18},
+    {"from": 14, "to": 18},
+    {"from": 17, "to": 19},
+    {"from": 14, "to": 11},
+    {"from": 14, "to": 12},
+    {"from": 14, "to": 19},
+    {"from": 18, "to": 20},
+    {"from": 19, "to": 20}
   ]
 };
 
-var Graph7 = {
+//the most beautiful graph, big tree
+var Graph4 = {
   "nodes": [
-    {"id": 1, "label": "A"},
-    {"id": 2, "label": "B"},
-    {"id": 3, "label": "C"},
-    {"id": 4, "label": "D"},
-    {"id": 5, "label": "E"},
-    {"id": 6, "label": "F"},
-    {"id": 7, "label": "G"},
-    {"id": 8, "label": "H"},
-    {"id": 9, "label": "I"},
-    {"id": 10, "label": "J"},
-    {"id": 11, "label": "K"},
-    {"id": 12, "label": "L"},
-    {"id": 13, "label": "M"},
-    {"id": 14, "label": "N"},
-    {"id": 15, "label": "O"}
+    {"id": 1, "label": "1"},
+    {"id": 2, "label": "2"},
+    {"id": 3, "label": "3"},
+    {"id": 4, "label": "4"},
+    {"id": 5, "label": "5"},
+    {"id": 6, "label": "6"},
+    {"id": 7, "label": "7"},
+    {"id": 8, "label": "8"},
+    {"id": 9, "label": "9"},
+    {"id": 10, "label": "10"},
+    {"id": 11, "label": "11"},
+    {"id": 12, "label": "12"},
+    {"id": 13, "label": "13"},
+    {"id": 14, "label": "14"},
+    {"id": 15, "label": "15"},
+    {"id": 16, "label": "16"},
+    {"id": 17, "label": "17"},
+    {"id": 18, "label": "18"},
+    {"id": 19, "label": "19"},
+    {"id": 20, "label": "20"},
+    {"id": 21, "label": "21"},
+    {"id": 22, "label": "22"},
+    {"id": 23, "label": "23"},
+    {"id": 24, "label": "24"},
+    {"id": 25, "label": "25"},
+    {"id": 26, "label": "26"},
+    {"id": 27, "label": "27"},
+    {"id": 28, "label": "28"},
+    {"id": 29, "label": "29"},
+    {"id": 30, "label": "30"},
+    {"id": 31, "label": "31"}
   ],
   "links": [
     {"from": 1, "to": 2},
@@ -268,11 +281,27 @@ var Graph7 = {
     {"from": 6, "to": 12},
     {"from": 6, "to": 13},
     {"from": 7, "to": 14},
-    {"from": 7, "to": 15}
+    {"from": 7, "to": 15},
+    {"from": 8, "to": 16},
+    {"from": 8, "to": 17},
+    {"from": 9, "to": 18},
+    {"from": 9, "to": 19},
+    {"from": 10, "to": 20},
+    {"from": 10, "to": 21},
+    {"from": 11, "to": 22},
+    {"from": 11, "to": 23},
+    {"from": 12, "to": 24},
+    {"from": 12, "to": 25},
+    {"from": 13, "to": 26},
+    {"from": 13, "to": 27},
+    {"from": 14, "to": 28},
+    {"from": 14, "to": 29},
+    {"from": 15, "to": 30},
+    {"from": 15, "to": 31}
   ]
 };
 
-var Graph8 = {
+/*var Graph8 = {
   "nodes": [
     {"id": 1, "label": "A"},
     {"id": 2, "label": "B"},
@@ -293,9 +322,11 @@ var Graph8 = {
     {"from": 5, "to": 3},
     {"from": 6, "to": 5}
   ]
-};
+};*/
 
-var Graph9 = {
+
+//three subgraph
+var Graph5 = {
   "nodes": [
     {"id": 1, "label": "1"},
     {"id": 2, "label": "2"},
@@ -360,7 +391,7 @@ var Graph9 = {
 };
 
 
-var Graph10 = {
+/*var Graph7 = {
   "nodes": [
     {"id": 1, "label": "H"},
     {"id": 2, "label": "I"},
@@ -378,9 +409,9 @@ var Graph10 = {
     {"from": 3, "to": 6},
     {"from": 3, "to": 7}
   ]
-};
+};*/
 
-var Graph11 = {
+/*var Graph6 = {
   "nodes": [
     {"id": 1, "label": "1","box":null},
     {"id": 2, "label": "2","box":null},
@@ -392,26 +423,20 @@ var Graph11 = {
     {"from": 3, "to": 2,"box":null},
     {"from": 4, "to": 2,"box":null}
   ]
-}
+}*/
 
 //graph contains box
-var Graph12 = {
+/*var Graph6 = {
   "nodes": [
     {"id": 1, "label": "1", "box":null},
-    {"id": 2, "label": "2", "box":null},
-    {"id": 3, "label": "3", "box": 1},
-    {"id": 4, "label": "4", "box": 1}
   ],
   "links": [
-    {"from": 1, "to": 2, "box":null},
-    {"from": 3, "to": 4, "box":1},
-    {"from": 4, "to": 2, "box":null},
-    {"from": 1, "to": 4, "box":null},
-    {"from": 1, "to": 3, "box":null}
   ]
-}
+};*/
 
-var Graph13 = {
+
+//one graph contains two and more boxgraphs
+var Graph6 = {
   "nodes": [
     {"id": 1, "label": "1", "box": null},
     {"id": 2, "label": "2", "box": 0},

@@ -568,7 +568,7 @@ function xCoordinateAssignment(Graph)
   coordinateAsignment(lowerLeftGraph);
   coordinateAsignment(upperRightGraph);
   coordinateAsignment(upperLeftGraph);
-  var lowerRightMaxX = Number.MIN_VALUE;
+  var lowerRightMaxX = Number.MIN_SAFE_INTEGER;
   var lowerRightMinX = Number.MAX_VALUE;
   var lowerRightWidth;
   var len = Graph.nodes.length;
@@ -584,7 +584,7 @@ function xCoordinateAssignment(Graph)
   }
   lowerRightWidth = lowerRightMaxX - lowerRightMinX;
 
-  var lowerLeftMaxX = Number.MIN_VALUE;
+  var lowerLeftMaxX = Number.MIN_SAFE_INTEGER;
   var lowerLeftMinX = Number.MAX_VALUE;
   var lowerLeftWidth;
   for(i = 0; i < len; i++)
@@ -598,7 +598,7 @@ function xCoordinateAssignment(Graph)
 }
   lowerLeftWidth = lowerLeftMaxX - lowerLeftMinX;
 
-  var upperRightMaxX = Number.MIN_VALUE;
+  var upperRightMaxX = Number.MIN_SAFE_INTEGER;
   var upperRightMinX = Number.MAX_VALUE;
   var upperRightWidth;
   for(i = 0; i < len; i++)
@@ -612,7 +612,7 @@ function xCoordinateAssignment(Graph)
   }
   upperRightWidth = upperRightMaxX - upperRightMinX;
 
-  var upperLeftMaxX = Number.MIN_VALUE;
+  var upperLeftMaxX = Number.MIN_SAFE_INTEGER;
   var upperLeftMinX = Number.MAX_VALUE;
   var upperLeftWidth;
   for(i = 0; i < len; i++)
