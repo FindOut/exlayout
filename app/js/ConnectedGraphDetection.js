@@ -1,4 +1,8 @@
-/*DFS(G,v)   ( v is the vertex where the search starts )
+/*ConnectedGraphDetect.js is due to analyze if there are several subgraphs in the original
+graph (the input). If there are some subgraphs, then divide them into different group, give them
+attribute: groupnumber. And the return value is the array of subgraphs.
+Depth first search method is used in finding subgraphs, and the pseudocode is like below:
+DFS(G,v)   ( v is the vertex where the search starts )
          S S := {};   ( start with an empty S )
          for each vertex u, set visited[u] := false;
          push S, v;
@@ -30,6 +34,7 @@ function connectedGraphDetect(graph)
     Nodes[i].visited = false;
   }
 
+  //DFS
   while(conter != Nodeslength)
   {
     for(var m = 0; m < Nodeslength; m++) //find the first element which is not visited
@@ -52,7 +57,6 @@ function connectedGraphDetect(graph)
         conter++; //total visited node conter
         //console.log(Edges);
         var outgoingEdges = CycleRemoval.outgoing(u, Edges);  //find all the outgoing edges of node u
-
         for(var j = 0; j < outgoingEdges.length; j++)
         {
           var index = outgoingEdges[j].to;
@@ -64,7 +68,6 @@ function connectedGraphDetect(graph)
         }
 
         var ingoingEdges = CycleRemoval.ingoing(u, Edges);  //find all the outgoing edges of node u
-
         for(var j = 0; j < ingoingEdges.length; j++)
         {
           var index = ingoingEdges[j].from;
@@ -77,8 +80,8 @@ function connectedGraphDetect(graph)
       }
     }
   }
-//find max Group Number
-var maxGroupNum = 1;
+  //find max Group Number
+  var maxGroupNum = 1;
   for(var i = 0; i < Nodeslength; i++)
   {
     if(Nodes[i].group > maxGroupNum)
@@ -87,26 +90,27 @@ var maxGroupNum = 1;
     }
   }
 
-var allGraphs = [];
-for(var counter = 1; counter <= maxGroupNum; counter++)
-{
-  allGraphs[counter-1] = {"nodes":[], "links": [], "groupnumber": counter};
-  for(var j = 0; j < Nodeslength; j++)
+  //push the nodes and links into the array element with correct related groupnumber
+  var allGraphs = [];
+  for(var counter = 1; counter <= maxGroupNum; counter++)
   {
-    if(Nodes[j].group == counter)
+    //initialize array to be returned
+    allGraphs[counter-1] = {"nodes":[], "links": [], "groupnumber": counter};
+    for(var j = 0; j < Nodeslength; j++)
     {
-      allGraphs[counter-1].nodes.push(Nodes[j]);
+      if(Nodes[j].group == counter)
+      {
+        allGraphs[counter-1].nodes.push(Nodes[j]);
+      }
+    }
+
+    for(var i = 0; i < Edges.length; i++)
+    {
+      if(Edges[i].group == counter)
+      {
+        allGraphs[counter-1].links.push(Edges[i]);
+      }
     }
   }
-
-  for(var i = 0; i < Edges.length; i++)
-  {
-    if(Edges[i].group == counter)
-    {
-      allGraphs[counter-1].links.push(Edges[i]);
-    }
-  }
-}
-return allGraphs;
-
+  return allGraphs;
 }

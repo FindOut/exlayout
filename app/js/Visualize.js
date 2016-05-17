@@ -6,7 +6,6 @@ var VertexOrdering = require("./VertexOrdering.js");
 var Initialize = require("./Initialize.js");
 var Sugiyama = require("./Sugiyama.js");
 var ConnectedGraphDetect = require("./ConnectedGraphDetection.js");
-var DragHelper = require('./DragHelper.js');
 var Main = require("./main.js");
 var helpFunctions = require("./helpFunctions.js");
 
