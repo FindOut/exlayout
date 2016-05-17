@@ -223,7 +223,7 @@ function outgoing(node, links){
   var linksLength = links.length;
   for(var i = 0; i < linksLength; i++)
   {
-    if(links[i].from == node.id) // have outgoing links from the node
+    if(links[i].from === node.id) // have outgoing links from the node
     {
       edges.push(links[i]);
     }
@@ -239,7 +239,7 @@ function ingoing(node, links)
   var linksLength = links.length;
   for(var i = 0; i < linksLength; i++)
   {
-    if(links[i].to == node.id)  //have ingoing links from the node
+    if(links[i].to === node.id)  //have ingoing links from the node
     {
       edges.push(links[i]);
     }
@@ -252,7 +252,7 @@ function getNodeById(id, nodes)
 {
   for(var i = 0; i < nodes.length; i++)
   {
-    if(nodes[i].id == id)
+    if(nodes[i].id === id)
     {
       return nodes[i];
     }

@@ -492,12 +492,15 @@ var graph = {
     {"id": 3, "label": "3", "box": 0},
     {"id": 4, "label": "4", "box": 1},
     {"id": 5, "label": "5", "box": 1},
-    {"id": 6, "label": "6", "box": null}
+    {"id": 6, "label": "6", "box": null},
+    {"id": 7, "label": "7", "box": 0}
 
   ],
   "links": [
     {"from": 1, "to": "box0", "box":null},
     {"from": 2, "to": 3, "box": 0},
+    {"from": 2, "to": 7, "box": 0},
+    {"from": 3, "to": 7, "box": 0},
     {"from": "box0", "to": "box1", "box": null},
     {"from": 4, "to": 5, "box": 1},
     {"from": "box0", "to": 6, "box": null}
@@ -891,6 +894,7 @@ boxEnter.each(function(d){
 
   var graphNumber = d3.select(this).attr("graph");
   var boxNumber = d3.select(this).attr("box");
+  var minId = d3.select(this).attr("id");
   var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cx"));
   var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cy"));
   d3.select("g[graph='" + graphNumber + "']").select("g[box = '"+ boxNumber + "']").remove();
@@ -1044,6 +1048,22 @@ boxEnter.each(function(d){
       }
     }
   });
+
+  d3.select("g[graph='" + graphNumber + "']").selectAll("line").each(function(){
+    if(d3.select(this).attr("box") === null)
+    {
+      if(("node"+d3.select(this).attr("from")) === minId)
+      {
+        d3.select(this)
+            .attr("from", "box"+boxNumber);
+      }
+      if(("node"+d3.select(this).attr("to")) === minId)
+      {
+        d3.select(this)
+            .attr("to", "box"+boxNumber);
+      }
+    }
+  });
   //remove nodes and links in big graph
   var box = d3.select(this)
                   .remove();
@@ -1051,7 +1071,8 @@ boxEnter.each(function(d){
       selectedGraph
         .node()
         .appendChild(this);
-  })
+  });
+
 });
 
 graphEnter.each(function(d,i){
@@ -1060,6 +1081,18 @@ graphEnter.each(function(d,i){
     {
       var fromId = d3.select(this).attr("from");
       var toId = d3.select(this).attr("to");
+      if(fromId.indexOf("box") > -1)
+      {
+        fromId = fromId.slice(3, fromId.length);
+        fromId = d3.select(".boxGraph[box='"+fromId+"']").attr("id");
+        fromId = fromId.slice(4, fromId.length);
+      }
+      if(toId.indexOf("box") > -1)
+      {
+        toId = toId.slice(3, toId.length);
+        toId = d3.select(".boxGraph[box='"+toId+"']").attr("id");
+        toId = toId.slice(4, toId.length);
+      }
       if(d3.select(this.parentNode).selectAll(".boxGraph#node"+fromId).empty())
       {
         var fromNode = d3.select(this.parentNode).select("circle[id='name"+fromId+"']");
@@ -1405,6 +1438,18 @@ function dragmove(d) {
   {
     var fromId = d3.select(this).attr("from");
     var toId = d3.select(this).attr("to");
+    if(fromId.indexOf("box") > -1)
+    {
+      fromId = fromId.slice(3, fromId.length);
+      fromId = d3.select(".boxGraph[box='"+fromId+"']").attr("id");
+      fromId = fromId.slice(4, fromId.length);
+    }
+    if(toId.indexOf("box") > -1)
+    {
+      toId = toId.slice(3, toId.length);
+      toId = d3.select(".boxGraph[box='"+toId+"']").attr("id");
+      toId = toId.slice(4, toId.length);
+    }
     if(d3.select(this.parentNode).selectAll(".boxGraph#node"+fromId).empty())
     {
       var fromNode = d3.select(this.parentNode).select("circle[id='name"+fromId+"']");
@@ -1446,6 +1491,18 @@ function dragmove(d) {
   {
     var fromId = d3.select(this).attr("from");
     var toId = d3.select(this).attr("to");
+    if(fromId.indexOf("box") > -1)
+    {
+      fromId = fromId.slice(3, fromId.length);
+      fromId = d3.select(".boxGraph[box='"+fromId+"']").attr("id");
+      fromId = fromId.slice(4, fromId.length);
+    }
+    if(toId.indexOf("box") > -1)
+    {
+      toId = toId.slice(3, toId.length);
+      toId = d3.select(".boxGraph[box='"+toId+"']").attr("id");
+      toId = toId.slice(4, toId.length);
+    }
     if(d3.select(this.parentNode).selectAll(".boxGraph#node"+fromId).empty())
     {
       var fromNode = d3.select(this.parentNode).select("circle[id='name"+fromId+"']");
@@ -2175,8 +2232,9 @@ function redraw()
       }
     });
     d3.select(this).selectAll("line").each(function(d){
-      subGraph.links.push({"from": parseInt(d3.select(this).attr("from")), "to": parseInt(d3.select(this).attr("to"))});
-      console.log({"from": parseInt(d3.select(this).attr("from")), "to": parseInt(d3.select(this).attr("to"))});
+      subGraph.links.push({"from": d3.select(this).attr("from").indexOf("box") > -1 ? d3.select(this).attr("from") : parseInt(d3.select(this).attr("from")),
+       "to": d3.select(this).attr("to").indexOf("box") > -1 ? d3.select(this).attr("to") : parseInt(d3.select(this).attr("to"))});
+      //console.log({"from": parseInt(d3.select(this).attr("from")), "to": parseInt(d3.select(this).attr("to")), "box": d3.select(this).attr("box")});
     });
     var len = subGraph.nodes.length;
     var len1;
@@ -2192,18 +2250,21 @@ function redraw()
       {
         fromId = edges[j].from;
         toId = edges[j].to;
-        while(CycleRemoval.getNodeById(toId, subGraph.nodes) === null)
+        console.log(toId);
+        while(CycleRemoval.getNodeById(toId, subGraph.nodes) === null && !(toId.toString().indexOf("box") > -1))
         {
           for(var k = 0; k < len2; k++)
           {
-            if(subGraph.links[k].from == toId)
+            if(subGraph.links[k].from === toId)
             {
               toId = subGraph.links[k].to;
               break;
             }
           }
         }
-        if(d3.select(this).select(".boxGraph#node"+fromId).empty())
+        Graph.links.push({"from": fromId, "to": toId,
+        "box": (fromId.toString().indexOf("box") > -1 || toId.toString().indexOf("box") > -1) ? null : CycleRemoval.getNodeById(toId, subGraph.nodes).box});
+        /*if(d3.select(this).select(".boxGraph#node"+fromId).empty())
         {
           if(d3.select(this).select(".boxGraph#node"+toId).empty())
           {
@@ -2218,7 +2279,7 @@ function redraw()
           }else{
             Graph.links.push({"from": "box" + d3.select(this).select(".boxGraph#node"+fromId).attr("box"), "to": "box" + d3.select(this).select(".boxGraph#node"+toId).attr("box"), "box": d3.select(this).select(".boxGraph#node"+toId).attr("box")});
           }
-        }
+        }*/
       }
     }
     subGraph = {"nodes": [], "links": []};
