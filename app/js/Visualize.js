@@ -1,7 +1,6 @@
 var d3 = require('d3');
 var CycleRemoval = require('./CycleRemoval.js');
 var XCoordinateAssignment = require("./XCoordinateAssignment.js");
-var LongestPath = require("./LongestPath.js");
 var VertexOrdering = require("./VertexOrdering.js");
 var Initialize = require("./Initialize.js");
 var Sugiyama = require("./Sugiyama.js");

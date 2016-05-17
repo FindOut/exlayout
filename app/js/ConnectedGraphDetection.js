@@ -1,4 +1,5 @@
-/*ConnectedGraphDetect.js is due to analyze if there are several subgraphs in the original
+/**********************************************************************************
+ConnectedGraphDetect.js is due to analyze if there are several subgraphs in the original
 graph (the input). If there are some subgraphs, then divide them into different group, give them
 attribute: groupnumber. And the return value is the array of subgraphs.
 Depth first search method is used in finding subgraphs, and the pseudocode is like below:
@@ -14,7 +15,8 @@ DFS(G,v)   ( v is the vertex where the search starts )
                   push S, w;
             end if
          end while
-      END DFS()*/
+      END DFS()
+**********************************************************************************/
 exports.connectedGraphDetect = function(graph){
       return connectedGraphDetect(graph);
 };

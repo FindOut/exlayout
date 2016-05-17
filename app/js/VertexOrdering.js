@@ -10,7 +10,6 @@ obvious. The algorithm runs until upwardSorting and downwardSorting can not
 reduce number of crossing furhter.
 *******************************************************************************/
 var CycleRemoval = require("./CycleRemoval.js");
-var LongestPath = require("./LongestPath.js");
 
 exports.vertexOrdering = function(graph){
   return vertexOrdering(graph);
