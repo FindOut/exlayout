@@ -1,3 +1,7 @@
+/************************************************************
+function sugiyama is the help function to integrate the initialization and other four steps
+into a package for using in each subgraph.
+************************************************************/
 var CycleRemoval = require('./CycleRemoval.js');
 var XCoordinateAssignment = require("./XCoordinateAssignment.js");
 var LongestPath = require("./LongestPath.js");

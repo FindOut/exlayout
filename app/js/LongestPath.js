@@ -1,13 +1,13 @@
 /**********************************************************************************
 This function converts DAG to layred DAG. Vertexs are represented asjs object =
-{"id": id, "label": label, "rank": rank, "isDummy": boolean}. Edges arerepresented
-as js object = {"from": id, "to": id}. The algorithm that we are using LongestPath
-algorithm. Efterwards we use vertex promotion to try minimize number of dummyNode
+{"id": id, "label": label, "rank": rank, "isDummy": boolean, "groupnumber": n}. Edges arerepresented
+as js object = {"from": id, "to": id, "groupnumber":n}. LongestPath algorithm is used in this step.
+Efterwards we use vertex promotion to try minimize number of dummyNode
 and dummyLink. In the last step we add dummyNode and dummyLink between all nodes
 with layer difference bigger than 1.
 **********************************************************************************/
 
-// Exports function for testing
+// Exports functions
 exports.layering = function(graph){
   return layering(graph);
 }
@@ -91,7 +91,7 @@ function addDummy(graph)
     diff = CycleRemoval.getNodeById(link.from, graph.nodes).rank - node.rank;
     isReversed = link.isReversed;
     group = link.group;
-    if(diff > 1)
+    if(diff > 1) //distance between two nodes is longer than 1, dummyNode will be added
     {
       CycleRemoval.deleteLinks([link], graph.links);
       i--;
@@ -99,7 +99,7 @@ function addDummy(graph)
       dummyLink = {"from": max, "to": link.to, "group": group, "ismark": false, "isReversed": isReversed};
       graph.nodes.push(dummyNode);
       graph.links.push(dummyLink);
-      for(var j = 2; j < diff; j++)
+      for(var j = 2; j < diff; j++) //more than 2 dummyNode added
       {
         dummyNode = {"id": ++max, "label": "", "rank": node.rank+j, "order": 0, "isDummy": true};
         dummyLink = {"from": max, "to": max-1, "group": group, "ismark": false, "isReversed": isReversed};
