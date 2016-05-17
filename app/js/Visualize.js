@@ -6,7 +6,6 @@ var VertexOrdering = require("./VertexOrdering.js");
 var Initialize = require("./Initialize.js");
 var Sugiyama = require("./Sugiyama.js");
 var ConnectedGraphDetect = require("./ConnectedGraphDetection.js");
-var DragHelper = require('./DragHelper.js');
 var Main = require("./main.js");
 var helpFunctions = require("./helpFunctions.js");
 var BoxGraphController = require("./BoxgraphDetection.js");
@@ -665,7 +664,6 @@ graphEnter.each(function(d,i){
           .attr("cy", yScale(d.rank))
           .attr("r", r)
           .attr("id", "name"+d.id)
-          .attr("box",d.box)
           .attr("isDummy", "false")
           .style("fill", "white")
 
@@ -677,7 +675,6 @@ graphEnter.each(function(d,i){
       d3.select(this)
           .attr("graph",graphNumber)
           .attr("id", "name"+d.id)
-          .attr("box",d.box)
           .call(drag);
     }
     else {
@@ -719,7 +716,6 @@ graphEnter.each(function(d,i){
         .attr("from", d.from)
         .attr("to", d.to)
         .attr("graph", graphNumber)
-        .attr("boxNumber", null)
         .attr("marker-end", "url(#markerArrowEnd)");
     }else if(fromNode.isDummy && !toNode.isDummy){
       d3.select(this)
@@ -730,7 +726,6 @@ graphEnter.each(function(d,i){
         .attr("from", d.from)
         .attr("to", d.to)
         .attr("graph", graphNumber)
-        .attr("boxNumber", null)
         .attr("marker-end", "url(#markerArrowEnd)");
     }else if(!fromNode.isDummy && toNode.isDummy){
       d3.select(this)
@@ -740,7 +735,6 @@ graphEnter.each(function(d,i){
         .attr("y2", function(d) { return yScale(toNode.rank); })
         .attr("from", d.from)
         .attr("to", d.to)
-        .attr("boxNumber", null)
         .attr("graph", graphNumber);
     }else{
       d3.select(this)
@@ -750,7 +744,6 @@ graphEnter.each(function(d,i){
         .attr("y2", function(d) { return yScale(toNode.rank); })
         .attr("from", d.from)
         .attr("to", d.to)
-        .attr("boxNumber", null)
         .attr("graph", graphNumber);
     }
   });
@@ -895,8 +888,8 @@ boxEnter.each(function(d){
   var graphNumber = d3.select(this).attr("graph");
   var boxNumber = d3.select(this).attr("box");
   var minId = d3.select(this).attr("id");
-  var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cx"));
-  var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle[box = '"+ boxNumber + "']").attr("cy"));
+  var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4,minId.length)).attr("cx"));
+  var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4,minId.length)).attr("cy"));
   d3.select("g[graph='" + graphNumber + "']").select("g[box = '"+ boxNumber + "']").remove();
   d3.select(this).select("circle[id=boxcircle]")
     .attr("cx", toCx)
@@ -906,7 +899,6 @@ boxEnter.each(function(d){
   var dy = toCy - cy;
   //deal with nodes
   d3.select(this).selectAll(".node").each(function(){
-
       var oldx = parseFloat(d3.select(this).select("circle").attr("cx"));
       var oldy = parseFloat(d3.select(this).select("circle").attr("cy"));
       d3.select(this).select("circle")
@@ -917,7 +909,7 @@ boxEnter.each(function(d){
   });
 
   //deal with lines
-  d3.select(this).select("line").each(function(){
+  d3.select(this).selectAll("line").each(function(){
     var oldx1 = parseFloat(d3.select(this).attr("x1"));
     var oldy1 = parseFloat(d3.select(this).attr("y1"));
     var oldx2 = parseFloat(d3.select(this).attr("x2"));
@@ -928,78 +920,46 @@ boxEnter.each(function(d){
         .attr("x2", oldx2 + dx)
         .attr("y2", oldy2 + dy);
   });
+
   var selectedGraph = d3.select("svg").select("g").select("g").select("g[graph='" + graphNumber + "']");
 
   //for each nodes upper, lower than falseNode, and the node to the left and right will be moved a radius
   d3.select("g[graph= '"+ graphNumber + "']").selectAll(".node").each(function(d){
-    if(d.box === null)
+    if(d3.select(this).select("circle").attr("box") === null)
     {
       var oldcx = parseFloat(d3.select(this).select("circle").attr("cx")); //cx of each node in graph
       var oldcy = parseFloat(d3.select(this).select("circle").attr("cy")); //cy of each node in graph
-      if(oldcy < toCy)
-      {
-        d3.select(this).select("circle")
-            .attr("cx", oldcx)
-            .attr("cy", oldcy - Radius);
-        d3.select(this).select("text")
-            .attr({x: oldcx - r/4, y: oldcy - Radius + r/4});
-      }else if(oldcy > toCy){
-        d3.select(this).select("circle")
-            .attr("cx", oldcx)
-            .attr("cy", oldcy + Radius);
-        d3.select(this).select("text")
-            .attr({x: oldcx - r/4, y: oldcy + Radius + r/4});
-      }else{
-        if(oldcx > toCx)
-        {
-          d3.select(this).select("circle")
-              .attr("cx", oldcx + Radius)
-              .attr("cy", oldcy);
-          d3.select(this).select("text")
-              .attr({x: oldcx + Radius- r/4, y: oldcy + r/4});
-        }else{
-          d3.select(this).select("circle")
-              .attr("cx", oldcx - Radius)
-              .attr("cy", oldcy);
-          d3.select(this).select("text")
-              .attr({x: oldcx - Radius- r/4, y: oldcy + r/4});
-        }
-      }
+      var dx = oldcx - toCx;
+      var dy = oldcy - toCy;
+      var length = Math.sqrt(dx * dx + dy * dy);
+      var newcx = dx / length * Radius + oldcx;
+      var newcy = dy / length * Radius + oldcy;
+      console.log(dx);
+      console.log(dy);
+      d3.select(this).select("circle")
+             .attr("cx", newcx)
+             .attr("cy", newcy);
+         d3.select(this).select("text")
+             .attr({x: newcx - r/4, y: newcy + r/4});
     }
   });
 
   d3.select("g[graph= '"+ graphNumber + "']").selectAll(".boxGraph").each(function(){
     var oldcx = parseFloat(d3.select(this).select("circle[id=boxcircle]").attr("cx")); //cx of each node in graph
     var oldcy = parseFloat(d3.select(this).select("circle[id=boxcircle]").attr("cy")); //cy of each node in graph
+    var dx = oldcx - toCx;
+    var dy = oldcy - toCy;
+    var length = Math.sqrt(dx * dx + dy * dy);
+    dx = dx / length * Radius;
+    dy = dy / length * Radius;
     d3.select(this).selectAll(".node").each(function(d){
       var cx = parseFloat(d3.select(this).select("circle").attr("cx"));
       var cy = parseFloat(d3.select(this).select("circle").attr("cy"));
-      if(oldcy < toCy)
-      {
-        d3.select(this).select("circle")
-            .attr("cy", cy - Radius);
-        d3.select(this).select("text")
-            .attr({x: cx - r/4, y: cy - Radius + r/4});
-      }else if(oldcy > toCy){
-        d3.select(this).select("circle")
-            .attr("cy", cy + Radius);
-        d3.select(this).select("text")
-            .attr({x: cx - r/4, y: cy + Radius + r/4});
-      }else{
-        if(oldcx > toCx)
-        {
-          d3.select(this).select("circle")
-              .attr("cx", cx + Radius)
-          d3.select(this).select("text")
-              .attr({x: cx + Radius- r/4, y: cy + r/4});
-        }else{
-          d3.select(this).select("circle")
-              .attr("cx", cx - Radius)
-              .attr("cy", cy);
-          d3.select(this).select("text")
-              .attr({x: cx - Radius- r/4, y: cy + r/4});
-        }
-      }
+      d3.select(this).select("circle")
+          .attr("cx", cx+dx)
+          .attr("cy", cy+dy);
+      d3.select(this).select("text")
+          .attr({x: cx+dx - r/4, y: cy+dy + r/4})
     });
 
     d3.select(this).selectAll("line").each(function(){
@@ -1007,46 +967,17 @@ boxEnter.each(function(d){
       var y1 = parseFloat(d3.select(this).attr("y1"));
       var x2 = parseFloat(d3.select(this).attr("x2"));
       var y2 = parseFloat(d3.select(this).attr("y2"));
-      if(oldcy < toCy)
-      {
-        d3.select(this)
-            .attr("y1", y1 - Radius)
-            .attr("y2", y2 - Radius);
-      }else if(oldcy > toCy){
-        d3.select(this)
-            .attr("y1", y1 + Radius)
-            .attr("y2", y2 + Radius);
-      }else{
-        if(oldcx > toCx)
-        {
-          d3.select(this)
-              .attr("x1", x1 + Radius)
-              .attr("x2", x2 + Radius);
-        }else{
-          d3.select(this)
-              .attr("x1", x1 - Radius)
-              .attr("x2", x2 - Radius);
-        }
-      }
+      d3.select(this)
+          .attr("x1", x1+dx)
+          .attr("y1", y1+dy)
+          .attr("x2", x2+dx)
+          .attr("y2", y2+dy);
+
     });
 
-    if(oldcy < toCy)
-    {
-      d3.select(this).select("circle[id=boxcircle]")
-          .attr("cy", oldcy - Radius);
-    }else if(oldcy > toCy){
-      d3.select(this).select("circle[id=boxcircle]")
-          .attr("cy", oldcy + Radius);
-    }else{
-      if(oldcx > toCx)
-      {
-        d3.select(this).select("circle[id=boxcircle]")
-            .attr("cx", oldcx + Radius);
-      }else{
-        d3.select(this).select("circle[id=boxcircle]")
-            .attr("cx", oldcx - Radius);
-      }
-    }
+    d3.select(this).select("circle[id=boxcircle]")
+        .attr("cx", oldcx+dx)
+        .attr("cy", oldcy+dy);
   });
 
   d3.select("g[graph='" + graphNumber + "']").selectAll("line").each(function(){
@@ -1130,100 +1061,6 @@ graphEnter.each(function(d,i){
     }
   });
 });
-/*  var graphNumber = d3.select(this).attr("graph");
-  var nodes = graphArray[i].nodes;
-  var falseNodeLinks = {"from": [],"to": []};  //save links from and to falseNode
-  var falseNodeIdString;  //the initial version only consider only one box exist in one graph.
-  var falseNodeId;
-  d3.select(this).selectAll(".node").each(function(d){
-    if(d3.select(this).attr("box") > 0)
-    {
-      falseNodeIdString = d3.select(this).attr("id");
-    }
-  });
-  falseNodeId = falseNodeIdString.match(/\d/g);
-  d3.select(this).select(".boxgraph").select("circle[name ='" + "boxcircle']").attr("id", "name"+ falseNodeId);
-
-  d3.select(this).selectAll("line").each(function(d){
-    if(d3.select(this).attr("boxNumber") == null)
-    {
-
-      var Radius = d3.select(this.parentNode).select(".boxgraph").select("circle[name ='" + "boxcircle']").attr("r");
-      var dr = Radius-r;
-      var fromNode;
-      var toNode;
-      if(falseNodeId == d.from)
-      {
-        fromNode = d3.select(this.parentNode).select("circle[name ='" + "boxcircle']");
-      }else {
-        fromNode = d3.select(this.parentNode).select("circle#name"+d.from);
-      }
-
-      if(falseNodeId == d.to)
-      {
-        toNode = d3.select(this.parentNode).select("circle[name ='" + "boxcircle']");
-      }else {
-        toNode = d3.select(this.parentNode).select("circle#name"+d.to);
-      }
-
-      var adjustedEnds = adjustEndsBoxCircle({"x":fromNode.attr("cx"), "y":fromNode.attr("cy")},
-      {"x":toNode.attr("cx"), "y":toNode.attr("cy")}, parseFloat(fromNode.attr("r")), parseFloat(toNode.attr("r")));
-      var falseNodeIdInt = parseInt(falseNodeId);
-      if(fromNode.attr("isDummy") === "false" && toNode.attr("isDummy") === "false")
-      {
-        d3.select(this)
-          .attr("x1", function(d) { return adjustedEnds.from.x; })
-          .attr("y1", function(d) { return adjustedEnds.from.y; })
-          .attr("x2", function(d) { return adjustedEnds.to.x; })
-          .attr("y2", function(d) { return adjustedEnds.to.y; })
-          .attr("from", d.from)
-          .attr("to", d.to)
-          .attr("graph", graphNumber)
-          .attr("marker-end", "url(#markerArrowEnd)");
-      }
-      else if(fromNode.attr("isDummy") === "true" && toNode.attr("isDummy") ==="false")
-      {
-        d3.select(this)
-          .attr("x1", function(d) { return adjustedEnds.from.x; })
-          .attr("y1", function(d) { return adjustedEnds.from.y; })
-          .attr("x2", function(d) { return adjustedEnds.to.x; })
-          .attr("y2", function(d) { return adjustedEnds.to.y; })
-          .attr("from", d.from)
-          .attr("to", d.to)
-          .attr("graph", graphNumber)
-          .attr("marker-end", "url(#markerArrowEnd)");
-      }
-      else if(fromNode.attr("isDummy") === "false"  && toNode.attr("isDummy") ==="true")
-      {
-        d3.select(this)
-          .attr("x1", function(d) { return adjustedEnds.from.x; })
-          .attr("y1", function(d) { return adjustedEnds.from.y; })
-          .attr("x2", function(d) { return adjustedEnds.to.x; })
-          .attr("y2", function(d) { return adjustedEnds.to.y; })
-          .attr("from", d.from)
-          .attr("to", d.to)
-          .attr("graph", graphNumber);
-      }
-      else{
-        d3.select(this)
-          .attr("x1", function(d) { return adjustedEnds.from.x; })
-          .attr("y1", function(d) { return adjustedEnds.from.y; })
-          .attr("x2", function(d) { return adjustedEnds.to.x; })
-          .attr("y2", function(d) { return adjustedEnds.to.y; })
-          .attr("from", d.from)
-          .attr("to", d.to)
-          .attr("graph", graphNumber);
-      }
-    }
-    });
-
-  d3.select(this).selectAll(".node").each(function(d){
-    if(d3.select(this).attr("box") > 0)
-    {
-      d3.select(this).remove();
-    }
-  });
-});*/
 
 var graphArrayCoordinate = {"graphs": [], "links": []};
 
@@ -1246,36 +1083,13 @@ graphEnter.each(function(d){
 var force = d3.layout.force()
               .size([width, height])
               .friction(0.7)
-              /*.linkStrength(function(d){
-                if(d.source.index == 0)
-                {
-                  return d.target.halfDigonal/maxDigonal;
-                }
-              })
-              .linkDistance(function(d){
-                if(d.source.index == 0)
-                {
-                  return maxDigonal/d.target.halfDigonal*20;
-                }
-              })*/
               .on("tick", tick)
               .on("start", init(graphArrayCoordinate))
               .on("end", debug(graphArrayCoordinate));
 
 force
   .nodes(graphArrayCoordinate.graphs)
-  //.links(graphArrayCoordinate.links)
   .start();
-
-/*var graphRepresent = svg.selectAll(".graphRepresent")
-  .data(graphArrayCoordinate.graphs);
-
-var graphRepresentEnter = graphRepresent.enter().append('circle')
-  .attr('class', 'graphRepresent')
-  .attr("cx", function(d,i){return graphArrayCoordinate.graphs[i].x})
-  .attr("cy", function(d,i){return graphArrayCoordinate.graphs[i].y})
-  .attr("r", function(d,i){return graphArrayCoordinate.graphs[i].halfDigonal})
-  .attr("fill-opacity", 0);*/
 
 function debug(graphArrayCoordinate)
 {
@@ -1296,23 +1110,6 @@ function tick()
     q.visit(collide(graphArrayCoordinate.graphs[i]));
     i++;
   }
-  /*d3.selectAll(".graph").each(function(d,i){
-    var dx = graphArrayCoordinate.graphs[i+1].x - graphArrayCoordinate.graphs[i+1].old_x;
-    var dy = graphArrayCoordinate.graphs[i+1].y - graphArrayCoordinate.graphs[i+1].old_y;
-    graphArrayCoordinate.graphs[i+1].old_x = graphArrayCoordinate.graphs[i+1].x;
-    graphArrayCoordinate.graphs[i+1].old_y = graphArrayCoordinate.graphs[i+1].y;
-    console.log(graphArrayCoordinate.graphs[i].y);
-    console.log(graphArrayCoordinate.graphs[i].old_y);
-    d3.select(this).selectAll("g").each(function(d){
-      var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
-      var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
-      d3.select(this).select("circle")
-        .attr("cx", cx)
-        .attr("cy", cy);
-      d3.select(this).select("text")
-        .attr({x: cx-r/4, y: cy+r/4});
-
-    });*/
 
   d3.selectAll(".graph").each(function(d,i){
     var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
@@ -1320,7 +1117,7 @@ function tick()
     graphArrayCoordinate.graphs[i].old_x = graphArrayCoordinate.graphs[i].x;
     graphArrayCoordinate.graphs[i].old_y = graphArrayCoordinate.graphs[i].y;
     d3.select(this).selectAll(".node").each(function(d){
-      if(d.box === null)
+      if(d3.select(this).select("circle").attr("box") === null)
       {
         var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
         var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
@@ -1333,7 +1130,7 @@ function tick()
     });
 
     d3.select(this).selectAll("line").each(function(d){
-      if(d.box === null)
+      if(d3.select(this).attr("box") === null)
       {
         var x1 = parseFloat(d3.select(this).attr("x1")) + dx;
         var y1 = parseFloat(d3.select(this).attr("y1")) + dy;
@@ -1388,11 +1185,6 @@ function tick()
       });
     });
   });
-
-  /*graphRepresentEnter
-    .attr("cx", function(d){return d.x})
-    .attr("cy", function(d){return d.y})
-    .attr("r", function(d){return d.halfDigonal});*/
 }
 
 function collide(graph)
@@ -1579,7 +1371,7 @@ function graphMove()
   var graphNumber = parseInt(d3.select(this).attr("graph"));
 
   d3.select(".graph[graph='"+graphNumber+"']").selectAll("g").each(function(d){
-    if(d.box === null)
+    if(d3.select(this).select("circle").attr("box") === null)
     {
       var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
       var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
@@ -1593,7 +1385,7 @@ function graphMove()
   });
 
   d3.select(".graph[graph='"+graphNumber+"']").selectAll("line").each(function(d){
-    if(d.box === null)
+    if(d3.select(this).attr("box") === null)
     {
       var x1 = parseFloat(d3.select(this).attr("x1")) + dx;
       var y1 = parseFloat(d3.select(this).attr("y1")) + dy;
