@@ -1,10 +1,12 @@
 var d3 = require('d3');
 var CycleRemoval = require('./CycleRemoval.js');
 var XCoordinateAssignment = require("./XCoordinateAssignment.js");
+var LongestPath = require("./LongestPath.js");
 var VertexOrdering = require("./VertexOrdering.js");
 var Initialize = require("./Initialize.js");
 var Sugiyama = require("./Sugiyama.js");
 var ConnectedGraphDetect = require("./ConnectedGraphDetection.js");
+var DragHelper = require('./DragHelper.js');
 var Main = require("./main.js");
 var helpFunctions = require("./helpFunctions.js");
 var BoxGraphController = require("./BoxgraphDetection.js");
@@ -2249,7 +2251,7 @@ function redraw()
         fromId = edges[j].from;
         toId = edges[j].to;
         console.log(toId);
-        while(CycleRemoval.getNodeById(toId, subGraph.nodes) === null && !(toId.toString().indexOf("box") > -1))
+        while(CycleRemoval.getNodeById(toId, subGraph.nodes) === null && !(toId.indexOf("box") > -1))
         {
           for(var k = 0; k < len2; k++)
           {
@@ -2261,7 +2263,7 @@ function redraw()
           }
         }
         Graph.links.push({"from": fromId, "to": toId,
-        "box": (fromId.toString().indexOf("box") > -1 || toId.toString().indexOf("box") > -1) ? null : CycleRemoval.getNodeById(toId, subGraph.nodes).box});
+        "box": (fromId.inf)});
         /*if(d3.select(this).select(".boxGraph#node"+fromId).empty())
         {
           if(d3.select(this).select(".boxGraph#node"+toId).empty())
