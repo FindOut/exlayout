@@ -38,10 +38,10 @@ exports.getLayerCrossing = function(layer, graph){
 exports.getTotalCrossing = function(graph){
   return getTotalCrossing(graph);
 };
-
 exports.getTotalCrossing = function(graph){
   return getTotalCrossing(graph);
 };
+
 // This function calculates order each node in every layer
 function vertexOrdering(graph)
 {
@@ -51,35 +51,37 @@ function vertexOrdering(graph)
   var i;
   var layer;
   var copyGraph;
-  setInitialOrder(graph);
-  a = getTotalCrossing(graph);
+  setInitialOrder(graph); // Give initial order to every nodes
+  a = getTotalCrossing(graph); // Get total crossing of the graph before improvement
   do{
 
-    before = getTotalCrossing(graph);
-    copyGraph = upwardSorting(graph);
-    efter = getTotalCrossing(copyGraph);
-    if(efter < before)
+    before = getTotalCrossing(graph); // Total crossing before each upwardSorting
+    copyGraph = upwardSorting(graph); // Sort the graph upward using median method
+    efter = getTotalCrossing(copyGraph); // Total crossing after each upwardSorting
+    if(efter < before) // If we reduced crossing
     {
-      graph = copyGraph;
+      graph = copyGraph; // Set graph order to the new one
     }
-    transpose(graph);
-    if(getTotalCrossing(graph) < efter){
-      efter = getTotalCrossing(graph);
+    transpose(graph); // Check for obvious crossing minimization
+    if(getTotalCrossing(graph) < efter) // If we reduced crossing
+    {
+      efter = getTotalCrossing(graph); // Total crossing after sorting and transpose function
     }
 
-    copyGraph = downwardSorting(graph);
-    if(getTotalCrossing(copyGraph) < efter)
+    copyGraph = downwardSorting(graph); // Sort the graph downward using median method
+    if(getTotalCrossing(copyGraph) < efter) // If we reduced crossing
     {
-      graph = copyGraph;
+      graph = copyGraph; // Set graph order to the new one
     }
-    efter = getTotalCrossing(copyGraph);
-    transpose(graph);
-    if(getTotalCrossing(graph) < efter){
-      efter = getTotalCrossing(graph);
+    efter = getTotalCrossing(copyGraph); // Total crossing after each downwardSorting
+    transpose(graph); // Check for obvios crossing minimization
+    if(getTotalCrossing(graph) < efter) // If we reduced crossing
+    {
+      efter = getTotalCrossing(graph); // Total crossing after sorting and transpose function
     }
 
-  }while(before != efter)
-  return a - getTotalCrossing(graph);
+  }while(before != efter) // Continue crossing reduction while we can imporve the graph
+  return a - getTotalCrossing(graph); // Return total number of minimized crossing for the algorithm
 }
 
 // setInitialOrder is an upwardSorting but first layers order is set to be random
@@ -91,10 +93,12 @@ function setInitialOrder(graph){
   var len1 = layer1.length;
   var len2;
   var position = [];
+  // Give random order for layer1
   for(var i = 1; i <= len1; i++)
   {
     layer1[i-1].order = i;
   }
+  // Give order for layer2 based on median method
   len2 = layer2.length;
   for(i = 0; i < len2; i++)
   {
@@ -137,6 +141,7 @@ function setInitialOrder(graph){
   {
     layer2[i-1].order = i;
   }
+  // Move layer1 and layer2 one layer upward
   layer1 = layer2;
   layer2 = getLayer(graph, ++currentRank);
   len1 = len2;
@@ -203,6 +208,7 @@ function upwardSorting(graph)
   var len1;
   var len2;
   var position = [];
+  // Give order to layer2 based on median method
   len2 = layer2.length;
   for(var i = 0; i < len2; i++)
   {
@@ -245,6 +251,7 @@ function upwardSorting(graph)
   {
     layer2[i-1].order = i;
   }
+  // Move layer1 and layer2 up by one layer and continue median method
   layer1 = layer2;
   layer2 = getLayer(copyGraph, ++currentRank);
   len1 = len2;
@@ -319,6 +326,7 @@ function downwardSorting(graph)
       currentRank = copyGraph.nodes[i].rank;
     }
   }
+  // Give order to layer1 based on median method
   var layer2 = getLayer(copyGraph, currentRank);
   var layer1 = getLayer(copyGraph, --currentRank);
   len1 = layer1.length;
@@ -363,6 +371,7 @@ function downwardSorting(graph)
   {
     layer1[i-1].order = i;
   }
+  // Move layer1 and layer2 down by one layer
   layer2 = layer1;
   layer1 = getLayer(copyGraph, --currentRank);
   len2 = len1;
@@ -445,7 +454,7 @@ function transpose(graph)
       {
         node1 = layer[i];
         node2 = layer[i+1];
-        if(getNodeCrossing(node1,node2,graph) > getNodeCrossing(node2,node1,graph))
+        if(getNodeCrossing(node1,node2,graph) > getNodeCrossing(node2,node1,graph)) // Check if we can minimize crossing by simply swapping two next to each other
         {
           improved = true;
           order = node1.order;
