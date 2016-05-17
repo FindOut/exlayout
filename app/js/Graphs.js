@@ -3,7 +3,7 @@ exports.getGraph = function(){
 }
 
 function getGraph(){
-  return Graph9;
+  return Graph20;
 }
 
 var Graph1 = {
@@ -430,5 +430,40 @@ var Graph13 = {
     {"from": "box0", "to": "box1", "box": null},
     {"from": 4, "to": 5, "box": 1},
     {"from": "box0", "to": 6, "box": null}
+  ]
+};
+
+var Graph20 = {
+  "nodes": [
+    {"id": 1, "label": "1", "box": null},
+    {"id": 2, "label": "2", "box": 0},
+    {"id": 3, "label": "3", "box": 0},
+    {"id": 4, "label": "4", "box": 1},
+    {"id": 5, "label": "5", "box": 1},
+    {"id": 6, "label": "6", "box": null},
+    {"id": 7, "label": "7", "box": 0},
+
+    {"id": 8, "label": "8", "box": null},
+    {"id": 9, "label": "9", "box": null},
+    {"id": 10, "label": "10", "box": 2},
+    {"id": 11, "label": "11", "box": 2},
+    {"id": 12, "label": "12", "box": 2},
+    {"id": 13, "label": "13", "box": 2}
+  ],
+  "links": [
+    {"from": 1, "to": "box0", "box":null},
+    {"from": 2, "to": 3, "box": 0},
+    {"from": 2, "to": 7, "box": 0},
+    {"from": 3, "to": 7, "box": 0},
+    {"from": "box0", "to": "box1", "box": null},
+    {"from": 4, "to": 5, "box": 1},
+    {"from": "box0", "to": 6, "box": null},
+
+    {"from": 8, "to": 9, "box": null},
+    {"from": 8, "to": "box2", "box": null},
+    {"from": 10, "to": 11, "box": 2},
+    {"from": 10, "to": 12, "box": 2},
+    {"from": 10, "to": 13, "box": 2},
+    {"from": 11, "to": 13, "box": 2}
   ]
 };

@@ -435,7 +435,7 @@ boxEnter.each(function(d){
   var minId = d3.select(this).attr("id");
   var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4,minId.length)).attr("cx"));
   var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4,minId.length)).attr("cy"));
-  d3.select("g[graph='" + graphNumber + "']").select("g[box = '"+ boxNumber + "']").remove();
+  d3.select("g[graph='" + graphNumber + "']").select("g#name"+minId.slice(4,minId.length)).remove();
   d3.select(this).select("circle[id=boxcircle]")
     .attr("cx", toCx)
     .attr("cy", toCy);
@@ -628,21 +628,11 @@ graphEnter.each(function(d){
 var force = d3.layout.force()
               .size([width, height])
               .friction(0.7)
-              .on("tick", tick)
-              .on("start", init(graphArrayCoordinate))
-              .on("end", debug(graphArrayCoordinate));
+              .on("tick", tick);
 
 force
   .nodes(graphArrayCoordinate.graphs)
-  .start();
-
-function debug(graphArrayCoordinate)
-{
-}
-
-function init(graphArrayCoordinate)
-{
-}
+  //.start();
 
 function tick()
 {
@@ -875,12 +865,6 @@ function dragmove(d) {
         .attr("x2", adjustedEnds.to.x)
         .attr("y2", adjustedEnds.to.y);
   });
-
-  /*d3.select(this).select("circle")
-    .attr("cx", d3.event.x)
-    .attr("cy", d3.event.y);
-  d3.select(this).select("text")
-    .attr({x: d3.event.x-r/4, y: d3.event.y+r/4});*/
 }
 
 function dragstart()
@@ -1449,103 +1433,14 @@ function deleteLink(fromId, toId, group, graph)
     d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
     d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
       .data(graph.links);
-    /*var newGraph = ConnectedGraphDetect.connectedGraphDetect(graph);
-
-    var maxGraphNumber = Number.MIN_VALUE;
-    if(newGraph.length == 1)
-    {
-      d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
-      d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
-        .data(graph.links);
-    }else{
-      d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
-      d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
-        .data(graph.links);
-      len = graphArray.length;
-      for(i = 0; i < len; i++)
-      {
-        if(graphArray[i].groupnumber > maxGraphNumber)
-        {
-          maxGraphNumber = graphArray[i].groupnumber;
-        }
-      }
-      maxGraphNumber++;
-      var a = {"nodes":[], "links": [], "groupnumber": maxGraphNumber};
-      for(i = 0; i < graph.nodes.length; i++)
-      {
-        if(graph.nodes[i].group == 1)
-        {
-          graph.nodes[i].group = group;
-        }else{
-          graph.nodes[i].group = maxGraphNumber;
-          a.nodes.push(graph.nodes[i]);
-          d3.select(".graph[graph='"+group+"']").select("g#name"+graph.nodes[i].id)
-            .attr("graph", maxGraphNumber);
-          graph.nodes.splice(i,1);
-          i--;
-        }
-      }
-      for(i = 0; i < graph.links.length; i++)
-      {
-        if(graph.links[i].group == 1)
-        {
-          graph.links[i].group = group;
-        }else{
-          graph.links[i].group = maxGraphNumber;
-          a.links.push(graph.links[i]);
-          d3.select(".graph[graph='"+group+"']").select("line[from='"+graph.links[i].from+"'][to='"+graph.links[i].to+"']")
-            .attr("graph", maxGraphNumber);
-          graph.links.splice(i,1);
-          i--;
-        }
-      }
-      graphArray.push(a);
-      var newGraphNodes = d3.select(".graph[graph='"+group+"']").selectAll("g[graph='"+maxGraphNumber+"'], line[graph='"+maxGraphNumber+"']")
-        .data(a.nodes)
-        .remove();
-      var newGraphLinks = d3.select(".graph[graph='"+group+"']").selectAll("line[graph='"+maxGraphNumber+"']")
-        .data(a.links)
-        .remove();
-      var nextGraph = d3.select("svg").select("g").select("g").append("g")
-        .attr("class", "graph")
-        .attr("graph", maxGraphNumber)
-      newGraphNodes.each(function(){
-        nextGraph
-          .node()
-          .appendChild(this);
-      });
-      newGraphLinks.each(function(){
-        nextGraph
-          .node()
-          .appendChild(this);
-      });
-      d3.selectAll(".graph")
-        .data(graphArray)
-        .each(function(d,i){
-          if(graphArrayCoordinate.graphs[i] === undefined)
-          {
-            var bbox = this.getBBox();
-            var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
-            graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
-                                              "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": maxGraphNumber});
-          }else{
-            var bbox = this.getBBox();
-            var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
-            graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
-            graphArrayCoordinate.graphs[i].y = bbox.y+bbox.height/2;
-            graphArrayCoordinate.graphs[i].old_x = bbox.x+bbox.width/2;
-            graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
-            graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
-            graphArrayCoordinate.graphs[i].graph = d.groupnumber;
-          }
-        });
-    }*/
   }
 }
 
 function resume()
 {
-  force.resume();
+  force
+    .nodes(graphArrayCoordinate.graphs)
+    .start();
 }
 window.resume = resume;
 
@@ -1820,17 +1715,9 @@ function redraw()
 
   graphArrayCoordinate = {"graphs": [], "links": []};
 
-  //graphArrayCoordinate.graphs.push({"x": width/2, "y": height/2, "fixed": true, "halfDigonal": 0});
-
-  maxDigonal = Number.MIN_VALUE;
-
   graphEnter.each(function(d){
     var bbox = this.getBBox();
     var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
-    if(halfDigonal > maxDigonal)
-    {
-      maxDigonal = halfDigonal;
-    }
     graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
                                       "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": d.groupnumber});
     container.append("circle")
@@ -1843,35 +1730,13 @@ function redraw()
                 .call(dragGraph);
   });
 
-  /*var len = graphArrayCoordinate.graphs.length;
-  for(var i = 1; i < len; i++)
-  {
-    graphArrayCoordinate.links.push({"source": 0, "target": i});
-  }*/
-
-
   force = d3.layout.force()
                 .size([width, height])
                 .friction(0.7)
-                /*.linkStrength(function(d){
-                  if(d.source.index == 0)
-                  {
-                    return d.target.halfDigonal/maxDigonal;
-                  }
-                })
-                .linkDistance(function(d){
-                  if(d.source.index == 0)
-                  {
-                    return maxDigonal/d.target.halfDigonal*20;
-                  }
-                })*/
-                .on("tick", tick)
-                .on("start", init(graphArrayCoordinate))
-                .on("end", debug(graphArrayCoordinate));
+                .on("tick", tick);
 
   force
     .nodes(graphArrayCoordinate.graphs)
-    //.links(graphArrayCoordinate.links)
     .start();
 }
 window.redraw = redraw;
