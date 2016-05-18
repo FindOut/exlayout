@@ -6,20 +6,21 @@ var helpFunctions = require("./helpFunctions.js");
 var BoxGraphController = require("./BoxgraphDetection.js");
 var Graph = require("./Graphs.js");
 
-var width;
-var height;
-var xScale;
-var yScale;
-var r = 20;
-var dummyR = 0;
+var width; // SVG width
+var height; // SVG height
+var xScale; // x-scale of graph
+var yScale; // y-scale of graph
+var r = 20; // Radius of nodes
+var dummyR = 0; // Radius of dummyNodes
 
-var graph = Graph.getGraph();
-var boxGraphs = BoxGraphController.getBoxGraph(graph);
-var graphArray = Main.main(graph);
-boxGraphs = boxSugiyama(boxGraphs);
-calculateScreenSizeAndScale()
-calculateInitialScreenPosition();
+var graph = Graph.getGraph(); // Get input graph
+var boxGraphs = BoxGraphController.getBoxGraph(graph); // Extract all boxes from graph and replace each box to fake node
+var graphArray = Main.main(graph); // Sugiyama method for all graphs
+boxGraphs = boxSugiyama(boxGraphs); // Sugiyama method for all boxes
+calculateScreenSizeAndScale() // Set screen size and calculate scale based on widest and highest graph
+calculateInitialScreenPosition(); // Calculate initial position of each nodes on screen based on scale
 
+// Behavior to help navigate
 var drag = d3.behavior.drag()
             .on("drag", dragmove)
             .on("dragstart", dragstart)
@@ -30,6 +31,8 @@ var dragGraph = d3.behavior.drag()
                   .on("dragend", graphMoveEnd);
 var zoom = d3.behavior.zoom()
             .on("zoom", zoomed);
+
+// SVG element
 var svg = d3.select('#graph').append('svg')
   .attr('width', width)
   .attr('height', height)
@@ -42,44 +45,51 @@ var rect = svg.append("rect")
                 .style("pointer-events", "all");
 var container = svg
                   .append("g");
+
+// Arrow image
 container.append('defs').append('marker')
-  .attr("id", 'markerArrowEnd') // ID of marker
-  .attr("viewBox", "0 -5 10 10") // minX, minY, width and height of viewBox
-  .attr("refX", 10) // Position where marker connect to the vertex
-  .attr("refY", 0) // Position where marker connect to the vertex
-  .attr("markerWidth", 8) // The width of marker
-  .attr("markerHeight", 8) // The height of marker
-  .attr("orient", "auto") // Rotation of marker
-  .append("path") // Used to draw line
-    .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
-    .attr('fill', 'black'); // Fill the triangle
+  .attr("id", 'markerArrowEnd')
+  .attr("viewBox", "0 -5 10 10")
+  .attr("refX", 10)
+  .attr("refY", 0)
+  .attr("markerWidth", 8)
+  .attr("markerHeight", 8)
+  .attr("orient", "auto")
+  .append("path")
+    .attr("d", 'M0,-5 L10,0 L0,5')
+    .attr('fill', 'black');
 
-drawGraph();
-drawBox();
-moveBoxToCorrectPosition();
-modifyLinks();
-var graphArrayCoordinate = {"graphs": [], "links": []};
-graphAsNode();
+drawGraph(); // Draw all graphs on screen
+drawBox(); // Draw all boxes on screen
+moveBoxToCorrectPosition(); // Replace now fake node with corresponding box
+modifyLinks(); // Update visualization of links
+var graphArrayCoordinate = {"graphs": [], "links": []}; // Array of center of each graph
+graphAsNode(); // Calculate center and radius of each graph, used in force algorithm
 
-
+// Setting up force
 var force = d3.layout.force()
               .size([width, height])
-              .friction(0.7)
+              .friction(0.5) // Slow down the animation
               .on("tick", tick);
 
+// See every graph as big node and start force to position every graph nicely
 force
   .nodes(graphArrayCoordinate.graphs)
   .start();
 
+// Using getBBox() to calculate center and radius of each graph. Also sets up
+// movingButton for moving the graph
 function graphAsNode()
 {
+  // Calculate center and radius of each graph
   d3.selectAll(".graph").each(function(d){
     var bbox = this.getBBox();
     var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
     graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
                                       "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": d.groupnumber});
 
-    container.append("circle")
+  // Add moveButton
+  container.append("circle")
       .attr("id", "moveButton")
       .attr("cx", bbox.x+r/2)
       .attr("cy", bbox.y+r/2)
@@ -90,55 +100,68 @@ function graphAsNode()
   });
 }
 
+// Update the visualization of links after replacing fake node with boxes
 function modifyLinks()
 {
   d3.selectAll(".graph").each(function(d,i){
     d3.select(this).selectAll("line").each(function(){
-      if(d3.select(this).attr("box") === null)
+      if(d3.select(this).attr("box") === null) // Skip all links in boxes
       {
+        // Get start- and endpoint of link
         var fromId = d3.select(this).attr("from");
         var toId = d3.select(this).attr("to");
-        if(fromId.indexOf("box") > -1)
+        if(fromId.indexOf("box") > -1) // Check if link starts from some box
         {
+          // Modify up fromId
           fromId = fromId.slice(3);
           fromId = d3.select(".boxGraph[box='"+fromId+"']").attr("id");
           fromId = fromId.slice(4);
         }
-        if(toId.indexOf("box") > -1)
+        if(toId.indexOf("box") > -1) // Check if link points to some box
         {
+          // Modify up toId
           toId = toId.slice(3);
           toId = d3.select(".boxGraph[box='"+toId+"']").attr("id");
           toId = toId.slice(4);
         }
-        if(d3.select(this.parentNode).selectAll(".boxGraph#node"+fromId).empty())
+        if(d3.select(this.parentNode).selectAll(".boxGraph#node"+fromId).empty()) // If link do not starts from some box
         {
+          // Set up x- and y-coordinate
           var fromNode = d3.select(this.parentNode).select("circle[id='name"+fromId+"']");
           var fromPoint = {"x": parseFloat(fromNode.attr("cx")),"y": parseFloat(fromNode.attr("cy"))};
+          // Set up radius based on if it is dummy or not
           if(fromNode.attr("isDummy") === "false"){
             var fromRadius = parseFloat(fromNode.attr("r"));
           }else{
             var fromRadius = 0;
           }
-        }else{
+        }else{ // Link starts from some box
+          // Set up x- and y-coordinate
           var fromNode = d3.select(this.parentNode).selectAll(".boxGraph#node"+fromId).select("circle[id=boxcircle]");
           var fromPoint = {"x": parseFloat(fromNode.attr("cx")),"y": parseFloat(fromNode.attr("cy"))};
+          // Set up radius
           var fromRadius = parseFloat(fromNode.attr("r"));
         }
-        if(d3.select(this.parentNode).selectAll(".boxGraph#node"+toId).empty())
+        if(d3.select(this.parentNode).selectAll(".boxGraph#node"+toId).empty()) // If link do not points to some box
         {
+          // Set up x- and y-coordinate
           var toNode = d3.select(this.parentNode).select("circle[id='name"+toId+"']");
           var toPoint = {"x": parseFloat(toNode.attr("cx")),"y": parseFloat(toNode.attr("cy"))};
+          // Set up radius based on if it is dummy or not
           if(toNode.attr("isDummy") === "false"){
             var toRadius = parseFloat(toNode.attr("r"));
           }else{
             var toRadius = 0;
           }
-        }else{
+        }else{ // Link points to some box
+          // Set up x- and y-coordinate
           var toNode = d3.select(this.parentNode).selectAll(".boxGraph#node"+toId).select("circle[id=boxcircle]");
           var toPoint = {"x": parseFloat(toNode.attr("cx")),"y": parseFloat(toNode.attr("cy"))};
+          // Set up radius
           var toRadius = parseFloat(toNode.attr("r"));
         }
-        var adjustedEnds = adjustEnds(fromPoint, fromRadius, toPoint, toRadius);
+        var adjustedEnds = adjustEnds(fromPoint, fromRadius, toPoint, toRadius); // Adjust ends of link based on position and radius of the two nodes
+        // Correct the link
         d3.select(this)
             .attr("x1", adjustedEnds.from.x)
             .attr("y1", adjustedEnds.from.y)
@@ -148,15 +171,17 @@ function modifyLinks()
     });
   });
 }
+
+// Replace fake node to corresponding box
 function moveBoxToCorrectPosition()
 {
   d3.selectAll(".boxGraph").each(function(d){
     var bbox = this.getBBox();
-    var Radius = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
+    var Radius = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2; // Radius of box
+
     var cx = bbox.x + bbox.width/2;
     var cy = bbox.y + bbox.height/2;
-    //deal with circle
-    d3.select(this).append('circle')
+    d3.select(this).append('circle') // Draw circle around box
       .attr("cx", cx)
       .attr("cy", cy)
       .attr("id","boxcircle")
@@ -166,16 +191,17 @@ function moveBoxToCorrectPosition()
     var graphNumber = d3.select(this).attr("graph");
     var boxNumber = d3.select(this).attr("box");
     var minId = d3.select(this).attr("id");
-    var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4)).attr("cx"));
-    var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4)).attr("cy"));
-    d3.select("g[graph='" + graphNumber + "']").select("g#name"+minId.slice(4)).remove();
-    d3.select(this).select("circle[id=boxcircle]")
+    var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4)).attr("cx")); // x-coordinate of fake node
+    var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4)).attr("cy")); // y-coordinate of fake node
+    d3.select("g[graph='" + graphNumber + "']").select("g#name"+minId.slice(4)).remove(); // Remove fake node from screen
+    d3.select(this).select("circle[id=boxcircle]") // Move bounding circle to correct position
       .attr("cx", toCx)
       .attr("cy", toCy);
 
-    var dx = toCx - cx;
-    var dy = toCy - cy;
-    //deal with nodes
+    var dx = toCx - cx; // Differece in x-coordinate
+    var dy = toCy - cy; // Differece in y-coordinate
+
+    // All nodes in box move towards the same direction as bounding circle
     d3.select(this).selectAll(".node").each(function(){
         var oldx = parseFloat(d3.select(this).select("circle").attr("cx"));
         var oldy = parseFloat(d3.select(this).select("circle").attr("cy"));
@@ -186,7 +212,7 @@ function moveBoxToCorrectPosition()
             .attr({x: oldx + dx-r/4, y: oldy + dy+r/4});
     });
 
-    //deal with lines
+    // All lines in box move towards the same direction as bounding circle
     d3.select(this).selectAll("line").each(function(){
       var oldx1 = parseFloat(d3.select(this).attr("x1"));
       var oldy1 = parseFloat(d3.select(this).attr("y1"));
@@ -199,14 +225,12 @@ function moveBoxToCorrectPosition()
           .attr("y2", oldy2 + dy);
     });
 
-    var selectedGraph = d3.select("svg").select("g").select("g").select("g[graph='" + graphNumber + "']");
-
-    //for each nodes upper, lower than falseNode, and the node to the left and right will be moved a radius
+    // Move all other nodes in the same graph away from box
     d3.select("g[graph= '"+ graphNumber + "']").selectAll(".node").each(function(d){
-      if(d3.select(this).select("circle").attr("box") === null)
+      if(d3.select(this).select("circle").attr("box") === null) // Skip all node in box
       {
-        var oldcx = parseFloat(d3.select(this).select("circle").attr("cx")); //cx of each node in graph
-        var oldcy = parseFloat(d3.select(this).select("circle").attr("cy")); //cy of each node in graph
+        var oldcx = parseFloat(d3.select(this).select("circle").attr("cx"));
+        var oldcy = parseFloat(d3.select(this).select("circle").attr("cy"));
         var dx = oldcx - toCx;
         var dy = oldcy - toCy;
         var length = Math.sqrt(dx * dx + dy * dy);
@@ -220,14 +244,16 @@ function moveBoxToCorrectPosition()
       }
     });
 
+    // Move all other boxes in the same away from box
     d3.select("g[graph= '"+ graphNumber + "']").selectAll(".boxGraph").each(function(){
-      var oldcx = parseFloat(d3.select(this).select("circle[id=boxcircle]").attr("cx")); //cx of each node in graph
-      var oldcy = parseFloat(d3.select(this).select("circle[id=boxcircle]").attr("cy")); //cy of each node in graph
+      var oldcx = parseFloat(d3.select(this).select("circle[id=boxcircle]").attr("cx"));
+      var oldcy = parseFloat(d3.select(this).select("circle[id=boxcircle]").attr("cy"));
       var dx = oldcx - toCx;
       var dy = oldcy - toCy;
       var length = Math.sqrt(dx * dx + dy * dy);
       dx = dx / length * Radius;
       dy = dy / length * Radius;
+      // Move all nodes in same direction
       d3.select(this).selectAll(".node").each(function(d){
         var cx = parseFloat(d3.select(this).select("circle").attr("cx"));
         var cy = parseFloat(d3.select(this).select("circle").attr("cy"));
@@ -238,6 +264,7 @@ function moveBoxToCorrectPosition()
             .attr({x: cx+dx - r/4, y: cy+dy + r/4})
       });
 
+      // Move all links in same direction
       d3.select(this).selectAll("line").each(function(){
         var x1 = parseFloat(d3.select(this).attr("x1"));
         var y1 = parseFloat(d3.select(this).attr("y1"));
@@ -251,11 +278,13 @@ function moveBoxToCorrectPosition()
 
       });
 
+      // Move the bounding circle in same direction
       d3.select(this).select("circle[id=boxcircle]")
           .attr("cx", oldcx+dx)
           .attr("cy", oldcy+dy);
     });
 
+    // Update the link attribute if it starts from or points to the fake node
     d3.select("g[graph='" + graphNumber + "']").selectAll("line").each(function(){
       if(d3.select(this).attr("box") === null)
       {
@@ -272,21 +301,24 @@ function moveBoxToCorrectPosition()
       }
     });
 
-    //remove nodes and links in big graph
+
+    // Move box DOM element under the corresponding graph
     var box = d3.select(this)
                     .remove();
     box.each(function(){
-        selectedGraph
+        d3.select("g[graph='" + graphNumber + "']")
           .node()
           .appendChild(this);
     });
   });
 }
 
+// Calculate initial position of each node on screen based on scale
 function calculateInitialScreenPosition()
 {
   var len1 = graphArray.length;
   var len2;
+  // Calculate coordinate for each graph
   for(var i = 0; i < len1; i++)
   {
     len2 = graphArray[i].nodes.length;
@@ -298,6 +330,7 @@ function calculateInitialScreenPosition()
   }
 
   len1 = boxGraphs.length;
+  // Calculate coordinate for each box
   for(i = 0; i < len1; i++)
   {
     len2 = boxGraphs[i].nodes.length;
@@ -309,9 +342,9 @@ function calculateInitialScreenPosition()
   }
 }
 
+// Draw all boxes on screen
 function drawBox()
 {
-  //draw boxGraphs and get radius of boxGraphs
   var box = container.selectAll(".box")
     .data(boxGraphs);
 
@@ -334,7 +367,7 @@ function drawBox()
                         .attr('class', 'node');
 
     nodesEnter.each(function(d){
-      if(!d.isDummy)
+      if(!d.isDummy) // If it is dummyNode
       {
           d3.select(this)
             .append('circle')
@@ -362,7 +395,6 @@ function drawBox()
               .attr("cy", d.y)
               .attr("r", dummyR)
               .attr("id", "boxname"+d.id)
-              .attr("graph",graphNumber)
               .attr("box", boxNumber)
               .attr("isDummy", "true")
               .style("fill", "white");
@@ -384,8 +416,8 @@ function drawBox()
     linksEnter.each(function (d){
       var fromNode = helpFunctions.getNodeById(d.from, boxGraphs[i].nodes);
       var toNode = helpFunctions.getNodeById(d.to, boxGraphs[i].nodes);
-      var adjustedEnds = adjustEnds(fromNode, r, toNode, r);
-      if(!fromNode.isDummy && !toNode.isDummy)
+      var adjustedEnds = adjustEnds(fromNode, r, toNode, r); // Adjust ends of links based on coordinate and radius of the two nodes
+      if(!fromNode.isDummy && !toNode.isDummy) // If both are not dummyNode
       {
         d3.select(this)
             .attr("x1", function(d) { return adjustedEnds.from.x; })
@@ -397,7 +429,7 @@ function drawBox()
             .attr("box", boxNumber)
             .attr("graph", graphNumber)
             .attr("marker-end", "url(#markerArrowEnd)");
-      }else if(fromNode.isDummy && !toNode.isDummy){
+      }else if(fromNode.isDummy && !toNode.isDummy){ // If fromNode is dummyNode
         d3.select(this)
             .attr("x1", function(d) { return fromNode.x; })
             .attr("y1", function(d) { return fromNode.y; })
@@ -408,7 +440,7 @@ function drawBox()
             .attr("box", boxNumber)
             .attr("graph", graphNumber)
             .attr("marker-end", "url(#markerArrowEnd)");
-      }else if(!fromNode.isDummy && toNode.isDummy){
+      }else if(!fromNode.isDummy && toNode.isDummy){ // If toNode is dummyNode
         d3.select(this)
             .attr("x1", function(d) { return adjustedEnds.from.x; })
             .attr("y1", function(d) { return adjustedEnds.from.y; })
@@ -418,7 +450,7 @@ function drawBox()
             .attr("to", d.to)
             .attr("box", boxNumber)
             .attr("graph", graphNumber);
-      }else{
+      }else{ // If both nodes are dummyNode
         d3.select(this)
             .attr("x1", function(d) { return fromNode.x; })
             .attr("y1", function(d) { return fromNode.y; })
@@ -434,6 +466,7 @@ function drawBox()
   });
 }
 
+// Draw all graphs on screen
 function drawGraph()
 {
   var graph = container.selectAll(".graph")
@@ -454,7 +487,7 @@ function drawGraph()
                       .attr('class', 'node');
 
     nodesEnter.each(function(d){
-      if(!d.isDummy)
+      if(!d.isDummy) // If it is dummyNode
       {
         d3.select(this)
           .append('circle')
@@ -503,8 +536,8 @@ function drawGraph()
     linksEnter.each(function (d){
       var fromNode = helpFunctions.getNodeById(d.from, graphArray[i].nodes);
       var toNode = helpFunctions.getNodeById(d.to, graphArray[i].nodes);
-      var adjustedEnds = adjustEnds(fromNode, r, toNode, r);
-      if(!fromNode.isDummy && !toNode.isDummy)
+      var adjustedEnds = adjustEnds(fromNode, r, toNode, r); // Adjust ends of links based on coordinate and raidus of the two nodes
+      if(!fromNode.isDummy && !toNode.isDummy) // If both are not dummyNode
       {
         d3.select(this)
           .attr("x1", function(d) { return adjustedEnds.from.x; })
@@ -515,7 +548,7 @@ function drawGraph()
           .attr("to", d.to)
           .attr("graph", graphNumber)
           .attr("marker-end", "url(#markerArrowEnd)");
-      }else if(fromNode.isDummy && !toNode.isDummy){
+      }else if(fromNode.isDummy && !toNode.isDummy){ // If fromNode is dummyNode
         d3.select(this)
           .attr("x1", function(d) { return fromNode.x; })
           .attr("y1", function(d) { return fromNode.y; })
@@ -525,7 +558,7 @@ function drawGraph()
           .attr("to", d.to)
           .attr("graph", graphNumber)
           .attr("marker-end", "url(#markerArrowEnd)");
-      }else if(!fromNode.isDummy && toNode.isDummy){
+      }else if(!fromNode.isDummy && toNode.isDummy){ // If toNode is dummyNode
         d3.select(this)
           .attr("x1", function(d) { return adjustedEnds.from.x; })
           .attr("y1", function(d) { return adjustedEnds.from.y; })
@@ -534,7 +567,7 @@ function drawGraph()
           .attr("from", d.from)
           .attr("to", d.to)
           .attr("graph", graphNumber);
-      }else{
+      }else{ // If both are dummyNode
         d3.select(this)
           .attr("x1", function(d) { return fromNode.x; })
           .attr("y1", function(d) { return fromNode.y; })
@@ -549,6 +582,7 @@ function drawGraph()
   });
 }
 
+// Calculate svg size based on screen size and set up scale for x- and y-coordiante
 function calculateScreenSizeAndScale()
 {
   var len1 = graphArray.length;
@@ -562,6 +596,7 @@ function calculateScreenSizeAndScale()
   var globalMaxY = Number.MIN_VALUE;
   var globalMinY = Number.MAX_VALUE;
   var currentGraph;
+  // Find rightmost, leftmost, upmost, downmost coordinate
   for(var i = 0; i < len1; i++)
   {
     maxX = Number.MIN_VALUE;
@@ -607,6 +642,7 @@ function calculateScreenSizeAndScale()
     currentGraph.minY = minY;
   }
 
+  // Get screen size
   width = window.innerWidth
   || document.documentElement.clientWidth
   || document.body.clientWidth;
@@ -614,6 +650,7 @@ function calculateScreenSizeAndScale()
   || document.documentElement.clientHeight
   || document.body.clientHeight;
 
+  // Set up scale
   yScale = d3.scale.linear()
                       .domain([globalMaxY, globalMinY])
                       .range([r, (globalMaxY-globalMinY)*6*r-r]);
@@ -622,6 +659,7 @@ function calculateScreenSizeAndScale()
                       .range([r, (globalMaxX-globalMinX)*5*r-r]);
 }
 
+// Used sugiyama method to position nodes in each box
 function boxSugiyama(boxGraphs)
 {
   var len1 = boxGraphs.length;
@@ -629,10 +667,11 @@ function boxSugiyama(boxGraphs)
   var id;
   for(var i = 0; i < len1; i++)
   {
-    var subGraph = {"nodes": boxGraphs[i].nodes, "links": boxGraphs[i].links};
-    Sugiyama.sugiyama(subGraph);
-    boxGraphs[i].nodes = subGraph.nodes;
-    boxGraphs[i].links = subGraph.links;
+    var subGraph = {"nodes": boxGraphs[i].nodes, "links": boxGraphs[i].links}; // Nodes and links of box
+    Sugiyama.sugiyama(subGraph); // Sugiyama method
+    boxGraphs[i].nodes = subGraph.nodes; // Update box nodes
+    boxGraphs[i].links = subGraph.links; // Update box links
+    // Find id of box (Id of box is the least node id in that box)
     id = Number.MAX_VALUE;
     len2 = boxGraphs[i].nodes.length;
     for(var j = 0; j < len2; j++)
@@ -642,17 +681,19 @@ function boxSugiyama(boxGraphs)
         id = boxGraphs[i].nodes[j].id;
       }
     }
-    boxGraphs[i].graph = helpFunctions.getNodeById(id, graph.nodes).group;
+    boxGraphs[i].graph = helpFunctions.getNodeById(id, graph.nodes).group; // Check which graph box belongs to
   }
   return boxGraphs;
 }
 
+// Adjust ends on link based on coordinate and raidus of the two nodes
 function adjustEnds(fromPoint, fromRadius, toPoint, toRadius)
 {
-  var dx = toPoint.x-fromPoint.x;
-  var dy = toPoint.y-fromPoint.y;
+  var dx = toPoint.x-fromPoint.x; // Difference in x-coordinate
+  var dy = toPoint.y-fromPoint.y; // Difference in y-coordinate
 
-  var length = Math.sqrt(dx * dx + dy * dy);
+  var length = Math.sqrt(dx * dx + dy * dy); // Distance between the nodes
+  // Adjust ends using equilateral triangle
   var fromPointdx = dx / length * fromRadius;
   var fromPointdy = dy / length * fromRadius;
   var toPointdx = dx / length * toRadius;
@@ -660,25 +701,29 @@ function adjustEnds(fromPoint, fromRadius, toPoint, toRadius)
   return {from: {x: fromPoint.x + fromPointdx, y: fromPoint.y + fromPointdy}, to: {x: toPoint.x - toPointdx, y: toPoint.y - toPointdy}};
 }
 
+// Update position of each graph
 function tick()
 {
+  // Checks if two graph are colliding with each other
   var q = d3.geom.quadtree(graphArrayCoordinate.graphs);
   var i = 0;
   var n = graphArrayCoordinate.graphs.length;
-
   while(i < n)
   {
     q.visit(collide(graphArrayCoordinate.graphs[i]));
     i++;
   }
 
+  // Move nodes, links and boxgraph in each graph based on force algorithm on each graph
   d3.selectAll(".graph").each(function(d,i){
-    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x;
-    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y;
-    graphArrayCoordinate.graphs[i].old_x = graphArrayCoordinate.graphs[i].x;
-    graphArrayCoordinate.graphs[i].old_y = graphArrayCoordinate.graphs[i].y;
+    // graphArrayCoordinate.graphs[i].px and graphArrayCoordinate.graphs[i].py do not work!!!
+    var dx = graphArrayCoordinate.graphs[i].x - graphArrayCoordinate.graphs[i].old_x; // Movement in x direction
+    var dy = graphArrayCoordinate.graphs[i].y - graphArrayCoordinate.graphs[i].old_y; // Movement in y direction
+    graphArrayCoordinate.graphs[i].old_x = graphArrayCoordinate.graphs[i].x; // Store current x-coordinate
+    graphArrayCoordinate.graphs[i].old_y = graphArrayCoordinate.graphs[i].y; // Store current y-coordinate
+    // Move all nodes towards (dx, dy)
     d3.select(this).selectAll(".node").each(function(d){
-      if(d3.select(this).select("circle").attr("box") === null)
+      if(d3.select(this).select("circle").attr("box") === null) // Skip all nodes in box
       {
         var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
         var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
@@ -690,8 +735,9 @@ function tick()
       }
     });
 
+    // Move all links towards (dx, dy)
     d3.select(this).selectAll("line").each(function(d){
-      if(d3.select(this).attr("box") === null)
+      if(d3.select(this).attr("box") === null) // Skip all links in box
       {
         var x1 = parseFloat(d3.select(this).attr("x1")) + dx;
         var y1 = parseFloat(d3.select(this).attr("y1")) + dy;
@@ -705,6 +751,7 @@ function tick()
       }
     });
 
+    // Move the moveBUtton towards (dx, dy)
     d3.select("#moveButton[graph='"+graphArrayCoordinate.graphs[i].graph+"']").each(function(d){
       var cx = parseFloat(d3.select(this).attr("cx"))+dx;
       var cy = parseFloat(d3.select(this).attr("cy"))+dy;
@@ -713,7 +760,9 @@ function tick()
         .attr("cy",cy);
     });
 
+    // Move the boxGraph towards (dx, dy)
     d3.select(this).selectAll(".boxGraph").each(function(){
+      // Move all nodes
       d3.select(this).selectAll("g").each(function(){
         var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
         var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
@@ -725,6 +774,7 @@ function tick()
             .attr({x: cx-r/4, y: cy+r/4});
       });
 
+      // Move all links
       d3.select(this).selectAll("line").each(function(){
         var x1 = parseFloat(d3.select(this).attr("x1")) + dx;
         var y1 = parseFloat(d3.select(this).attr("y1")) + dy;
@@ -737,6 +787,7 @@ function tick()
           .attr("y2", y2);
       });
 
+      // Move the bounding circle
       d3.select(this).select("#boxcircle").each(function(){
         var cx = parseFloat(d3.select(this).attr("cx"))+dx;
         var cy = parseFloat(d3.select(this).attr("cy"))+dy;
@@ -748,6 +799,8 @@ function tick()
   });
 }
 
+// Detect collision between graphs
+// Original code from https://bl.ocks.org/mbostock/3231298
 function collide(graph)
 {
   var r = graph.halfDigonal + 16;
@@ -775,18 +828,21 @@ function collide(graph)
   };
 }
 
+// Update node and links when dragging node
 function dragmove(d) {
-  var x = d3.event.x;
-  var y = d3.event.y;
+  var x = d3.event.x; // x-coordinate of mouse
+  var y = d3.event.y; // y-coordinate of mouse
+  // Update node coordinate
   d3.select(this).select("circle")
     .attr("cx", x)
     .attr("cy", y);
   d3.select(this).select("text")
-    .attr({x: d3.event.x-r/4, y: d3.event.y+r/4});
+    .attr({x: x-r/4, y: y+r/4});
 
 
   var graphNumber = d3.select(this).attr("graph");
 
+  // Update all related links
   d3.selectAll("line[graph='"+graphNumber+"'][to='"+d.id+"']").each(function(d,i)
   {
     var fromId = d3.select(this).attr("from");
@@ -839,7 +895,7 @@ function dragmove(d) {
         .attr("y2", adjustedEnds.to.y);
   });
 
-
+  // Update all related links
   d3.selectAll("line[graph='"+graphNumber+"'][from='"+d.id+"']").each(function(d,i)
   {
     var fromId = d3.select(this).attr("from");
@@ -893,12 +949,14 @@ function dragmove(d) {
   });
 }
 
+// Stop force algorithm when drag starts
 function dragstart()
 {
   d3.event.sourceEvent.stopPropagation();
   force.stop();
 }
 
+// Update radius and center of each graph, also position moveButton to right place
 function dragend(d)
 {
   d3.selectAll(".graph").each(function(d,i){
@@ -915,18 +973,21 @@ function dragend(d)
   });
 }
 
+// Update all nodes, links and boxgraph when moving moveButton
 function graphMove()
 {
-  var dx = d3.event.x - parseFloat(d3.select(this).attr("cx"));
-  var dy = d3.event.y - parseFloat(d3.select(this).attr("cy"));
+  var dx = d3.event.x - parseFloat(d3.select(this).attr("cx")); // Movement in x direction
+  var dy = d3.event.y - parseFloat(d3.select(this).attr("cy")); // Movement in y direction
+  // Move the moveButton
   d3.select(this)
     .attr("cx", d3.event.x)
     .attr("cy", d3.event.y);
 
   var graphNumber = parseInt(d3.select(this).attr("graph"));
 
+  // Move all nodes towards (dx,dy)
   d3.select(".graph[graph='"+graphNumber+"']").selectAll("g").each(function(d){
-    if(d3.select(this).select("circle").attr("box") === null)
+    if(d3.select(this).select("circle").attr("box") === null) // Skip all nodes in box
     {
       var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
       var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
@@ -939,8 +1000,9 @@ function graphMove()
     }
   });
 
+  // Move all links towards (dx,dy)
   d3.select(".graph[graph='"+graphNumber+"']").selectAll("line").each(function(d){
-    if(d3.select(this).attr("box") === null)
+    if(d3.select(this).attr("box") === null) // Skip all links in box
     {
       var x1 = parseFloat(d3.select(this).attr("x1")) + dx;
       var y1 = parseFloat(d3.select(this).attr("y1")) + dy;
@@ -954,7 +1016,9 @@ function graphMove()
     }
   });
 
+  // Move all boxgraph towards (dx,dy)
   d3.select(".graph[graph='"+graphNumber+"']").selectAll(".boxGraph").each(function(){
+    // Move all nodes
     d3.select(this).selectAll("g").each(function(){
       var cx = parseFloat(d3.select(this).select("circle").attr("cx"))+dx;
       var cy = parseFloat(d3.select(this).select("circle").attr("cy"))+dy;
@@ -966,6 +1030,7 @@ function graphMove()
           .attr({x: cx-r/4, y: cy+r/4});
     });
 
+    // Move all links
     d3.select(this).selectAll("line").each(function(){
       var x1 = parseFloat(d3.select(this).attr("x1")) + dx;
       var y1 = parseFloat(d3.select(this).attr("y1")) + dy;
@@ -978,6 +1043,7 @@ function graphMove()
         .attr("y2", y2);
     });
 
+    // Move the bounding circle
     d3.select(this).select("#boxcircle").each(function(){
       var cx = parseFloat(d3.select(this).attr("cx"))+dx;
       var cy = parseFloat(d3.select(this).attr("cy"))+dy;
@@ -988,6 +1054,7 @@ function graphMove()
   });
 }
 
+// Update coordinate of each graph and fix the moved graph
 function graphMoveEnd()
 {
   var graphNumber = parseInt(d3.select(this).attr("graph"));
@@ -1009,15 +1076,18 @@ function graphMoveEnd()
     }
   }
 }
+
+// Allow user to zoom and navigate
 function zoomed() {
   container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 
+// Called when user pressed delete beside Delete node
 function handler1()
 {
-  force.stop();
-  var label = document.getElementById("deleteNode").value;
-  document.getElementById("deleteNode").value = null;
+  force.stop(); // Stop force algorithm
+  var label = document.getElementById("deleteNode").value; // Get input
+  document.getElementById("deleteNode").value = null; // Clear the input
 
   var node;
   var nodes;
@@ -1030,6 +1100,7 @@ function handler1()
   var found = false;
   var len = graphArray.length;
   var len1;
+  // Find the node by that label
   for(var i = 0; i < len; i++)
   {
     len1 = graphArray[i].nodes.length;
@@ -1051,7 +1122,14 @@ function handler1()
     }
   }
 
-  outgoingEdges = helpFunctions.outgoing(node, graph.links);
+  // If not found or it is dummyNode, alert that node not found
+  if(!found || node.isDummy)
+  {
+    alert("Node not found!");
+    return;
+  }
+
+  outgoingEdges = helpFunctions.outgoing(node, graph.links); // All outgoing links
   len = outgoingEdges.length;
   var fromId;
   var toId;
@@ -1059,25 +1137,27 @@ function handler1()
   {
     fromId = outgoingEdges[i].from;
     toId = outgoingEdges[i].to;
-    while(helpFunctions.getNodeById(toId, graph.nodes).isDummy)
+    while(helpFunctions.getNodeById(toId, graph.nodes).isDummy) // If it is long edge (more than 1 layer distance), get first not dummyNode in that path
     {
       toId = helpFunctions.outgoing(helpFunctions.getNodeById(toId, graph.nodes), graph.links)[0].to;
     }
-    deleteLink(fromId, toId, group, graph);
+    deleteLink(fromId, toId, group, graph); // Delete the link
   }
-  ingoingEdges = helpFunctions.ingoing(node, graph.links);
+
+  ingoingEdges = helpFunctions.ingoing(node, graph.links); // All ingoing links
   len = ingoingEdges.length;
   for(i = 0; i < len; i++)
   {
     fromId = ingoingEdges[i].from;
     toId = ingoingEdges[i].to;
-    while(helpFunctions.getNodeById(fromId, graph.nodes).isDummy)
+    while(helpFunctions.getNodeById(fromId, graph.nodes).isDummy) // If it is long edge (more than 1 layer distance), get first not dummyNode in that path
     {
       fromId = helpFunctions.ingoing(helpFunctions.getNodeById(fromId, graph.nodes), graph.links)[0].from;
     }
-    deleteLink(fromId, toId, group, graph);
+    deleteLink(fromId, toId, group, graph); // Delete the link
   }
 
+  // Delete node from graphArray
   found = false;
   len = graphArray.length;
   for(i = 0; i < len; i++)
@@ -1101,17 +1181,19 @@ function handler1()
       break;
     }
   }
-  d3.select(".graph[graph='"+node.group+"']").select("g#name"+node.id).remove();
-  if(d3.select(".graph[graph='"+node.group+"']").selectAll("g").empty())
+
+  d3.select(".graph[graph='"+node.group+"']").select("g#name"+node.id).remove(); // Delete node from screen
+  if(d3.select(".graph[graph='"+node.group+"']").selectAll("g").empty()) // If this node is last node in this graph
   {
-    d3.select(".graph[graph='"+node.group+"']").remove();
-    d3.select("#moveButton[graph='"+node.group+"']").remove();
+    d3.select(".graph[graph='"+node.group+"']").remove(); // Remove the graph
+    d3.select("#moveButton[graph='"+node.group+"']").remove(); // Remove the moveButton
   }else{
-    d3.select(".graph[graph='"+node.group+"']").selectAll("g")
+    d3.select(".graph[graph='"+node.group+"']").selectAll("g") // Update the bounding data
       .data(nodes);
-    var newGraph = ConnectedGraphDetect.connectedGraphDetect(graph);
+    var newGraph = ConnectedGraphDetect.connectedGraphDetect(graph); // New graph can be formed
     var maxGraphNumber = Number.MIN_VALUE;
     len = graphArray.length;
+    // Find maximum graph number
     for(i = 0; i < len; i++)
     {
       if(graphArray[i].groupnumber > maxGraphNumber)
@@ -1121,12 +1203,15 @@ function handler1()
     }
     var a;
     len = newGraph.length;
+    // Seperate not connected graph
     for(i = 1; i < len; i++)
     {
-      a = {"nodes":[], "links":[], "groupnumber": maxGraphNumber+i};
+      a = {"nodes":[], "links":[], "groupnumber": maxGraphNumber+i}; // New graph
+      // Check all nodes
       for(j = 0; j < graph.nodes.length; j++)
       {
-        if(graph.nodes[j].group == i+1){
+        if(graph.nodes[j].group == i+1) // If this node belongs to other graph
+        {
           graph.nodes[j].group = maxGraphNumber+i;
           a.nodes.push(graph.nodes[j]);
           d3.select(".graph[graph='"+group+"']").select("g#name"+graph.nodes[j].id)
@@ -1135,9 +1220,11 @@ function handler1()
           j--;
         }
       }
+      // Check all links
       for(var k = 0; k < graph.links.length; k++)
       {
-        if(graph.links[k].group == i+1){
+        if(graph.links[k].group == i+1) // If this links belongs to other graph
+        {
           graph.links[k].group = maxGraphNumber+i;
           a.links.push(graph.links[k]);
           d3.select(".graph[graph='"+group+"']").select("line[from='"+graph.links[k].from+"'][to='"+graph.links[k].to+"']")
@@ -1146,7 +1233,8 @@ function handler1()
           k--;
         }
       }
-      graphArray.push(a);
+      graphArray.push(a); // Add the new graph graphArray
+      // Move DOM element to the new graph DOM element
       var newGraphNodes = d3.select(".graph[graph='"+group+"']").selectAll("g[graph='"+(maxGraphNumber+i)+"']")
         .data(a.nodes)
         .remove();
@@ -1168,22 +1256,27 @@ function handler1()
       });
     }
     len = graph.nodes.length;
+    // Correct graph number of original graph
     for(i = 0; i < len; i++)
     {
       if(graph.nodes[i].group == 1)
       {
-        graph.nodes[i].group == group;
+        graph.nodes[i].group = group;
       }
     }
+    // Bound data to all graphs and calculate center and radius of each new graph, also add moveButton for each new graph
     d3.selectAll(".graph")
       .data(graphArray)
       .each(function(d,i){
-        if(graphArrayCoordinate.graphs[i] === undefined)
+        if(graphArrayCoordinate.graphs[i] === undefined) // If it is new graph
         {
+          // Calculate center and radius of graph
           var bbox = this.getBBox();
           var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
           graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
                                             "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": d.groupnumber});
+
+          // Add moveButton
           container.append("circle")
                   .attr("id", "moveButton")
                   .attr("cx", bbox.x+r/2)
@@ -1193,6 +1286,7 @@ function handler1()
                   .attr("graph", d.groupnumber)
                   .call(dragGraph);
         }else{
+          // Update center and radius of graph
           var bbox = this.getBBox();
           var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
           graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
@@ -1201,6 +1295,7 @@ function handler1()
           graphArrayCoordinate.graphs[i].old_y = bbox.y+bbox.height/2;
           graphArrayCoordinate.graphs[i].halfDigonal = halfDigonal;
           graphArrayCoordinate.graphs[i].graph = d.groupnumber;
+          // Update moveButton
           d3.select("#moveButton[graph='"+d.groupnumber+"']")
             .attr("cx", bbox.x+r/2)
             .attr("cy", bbox.y+r/2);
@@ -1210,9 +1305,10 @@ function handler1()
 }
 window.handler1 = handler1;
 
+// Called when user pressed delete beside Delete link
 function handler2()
 {
-  force.stop();
+  force.stop(); // Stop force algorithm
   var fromLabel = document.getElementById("deleteFrom").value;
   var toLabel = document.getElementById("deleteTo").value;
   document.getElementById("deleteFrom").value = null;
@@ -1224,6 +1320,7 @@ function handler2()
   var graph;
   var len = graphArray.length;
   var len1;
+  // Find node id of starting and ending point link
   for(var i = 0; i < len; i++)
   {
     len1 = graphArray[i].nodes.length;
@@ -1240,6 +1337,14 @@ function handler2()
     }
   }
 
+  // If one of them does not exist
+  if(fromId === undefined || toId === undefined)
+  {
+    alert("Edge does not exist!");
+    return;
+  }
+
+  // Get the graph data
   len = graphArray.length;
   for(i = 0; i < len; i++)
   {
@@ -1249,6 +1354,15 @@ function handler2()
       break;
     }
   }
+
+  // If one of them is dummy
+  if(helpFunctions.getNodeById(fromId, graph.nodes).isDummy || helpFunctions.getNodeById(toId, graph.nodes).isDummy)
+  {
+    alert("Edge does not exist!");
+    return;
+  }
+
+  // Find that link and delete it from data
   len = graph.links.length;
   var edge;
   for(i = 0; i < len; i++)
@@ -1259,34 +1373,39 @@ function handler2()
       break;
     }
   }
-  if(edge === undefined)
+
+  if(edge === undefined) // If link does not exist
   {
-    var path = helpFunctions.modifiedDFS(helpFunctions.getNodeById(fromId, graph.nodes), helpFunctions.getNodeById(toId, graph.nodes), graph, undefined);
+    var path = helpFunctions.modifiedDFS(helpFunctions.getNodeById(fromId, graph.nodes), helpFunctions.getNodeById(toId, graph.nodes), graph, undefined); // Check for dummyNode path
     len = path.length;
-    if(len > 0)
+    if(len > 0) // If we have dummyNode path
     {
+      // Delete every dummyNode in that path
       for(i = 0; i < len; i++)
       {
         deleteNode(path[i], group, graph);
       }
-    }else{
+    }else{ // Link does not exist
       alert("Edge does not exist!");
+      return;
     }
-  }else{
-
-    var newGraph = ConnectedGraphDetect.connectedGraphDetect(graph);
+  }else{ // It was link between two node
+    var newGraph = ConnectedGraphDetect.connectedGraphDetect(graph); // Controlling if graph is stil connected
 
     var maxGraphNumber = Number.MIN_VALUE;
-    if(newGraph.length == 1)
+    if(newGraph.length == 1) // Graph is stil in one piece
     {
+      // Just delete the link and update bounding data
       d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
       d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
         .data(graph.links);
-    }else{
+    }else{ // New graph was formed, graph is not connected anymore
+      // Delete the link and update bounding data
       d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
       d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
         .data(graph.links);
       len = graphArray.length;
+      // Find next graph number
       for(i = 0; i < len; i++)
       {
         if(graphArray[i].groupnumber > maxGraphNumber)
@@ -1296,6 +1415,7 @@ function handler2()
       }
       maxGraphNumber++;
       var a = {"nodes":[], "links": [], "groupnumber": maxGraphNumber};
+      // Find every nodes in the new graph
       for(i = 0; i < graph.nodes.length; i++)
       {
         if(graph.nodes[i].group == 1)
@@ -1310,6 +1430,8 @@ function handler2()
           i--;
         }
       }
+
+      // Find every links in the new graph
       for(i = 0; i < graph.links.length; i++)
       {
         if(graph.links[i].group == 1)
@@ -1324,7 +1446,8 @@ function handler2()
           i--;
         }
       }
-      graphArray.push(a);
+      graphArray.push(a); // Update graphArray
+      // Move new graph to new graoh DOM element
       var newGraphNodes = d3.select(".graph[graph='"+group+"']").selectAll("g[graph='"+maxGraphNumber+"'], line[graph='"+maxGraphNumber+"']")
         .data(a.nodes)
         .remove();
@@ -1344,15 +1467,19 @@ function handler2()
           .node()
           .appendChild(this);
       });
+      // Bound data to all graphs and calculate center and radius of each new graph, also add moveButton for each new graph
       d3.selectAll(".graph")
         .data(graphArray)
         .each(function(d,i){
-          if(graphArrayCoordinate.graphs[i] === undefined)
+          if(graphArrayCoordinate.graphs[i] === undefined) // If it is new graph
           {
+            // Calculate radius and center for the new graph
             var bbox = this.getBBox();
             var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
             graphArrayCoordinate.graphs.push({"x": bbox.x+bbox.width/2, "y": bbox.y+bbox.height/2,
                                               "old_x": bbox.x+bbox.width/2, "old_y": bbox.y+bbox.height/2, "halfDigonal": halfDigonal, "graph": maxGraphNumber});
+
+            // Add moveButton
             container.append("circle")
                       .attr("id", "moveButton")
                       .attr("cx", bbox.x+r/2)
@@ -1362,6 +1489,7 @@ function handler2()
                       .attr("graph", d.groupnumber)
                       .call(dragGraph);
           }else{
+            // Update radius and center for the new graph
             var bbox = this.getBBox();
             var halfDigonal = Math.sqrt(bbox.width * bbox.width + bbox.height * bbox.height)/2;
             graphArrayCoordinate.graphs[i].x = bbox.x+bbox.width/2;
@@ -1380,21 +1508,23 @@ function handler2()
 }
 window.handler2 = handler2;
 
+// Delete node from screen and from data
 function deleteNode(node, group, graph)
 {
-  var outgoingEdges = helpFunctions.outgoing(node, graph.links);
+  var outgoingEdges = helpFunctions.outgoing(node, graph.links); // All outgoing links from this node
   var len = outgoingEdges.length;
   for(var i = 0; i < len; i++)
   {
-    deleteLink(outgoingEdges[i].from, outgoingEdges[i].to, group, graph);
+    deleteLink(outgoingEdges[i].from, outgoingEdges[i].to, group, graph); // Delete this link
   }
-  var ingoingEdges = helpFunctions.ingoing(node, graph.links);
+  var ingoingEdges = helpFunctions.ingoing(node, graph.links); // All ingoing links to this node
   len = ingoingEdges.length;
   for(i = 0; i < len; i++)
   {
-    deleteLink(ingoingEdges[i].from, ingoingEdges[i].to, group, graph);
+    deleteLink(ingoingEdges[i].from, ingoingEdges[i].to, group, graph); // Delete this link
   }
 
+  // Find this node and delete it from data
   var found = false;
   len = graphArray.length;
   for(i = 0; i < len; i++)
@@ -1418,6 +1548,7 @@ function deleteNode(node, group, graph)
       break;
     }
   }
+  // Delete it from screen and check if the graph is now empty or not
   d3.select(".graph[graph='"+node.group+"']").select("g#name"+node.id).remove();
   if(d3.select(".graph[graph='"+node.group+"']").selectAll("g").empty())
   {
@@ -1428,10 +1559,12 @@ function deleteNode(node, group, graph)
   }
 }
 
+// Delete link from screen and from data
 function deleteLink(fromId, toId, group, graph)
 {
   var len = graph.links.length;
   var edge;
+  // Find this link from data
   for(var i = 0; i < len; i++)
   {
     if(graph.links[i].from == fromId && graph.links[i].to == toId)
@@ -1440,27 +1573,29 @@ function deleteLink(fromId, toId, group, graph)
       break;
     }
   }
-  if(edge === undefined)
+  if(edge === undefined) // If we do not find this link
   {
-    var path = helpFunctions.modifiedDFS(helpFunctions.getNodeById(fromId, graph.nodes), helpFunctions.getNodeById(toId, graph.nodes), graph, undefined);
+    var path = helpFunctions.modifiedDFS(helpFunctions.getNodeById(fromId, graph.nodes), helpFunctions.getNodeById(toId, graph.nodes), graph, undefined); // Check for dummyNode path
     len = path.length;
-    if(len > 0)
+    if(len > 0) // If we have dummyNode path
     {
+      // Delete every dummyNode in this path
       for(i = 0; i < len; i++)
       {
         deleteNode(path[i], group, graph);
       }
-    }else{
+    }else{ // Otherwise this link does not exist
       alert("Edge does not exist!");
     }
   }else{
-
+    // Just delete link from screen and update bounding data
     d3.selectAll(".graph[graph='"+group+"']").select("line[from='"+fromId+"'][to='"+toId+"']").remove();
     d3.selectAll(".graph[graph='"+group+"']").selectAll("line")
       .data(graph.links);
   }
 }
 
+// Resume force algorithm when "Start animation" is pressed
 function resume()
 {
   force
@@ -1469,26 +1604,28 @@ function resume()
 }
 window.resume = resume;
 
+// Stop force algorithm when "Stop animation" is pressed
 function stop()
 {
   force.stop();
 }
 window.stop = stop;
 
+// Read graph data from DOM element (Does not work with box)
 function getGraphFromScreen()
 {
-  var graph = {"nodes": [], "links": []};
-  var subGraph = {"nodes": [], "links": []};
+  var graph = {"nodes": [], "links": []}; // All nodes and links
+  var subGraph = {"nodes": [], "links": []}; // Nodes and links in one graph
   d3.selectAll(".graph").each(function(){
     d3.select(this).selectAll("g").each(function(d){
-      if(!d.isDummy)
+      if(!d.isDummy) // Store all none dummyNode
       {
         subGraph.nodes.push({"id": d.id, "label": d.label});
         graph.nodes.push({"id": d.id, "label": d.label});
       }
     });
     d3.select(this).selectAll("line").each(function(d){
-      subGraph.links.push({"from": d.from, "to": d.to});
+      subGraph.links.push({"from": d.from, "to": d.to}); // Store all links
     });
     var len = subGraph.nodes.length;
     var len1;
@@ -1496,15 +1633,16 @@ function getGraphFromScreen()
     var edges;
     var fromId;
     var toId;
+    // Links can be part of dummyNode path, needs to find final endpoint
     for(var i = 0; i < len; i++)
     {
-      edges = helpFunctions.outgoing(subGraph.nodes[i], subGraph.links);
+      edges = helpFunctions.outgoing(subGraph.nodes[i], subGraph.links); // Outgoing links of each none dummyNode
       len1 = edges.length;
       for(var j = 0; j < len1; j++)
       {
         fromId = edges[j].from;
         toId = edges[j].to;
-        while(helpFunctions.getNodeById(toId, subGraph.nodes) === null)
+        while(helpFunctions.getNodeById(toId, subGraph.nodes) === null) // If we do not find toId node, means toId node is dummy, continue in this path
         {
           for(var k = 0; k < len2; k++)
           {
@@ -1515,73 +1653,83 @@ function getGraphFromScreen()
             }
           }
         }
-        graph.links.push({"from": fromId, "to": toId});
+        graph.links.push({"from": fromId, "to": toId}); // Add correct link to graph
       }
     }
-    subGraph = {"nodes": [], "links": []};
+    subGraph = {"nodes": [], "links": []}; // Reset subGraph
   });
-  return graph;
+  return graph; // Return the graph readed from graph DOM element
 }
 
+// Redraws all graphs when "Redraw graphs" is pressed
 function redraw()
 {
-  force.stop();
-  var graph = getGraphFromScreen();
-  d3.select("#graph").selectAll("*").remove();
-  boxGraphs = BoxGraphController.getBoxGraph(graph);
-  graphArray = Main.main(graph);
-  boxGraphs = boxSugiyama(boxGraphs);
-  calculateScreenSizeAndScale()
-  calculateInitialScreenPosition();
+  force.stop(); // Stop force algorithm
+  var graph = getGraphFromScreen(); // Get all graphs from screen
+  d3.select("#graph").selectAll("*").remove(); // Remove all graphs from screen
+  boxGraphs = BoxGraphController.getBoxGraph(graph); // Extract all boxes from graph and replace each box to fake node
+  graphArray = Main.main(graph); // Sugiyama method for all graphs
+  boxGraphs = boxSugiyama(boxGraphs); // Sugiyama method for all boxes
+  calculateScreenSizeAndScale() // Set screen size and calculate scale based on widest and highest graph
+  calculateInitialScreenPosition(); // Calculate initial position of each nodes on screen based on scale
 
+  // SVG element
   svg = d3.select('#graph').append('svg')
     .attr('width', width)
     .attr('height', height)
     .append("g")
       .call(zoom);
   rect = svg.append("rect")
-              .attr("width", width)
-              .attr("height", height)
-              .style("fill", "none")
-              .style("pointer-events", "all");
+                  .attr("width", width)
+                  .attr("height", height)
+                  .style("fill", "none")
+                  .style("pointer-events", "all");
   container = svg
-                .append("g");
+                    .append("g");
+
+  // Arrow image
   container.append('defs').append('marker')
-    .attr("id", 'markerArrowEnd') // ID of marker
-    .attr("viewBox", "0 -5 10 10") // minX, minY, width and height of viewBox
-    .attr("refX", 10) // Position where marker connect to the vertex
-    .attr("refY", 0) // Position where marker connect to the vertex
-    .attr("markerWidth", 8) // The width of marker
-    .attr("markerHeight", 8) // The height of marker
-    .attr("orient", "auto") // Rotation of marker
-    .append("path") // Used to draw line
-      .attr("d", 'M0,-5 L10,0 L0,5') // Draw triangle
-      .attr('fill', 'black'); // Fill the triangle
+    .attr("id", 'markerArrowEnd')
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 10)
+    .attr("refY", 0)
+    .attr("markerWidth", 8)
+    .attr("markerHeight", 8)
+    .attr("orient", "auto")
+    .append("path")
+      .attr("d", 'M0,-5 L10,0 L0,5')
+      .attr('fill', 'black');
 
-  drawGraph();
-  drawBox();
-  moveBoxToCorrectPosition();
-  modifyLinks();
-  graphArrayCoordinate = {"graphs": [], "links": []};
-  graphAsNode();
+  drawGraph(); // Draw all graphs on screen
+  drawBox(); // Draw all boxes on screen
+  moveBoxToCorrectPosition(); // Replace now fake node with corresponding box
+  modifyLinks(); // Update visualization of links
+  graphArrayCoordinate = {"graphs": [], "links": []}; // Array of center of each graph
+  graphAsNode(); // Calculate center and radius of each graph, used in force algorithm
 
+  // Setting up force
   force = d3.layout.force()
                 .size([width, height])
-                .friction(0.7)
+                .friction(0.5) // Slow down the animation
                 .on("tick", tick);
+
+  // See every graph as big node and start force to position every graph nicely
   force
     .nodes(graphArrayCoordinate.graphs)
     .start();
 }
 window.redraw = redraw;
 
+// Release all graphs when "Release all graphs" is pressed
 function release()
 {
   var len = graphArrayCoordinate.graphs.length;
+  // Set fixed to false for every graph
   for(var i = 0; i < len; i++)
   {
     graphArrayCoordinate.graphs[i].fixed = false;
   }
+  // Start the force algorithm again
   force
     .nodes(graphArrayCoordinate.graphs)
     .start();
