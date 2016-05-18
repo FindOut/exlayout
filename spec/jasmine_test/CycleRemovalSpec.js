@@ -1,6 +1,7 @@
 var CycleRemoval = require("../../app/js/CycleRemoval.js");
+var helpFunctions = require("../../app/js/helpFunctions.js");
 
-describe("Black box test for CycleRemoval", function(){
+describe("Test for CycleRemoval", function(){
   it("Simple graph which is DAG", function() {
     var graph = {
       "nodes": [
@@ -14,7 +15,7 @@ describe("Black box test for CycleRemoval", function(){
       ]
     };
     CycleRemoval.cycleRemoval(graph);
-    expect(CycleRemoval.testDAG(graph)).toBe(true);
+    expect(helpFunctions.testDAG(graph)).toBe(true);
   });
 
   it("Simple graph which is not DAG", function() {
@@ -31,7 +32,7 @@ describe("Black box test for CycleRemoval", function(){
       ]
     };
     CycleRemoval.cycleRemoval(graph);
-    expect(CycleRemoval.testDAG(graph)).toBe(true);
+    expect(helpFunctions.testDAG(graph)).toBe(true);
   });
 
   it("Bigger graph which is DAG", function() {
@@ -58,7 +59,7 @@ describe("Black box test for CycleRemoval", function(){
       ]
     };
     CycleRemoval.cycleRemoval(graph);
-    expect(CycleRemoval.testDAG(graph)).toBe(true);
+    expect(helpFunctions.testDAG(graph)).toBe(true);
   });
 
   it("Bigger graph which is not DAG", function() {
@@ -86,7 +87,7 @@ describe("Black box test for CycleRemoval", function(){
       ]
     };
     CycleRemoval.cycleRemoval(graph);
-    expect(CycleRemoval.testDAG(graph)).toBe(true);
+    expect(helpFunctions.testDAG(graph)).toBe(true);
   });
 
   it("Even bigger graph which is not DAG", function() {
@@ -119,6 +120,6 @@ describe("Black box test for CycleRemoval", function(){
       ]
     };
     CycleRemoval.cycleRemoval(graph);
-    expect(CycleRemoval.testDAG(graph)).toBe(true);
+    expect(helpFunctions.testDAG(graph)).toBe(true);
   });
 });

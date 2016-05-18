@@ -1,7 +1,7 @@
 var VertexOrdering = require("../../app/js/VertexOrdering.js");
 var LongestPath = require("../../app/js/LongestPath.js");
 
-describe("Test VertexOrdering", function(){
+describe("Test for VertexOrdering", function(){
   it("Test if vertex has order", function(){
     var graph = {
       "nodes": [

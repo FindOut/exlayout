@@ -23,9 +23,10 @@ var CycleRemoval = require("../../app/js/CycleRemoval.js");
 var LongestPath = require("../../app/js/LongestPath.js");
 var VertexOrdering = require("../../app/js/VertexOrdering.js");
 var XcoordinateAssigment = require("../../app/js/XcoordinateAssignment.js");
+var helpFunctions = require("../../app/js/helpFunctions.js");
 var Sugiyama = require("../../app/js/Sugiyama.js");
-
 var Initialize = require("../../app/js/Initialize.js");
+
 describe("Sugiyama integration test", function(){
   it("Test rate of reduced crossing", function(){
     var graph = {
@@ -51,9 +52,9 @@ describe("Sugiyama integration test", function(){
     }
     var leastRate = 0.2;
     Initialize.initialize(graph);
-    var originalCrossing = VertexOrdering.getTotalCrossing(graph);
+    var originalCrossing = helpFunctions.getTotalCrossing(graph);
     Sugiyama.sugiyama(graph);
-    var reducedCrossing = VertexOrdering.getTotalCrossing(graph);
+    var reducedCrossing = helpFunctions.getTotalCrossing(graph);
     var reducingRate = reducedCrossing/originalCrossing;
     expect(reducingRate).not.toBeLessThan(leastRate);
   });
@@ -111,10 +112,10 @@ describe("Sugiyama integration test", function(){
       if(graph.nodes[i].isDummy == true)
       {
         var dummynode = graph.nodes[i];
-        var ingoingEdges = CycleRemoval.ingoing(dummynode, graph.links);
-        var fatherOfDummy = CycleRemoval.getNodeById(ingoingEdges[0].from, graph.nodes);
-        var outgoingEdges = CycleRemoval.outgoing(dummynode, graph.links);
-        var childOfDummy = CycleRemoval.getNodeById(outgoingEdges[0].to, graph.nodes);
+        var ingoingEdges = helpFunctions.ingoing(dummynode, graph.links);
+        var fatherOfDummy = helpFunctions.getNodeById(ingoingEdges[0].from, graph.nodes);
+        var outgoingEdges = helpFunctions.outgoing(dummynode, graph.links);
+        var childOfDummy = helpFunctions.getNodeById(outgoingEdges[0].to, graph.nodes);
         var x = Math.sqrt(Math.pow((dummynode.x - fatherOfDummy.x), 2) + Math.pow((dummynode.rank - fatherOfDummy.rank), 2));
         var z = Math.sqrt(Math.pow((dummynode.x - childOfDummy.x), 2) + Math.pow((dummynode.rank - childOfDummy.rank), 2));
         var y = Math.sqrt(Math.pow((fatherOfDummy.x - childOfDummy.x), 2) + Math.pow((fatherOfDummy.rank - childOfDummy.rank), 2));
@@ -122,11 +123,7 @@ describe("Sugiyama integration test", function(){
         expect(angelOfbend).not.toBeLessThan(Math.PI/2);
       }
     }
-
-
   });
-
-
 
   function getArea(graph){
     var maxX = Number.MIN_VALUE;
@@ -154,15 +151,4 @@ describe("Sugiyama integration test", function(){
     var height = maxY-minY;
     return width*height;
   }
-
-
-
-
-
-
-
-
-
-
-
 });

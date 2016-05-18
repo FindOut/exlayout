@@ -1,7 +1,7 @@
 var LongestPath = require("../../app/js/LongestPath.js");
 
-describe("White box test for LongestPath", function(){
-  it("Test proper dummy", function(){
+describe("Test all functions in LongestPath", function(){
+  it("Test addDummy function", function(){
     var graph = {
       "nodes": [
         {"id": 1, "label": "A", "rank": 4, "isDummy": false},
@@ -35,7 +35,7 @@ describe("White box test for LongestPath", function(){
     }
   });
 
-  it("Test promote one vertex", function(){
+  it("Test promoteVertex function", function(){
     var graph = {
       "nodes": [
         {"id": 1, "label": "A", "rank": 4, "isDummy": false},
@@ -70,7 +70,7 @@ describe("White box test for LongestPath", function(){
       (diff).toBeLessThan(0);
   });
 
-  it("Test promote of graph", function(){
+  it("Test vertexPromotion function", function(){
     var graph = {
       "nodes": [
         {"id": 1, "label": "A", "rank": 4, "isDummy": false},

@@ -1,8 +1,7 @@
-var CycleRemoval = require("../../app/js/CycleRemoval.js");
 var LongestPath = require("../../app/js/LongestPath.js");
-var Initialize = require("../../app/js/Initialize.js");
+var helpFunctions = require("../../app/js/helpFunctions.js");
 
-describe("Black box test for LongestPath", function(){
+describe("Test for LongestPath", function(){
   it("Test uniform direction in layer", function(){
     var graph = {
       "nodes": [
@@ -30,8 +29,8 @@ describe("Black box test for LongestPath", function(){
     for(var i = 0; i < len; i++)
     {
       expect
-      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
-        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
+      (helpFunctions.getNodeById(graph.links[i].from, graph.nodes).rank -
+        helpFunctions.getNodeById(graph.links[i].to, graph.nodes).rank)
         .not.toBeLessThan(1);
     }
   });
@@ -72,8 +71,8 @@ describe("Black box test for LongestPath", function(){
     for(var i = 0; i < len; i++)
     {
       expect
-      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
-        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
+      (helpFunctions.getNodeById(graph.links[i].from, graph.nodes).rank -
+        helpFunctions.getNodeById(graph.links[i].to, graph.nodes).rank)
         .not.toBeLessThan(1);
     }
   });
@@ -132,8 +131,8 @@ describe("Black box test for LongestPath", function(){
     for(var i = 0; i < len; i++)
     {
       expect
-      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
-        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
+      (helpFunctions.getNodeById(graph.links[i].from, graph.nodes).rank -
+        helpFunctions.getNodeById(graph.links[i].to, graph.nodes).rank)
         .not.toBeLessThan(1);
     }
   });
@@ -165,8 +164,8 @@ describe("Black box test for LongestPath", function(){
     for(var i = 0; i < len; i++)
     {
       expect
-      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
-        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
+      (helpFunctions.getNodeById(graph.links[i].from, graph.nodes).rank -
+        helpFunctions.getNodeById(graph.links[i].to, graph.nodes).rank)
         .toBe(1);
     }
   });
@@ -208,8 +207,8 @@ describe("Black box test for LongestPath", function(){
     for(var i = 0; i < len; i++)
     {
       expect
-      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
-        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
+      (helpFunctions.getNodeById(graph.links[i].from, graph.nodes).rank -
+        helpFunctions.getNodeById(graph.links[i].to, graph.nodes).rank)
         .toBe(1);
     }
   });
@@ -268,8 +267,8 @@ describe("Black box test for LongestPath", function(){
     for(var i = 0; i < len; i++)
     {
       expect
-      (CycleRemoval.getNodeById(graph.links[i].from, graph.nodes).rank -
-        CycleRemoval.getNodeById(graph.links[i].to, graph.nodes).rank)
+      (helpFunctions.getNodeById(graph.links[i].from, graph.nodes).rank -
+        helpFunctions.getNodeById(graph.links[i].to, graph.nodes).rank)
         .toBe(1);
     }
   });
