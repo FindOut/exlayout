@@ -10,23 +10,19 @@ with layer difference bigger than 1.
 // Exports functions
 exports.layering = function(graph){
   return layering(graph);
-}
-
+};
 exports.addDummy = function(graph){
   return addDummy(graph);
-}
-
+};
 exports.promoteVertex = function(node, graph){
   return promoteVertex(node, graph);
-}
-
+};
 exports.vertexPromotion = function(graph){
   return vertexPromotion(graph);
-}
-
+};
 
 // Import module
-var CycleRemoval = require("./CycleRemoval");
+var helpFunctions = require("./helpFunctions.js");
 
 // Calculate rank property for each node and add dummyNode and dummyLink if
 // necessary. Inputs DAG, outputs layred DAG
@@ -36,10 +32,10 @@ function layering(graph)
   var maxRank = -1;
   var currentRank;
   var len;
-  var sortedVertex = CycleRemoval.topologicalOrder(graph);
+  var sortedVertex = helpFunctions.topologicalOrder(graph);
   for(var i = sortedVertex.length-1; i >= 0; i--)
   {
-    edges = CycleRemoval.outgoing(sortedVertex[i], graph.links);
+    edges = helpFunctions.outgoing(sortedVertex[i], graph.links);
     len = edges.length;
     if(len == 0)
     {
@@ -47,7 +43,7 @@ function layering(graph)
     }else{
       for(var j = 0; j < len; j++)
       {
-        currentRank = CycleRemoval.getNodeById(edges[j].to, sortedVertex).rank;
+        currentRank = helpFunctions.getNodeById(edges[j].to, sortedVertex).rank;
         if(currentRank > maxRank)
         {
           maxRank = currentRank;
@@ -87,13 +83,13 @@ function addDummy(graph)
   for(i = 0; i < graph.links.length; i++)
   {
     link = (JSON.parse(JSON.stringify(graph.links[i])));
-    node = CycleRemoval.getNodeById(link.to, graph.nodes);
-    diff = CycleRemoval.getNodeById(link.from, graph.nodes).rank - node.rank;
+    node = helpFunctions.getNodeById(link.to, graph.nodes);
+    diff = helpFunctions.getNodeById(link.from, graph.nodes).rank - node.rank;
     isReversed = link.isReversed;
     group = link.group;
     if(diff > 1) //distance between two nodes is longer than 1, dummyNode will be added
     {
-      CycleRemoval.deleteLinks([link], graph.links);
+      helpFunctions.deleteLinks([link], graph.links);
       i--;
       dummyNode = {"id": ++max, "label": "", "group": group, "rank": node.rank+1, "order": 0, "isDummy": true};
       dummyLink = {"from": max, "to": link.to, "group": group, "ismark": false, "isReversed": isReversed};
@@ -116,12 +112,12 @@ function addDummy(graph)
 function promoteVertex(node, graph)
 {
   var dummyDiff = 0;
-  var neighbor = CycleRemoval.ingoing(node, graph.links);
+  var neighbor = helpFunctions.ingoing(node, graph.links);
   var len = neighbor.length;
   var v;
   for(var i = 0; i < len; i++)
   {
-    v = CycleRemoval.getNodeById(neighbor[i].from, graph.nodes);
+    v = helpFunctions.getNodeById(neighbor[i].from, graph.nodes);
     if(v.rank == node.rank+1)
     {
       dummyDiff = dummyDiff + promoteVertex(v, graph);
@@ -129,8 +125,8 @@ function promoteVertex(node, graph)
   }
   node.rank = node.rank + 1;
   dummyDiff = dummyDiff -
-  CycleRemoval.ingoing(node, graph.links).length +
-  CycleRemoval.outgoing(node, graph.links).length;
+  helpFunctions.ingoing(node, graph.links).length +
+  helpFunctions.outgoing(node, graph.links).length;
   return dummyDiff;
 }
 
@@ -146,7 +142,7 @@ function vertexPromotion(graph)
     promotions = 0;
     for(var i = 0; i < len; i++)
     {
-      if(CycleRemoval.ingoing(graph.nodes[i], graph.links).length > 0)
+      if(helpFunctions.ingoing(graph.nodes[i], graph.links).length > 0)
       {
         if(promoteVertex(graph.nodes[i], graph) < 0)
         {

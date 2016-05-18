@@ -17,10 +17,13 @@ DFS(G,v)   ( v is the vertex where the search starts )
          end while
       END DFS()
 **********************************************************************************/
+
 exports.connectedGraphDetect = function(graph){
       return connectedGraphDetect(graph);
 };
-var CycleRemoval = require("./CycleRemoval.js");
+
+var helpFunctions = require("./helpFunctions.js");
+
 function connectedGraphDetect(graph)
 {
   var Nodes = graph.nodes;
@@ -58,25 +61,25 @@ function connectedGraphDetect(graph)
         u.group = groupnumber; // set group number
         conter++; //total visited node conter
         //console.log(Edges);
-        var outgoingEdges = CycleRemoval.outgoing(u, Edges);  //find all the outgoing edges of node u
+        var outgoingEdges = helpFunctions.outgoing(u, Edges);  //find all the outgoing edges of node u
         for(var j = 0; j < outgoingEdges.length; j++)
         {
           var index = outgoingEdges[j].to;
           outgoingEdges[j].group = groupnumber;
           if(!visited[index-1]) //check if neighbour node is unvisited, do this while loop again
           {
-            S.push(CycleRemoval.getNodeById(index, Nodes));
+            S.push(helpFunctions.getNodeById(index, Nodes));
           }
         }
 
-        var ingoingEdges = CycleRemoval.ingoing(u, Edges);  //find all the outgoing edges of node u
+        var ingoingEdges = helpFunctions.ingoing(u, Edges);  //find all the ingoing edges of node u
         for(var j = 0; j < ingoingEdges.length; j++)
         {
           var index = ingoingEdges[j].from;
           ingoingEdges[j].group = groupnumber;
           if(!visited[index-1]) //check if neighbour node is unvisited, do this while loop again
           {
-            S.push(CycleRemoval.getNodeById(index, Nodes));
+            S.push(helpFunctions.getNodeById(index, Nodes));
           }
         }
       }

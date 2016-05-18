@@ -9,13 +9,9 @@ After each sorting we run the transpose function to reduce crossing that are
 obvious. The algorithm runs until upwardSorting and downwardSorting can not
 reduce number of crossing furhter.
 *******************************************************************************/
-var CycleRemoval = require("./CycleRemoval.js");
 
 exports.vertexOrdering = function(graph){
   return vertexOrdering(graph);
-};
-exports.getLayer = function(graph, layer){
-  return getLayer(graph, layer);
 };
 exports.setInitialOrder = function(graph){
   setInitialOrder(graph);
@@ -29,18 +25,8 @@ exports.downwardSorting = function(graph){
 exports.transpose = function(graph){
   transpose(graph);
 };
-exports.getNodeCrossing = function(node1, node2, graph){
-  return getNodeCrossing(node1, node2, graph);
-};
-exports.getLayerCrossing = function(layer, graph){
-  return getLayerCrossing(layer, graph);
-};
-exports.getTotalCrossing = function(graph){
-  return getTotalCrossing(graph);
-};
-exports.getTotalCrossing = function(graph){
-  return getTotalCrossing(graph);
-};
+
+var helpFunctions = require("./helpFunctions.js");
 
 // This function calculates order each node in every layer
 function vertexOrdering(graph)
@@ -52,43 +38,43 @@ function vertexOrdering(graph)
   var layer;
   var copyGraph;
   setInitialOrder(graph); // Give initial order to every nodes
-  a = getTotalCrossing(graph); // Get total crossing of the graph before improvement
+  a = helpFunctions.getTotalCrossing(graph); // Get total crossing of the graph before improvement
   do{
 
-    before = getTotalCrossing(graph); // Total crossing before each upwardSorting
+    before = helpFunctions.getTotalCrossing(graph); // Total crossing before each upwardSorting
     copyGraph = upwardSorting(graph); // Sort the graph upward using median method
-    efter = getTotalCrossing(copyGraph); // Total crossing after each upwardSorting
+    efter = helpFunctions.getTotalCrossing(copyGraph); // Total crossing after each upwardSorting
     if(efter < before) // If we reduced crossing
     {
       graph = copyGraph; // Set graph order to the new one
     }
     transpose(graph); // Check for obvious crossing minimization
-    if(getTotalCrossing(graph) < efter) // If we reduced crossing
+    if(helpFunctions.getTotalCrossing(graph) < efter) // If we reduced crossing
     {
-      efter = getTotalCrossing(graph); // Total crossing after sorting and transpose function
+      efter = helpFunctions.getTotalCrossing(graph); // Total crossing after sorting and transpose function
     }
 
     copyGraph = downwardSorting(graph); // Sort the graph downward using median method
-    if(getTotalCrossing(copyGraph) < efter) // If we reduced crossing
+    if(helpFunctions.getTotalCrossing(copyGraph) < efter) // If we reduced crossing
     {
       graph = copyGraph; // Set graph order to the new one
     }
-    efter = getTotalCrossing(copyGraph); // Total crossing after each downwardSorting
+    efter = helpFunctions.getTotalCrossing(copyGraph); // Total crossing after each downwardSorting
     transpose(graph); // Check for obvios crossing minimization
-    if(getTotalCrossing(graph) < efter) // If we reduced crossing
+    if(helpFunctions.getTotalCrossing(graph) < efter) // If we reduced crossing
     {
-      efter = getTotalCrossing(graph); // Total crossing after sorting and transpose function
+      efter = helpFunctions.getTotalCrossing(graph); // Total crossing after sorting and transpose function
     }
 
   }while(before != efter) // Continue crossing reduction while we can imporve the graph
-  return a - getTotalCrossing(graph); // Return total number of minimized crossing for the algorithm
+  return a - helpFunctions.getTotalCrossing(graph); // Return total number of minimized crossing for the algorithm
 }
 
 // setInitialOrder is an upwardSorting but first layers order is set to be random
 function setInitialOrder(graph){
   var currentRank = 1;
-  var layer1 = getLayer(graph, currentRank);
-  var layer2 = getLayer(graph, ++currentRank);
+  var layer1 = helpFunctions.getLayer(graph, currentRank);
+  var layer2 = helpFunctions.getLayer(graph, ++currentRank);
   var edges;
   var len1 = layer1.length;
   var len2;
@@ -102,11 +88,11 @@ function setInitialOrder(graph){
   len2 = layer2.length;
   for(i = 0; i < len2; i++)
   {
-    edges = CycleRemoval.outgoing(layer2[i], graph.links);
+    edges = helpFunctions.outgoing(layer2[i], graph.links);
     len1 = edges.length;
     for(var j = 0; j < len1; j++)
     {
-      position.push(CycleRemoval.getNodeById(edges[j].to, graph.nodes).order);
+      position.push(helpFunctions.getNodeById(edges[j].to, graph.nodes).order);
     }
     if(len1 == 0)
     {
@@ -129,7 +115,7 @@ function setInitialOrder(graph){
     }else if(a.order > b.order){
       return 1;
     }else{
-      if(CycleRemoval.outgoing(a, graph.links).length % 2 == 1)
+      if(helpFunctions.outgoing(a, graph.links).length % 2 == 1)
       {
         return -1;
       }else{
@@ -143,18 +129,18 @@ function setInitialOrder(graph){
   }
   // Move layer1 and layer2 one layer upward
   layer1 = layer2;
-  layer2 = getLayer(graph, ++currentRank);
+  layer2 = helpFunctions.getLayer(graph, ++currentRank);
   len1 = len2;
   len2 = layer2.length;
   while(len2 > 0)
   {
     for(i = 0; i < len2; i++)
     {
-      edges = CycleRemoval.outgoing(layer2[i], graph.links);
+      edges = helpFunctions.outgoing(layer2[i], graph.links);
       len1 = edges.length;
       for(var j = 0; j < len1; j++)
       {
-        position.push(CycleRemoval.getNodeById(edges[j].to, graph.nodes).order);
+        position.push(helpFunctions.getNodeById(edges[j].to, graph.nodes).order);
       }
       if(len1 == 0)
       {
@@ -177,7 +163,7 @@ function setInitialOrder(graph){
       }else if(a.order > b.order){
         return 1;
       }else{
-        if(CycleRemoval.outgoing(a, graph.links).length % 2 == 1)
+        if(helpFunctions.outgoing(a, graph.links).length % 2 == 1)
         {
           return -1;
         }else{
@@ -190,7 +176,7 @@ function setInitialOrder(graph){
       layer2[i-1].order = i;
     }
     layer1 = layer2;
-    layer2 = getLayer(graph, ++currentRank);
+    layer2 = helpFunctions.getLayer(graph, ++currentRank);
     len1 = len2;
     len2 = layer2.length;
   }
@@ -202,8 +188,8 @@ function upwardSorting(graph)
 {
   var copyGraph = (JSON.parse(JSON.stringify(graph)));
   var currentRank = 1;
-  var layer1 = getLayer(copyGraph, currentRank);
-  var layer2 = getLayer(copyGraph, ++currentRank);
+  var layer1 = helpFunctions.getLayer(copyGraph, currentRank);
+  var layer2 = helpFunctions.getLayer(copyGraph, ++currentRank);
   var edges;
   var len1;
   var len2;
@@ -212,11 +198,11 @@ function upwardSorting(graph)
   len2 = layer2.length;
   for(var i = 0; i < len2; i++)
   {
-    edges = CycleRemoval.outgoing(layer2[i], copyGraph.links);
+    edges = helpFunctions.outgoing(layer2[i], copyGraph.links);
     len1 = edges.length;
     for(var j = 0; j < len1; j++)
     {
-      position.push(CycleRemoval.getNodeById(edges[j].to, copyGraph.nodes).order);
+      position.push(helpFunctions.getNodeById(edges[j].to, copyGraph.nodes).order);
     }
     if(len1 == 0)
     {
@@ -239,7 +225,7 @@ function upwardSorting(graph)
     }else if(a.order > b.order){
       return 1;
     }else{
-      if(CycleRemoval.outgoing(a, copyGraph.links).length % 2 == 1)
+      if(helpFunctions.outgoing(a, copyGraph.links).length % 2 == 1)
       {
         return -1;
       }else{
@@ -253,18 +239,18 @@ function upwardSorting(graph)
   }
   // Move layer1 and layer2 up by one layer and continue median method
   layer1 = layer2;
-  layer2 = getLayer(copyGraph, ++currentRank);
+  layer2 = helpFunctions.getLayer(copyGraph, ++currentRank);
   len1 = len2;
   len2 = layer2.length;
   while(len2 > 0)
   {
     for(i = 0; i < len2; i++)
     {
-      edges = CycleRemoval.outgoing(layer2[i], copyGraph.links);
+      edges = helpFunctions.outgoing(layer2[i], copyGraph.links);
       len1 = edges.length;
       for(j = 0; j < len1; j++)
       {
-        position.push(CycleRemoval.getNodeById(edges[j].to, copyGraph.nodes).order);
+        position.push(helpFunctions.getNodeById(edges[j].to, copyGraph.nodes).order);
       }
       if(len1 == 0)
       {
@@ -287,7 +273,7 @@ function upwardSorting(graph)
       }else if(a.order > b.order){
         return 1;
       }else{
-        if(CycleRemoval.outgoing(a, copyGraph.links).length % 2 == 1)
+        if(helpFunctions.outgoing(a, copyGraph.links).length % 2 == 1)
         {
           return -1;
         }else{
@@ -300,7 +286,7 @@ function upwardSorting(graph)
       layer2[i-1].order = i;
     }
     layer1 = layer2;
-    layer2 = getLayer(copyGraph, ++currentRank);
+    layer2 = helpFunctions.getLayer(copyGraph, ++currentRank);
     len1 = len2;
     len2 = layer2.length;
   }
@@ -327,16 +313,16 @@ function downwardSorting(graph)
     }
   }
   // Give order to layer1 based on median method
-  var layer2 = getLayer(copyGraph, currentRank);
-  var layer1 = getLayer(copyGraph, --currentRank);
+  var layer2 = helpFunctions.getLayer(copyGraph, currentRank);
+  var layer1 = helpFunctions.getLayer(copyGraph, --currentRank);
   len1 = layer1.length;
   for(i = 0; i < len1; i++)
   {
-    edges = CycleRemoval.ingoing(layer1[i] , copyGraph.links);
+    edges = helpFunctions.ingoing(layer1[i] , copyGraph.links);
     len2 = edges.length;
     for(var j = 0; j < len2; j++)
     {
-      position.push(CycleRemoval.getNodeById(edges[j].from, copyGraph.nodes).order);
+      position.push(helpFunctions.getNodeById(edges[j].from, copyGraph.nodes).order);
     }
     if(len2 == 0)
     {
@@ -359,7 +345,7 @@ function downwardSorting(graph)
     }else if(a.order > b.order){
       return 1;
     }else{
-      if(CycleRemoval.outgoing(a, copyGraph.links).length % 2 == 1)
+      if(helpFunctions.outgoing(a, copyGraph.links).length % 2 == 1)
       {
         return -1;
       }else{
@@ -373,18 +359,18 @@ function downwardSorting(graph)
   }
   // Move layer1 and layer2 down by one layer
   layer2 = layer1;
-  layer1 = getLayer(copyGraph, --currentRank);
+  layer1 = helpFunctions.getLayer(copyGraph, --currentRank);
   len2 = len1;
   len1 = layer1.length;
   while(len1 > 0)
   {
     for(i = 0; i < len1; i++)
     {
-      edges = CycleRemoval.ingoing(layer1[i], copyGraph.links);
+      edges = helpFunctions.ingoing(layer1[i], copyGraph.links);
       len2 = edges.length;
       for(var j = 0; j < len2; j++)
       {
-        position.push(CycleRemoval.getNodeById(edges[j].from, copyGraph.nodes).order);
+        position.push(helpFunctions.getNodeById(edges[j].from, copyGraph.nodes).order);
       }
       if(len2 == 0)
       {
@@ -407,7 +393,7 @@ function downwardSorting(graph)
       }else if(a.order > b.order){
         return 1;
       }else{
-        if(CycleRemoval.outgoing(a, copyGraph.links).length % 2 == 1)
+        if(helpFunctions.outgoing(a, copyGraph.links).length % 2 == 1)
         {
           return -1;
         }else{
@@ -420,7 +406,7 @@ function downwardSorting(graph)
       layer1[i-1].order = i;
     }
     layer2 = layer1;
-    layer1 = getLayer(copyGraph, --currentRank);
+    layer1 = helpFunctions.getLayer(copyGraph, --currentRank);
     len2 = len1;
     len1 = layer1.length;
   }
@@ -443,7 +429,7 @@ function transpose(graph)
   {
     improved = false;
     rank = 2;
-    layer = getLayer(graph, rank);
+    layer = helpFunctions.getLayer(graph, rank);
     layer.sort(function(a,b){
       return a.order - b.order;
     });
@@ -454,7 +440,7 @@ function transpose(graph)
       {
         node1 = layer[i];
         node2 = layer[i+1];
-        if(getNodeCrossing(node1,node2,graph) > getNodeCrossing(node2,node1,graph)) // Check if we can minimize crossing by simply swapping two next to each other
+        if(helpFunctions.getNodeCrossing(node1,node2,graph) > helpFunctions.getNodeCrossing(node2,node1,graph)) // Check if we can minimize crossing by simply swapping two next to each other
         {
           improved = true;
           order = node1.order;
@@ -466,108 +452,11 @@ function transpose(graph)
         }
       }
       rank++;
-      layer = getLayer(graph, rank);
+      layer = helpFunctions.getLayer(graph, rank);
       layer.sort(function(a,b){
         return a.order - b.order;
       });
       len = layer.length;
     }
   }
-}
-
-// Inputs node1(node with lower order), node2(node with higher order) and the
-// graph. Outputs number of crossing for node1s outgoingEdges and node2s
-// outgoingEdges.
-function getNodeCrossing(node1, node2, graph)
-{
-  var number = 0;
-  var edges1 = CycleRemoval.outgoing(node1, graph.links);
-  var edges2 = CycleRemoval.outgoing(node2, graph.links);
-  var len1 = edges1.length;
-  var len2 = edges2.length;
-  var node;
-  for(var a = 0; a < len1; a++)
-  {
-    node = CycleRemoval.getNodeById(edges1[a].to, graph.nodes);
-    for(var b = 0; b < len2; b++)
-    {
-      if(node.order > CycleRemoval.getNodeById(edges2[b].to, graph.nodes).order)
-      {
-        number++;
-      }
-    }
-  }
-  return number;
-}
-
-// Inputs layer that is array of node and the graph. Outsputs number of crossing
-// between input layer and its lower layer
-function getLayerCrossing(layer, graph)
-{
-  layer.sort(function(a,b){
-    return a.order - b.order;
-  });
-  var len = layer.length;
-  var number = 0;
-  var edges1;
-  var edges2;
-  var len1;
-  var len2;
-  var node
-  for(var i = 0; i < len; i++)
-  {
-    edges1 = CycleRemoval.outgoing(layer[i], graph.links);
-    len1 = edges1.length;
-    for(var j = i+1; j < len; j++)
-    {
-      edges2 = CycleRemoval.outgoing(layer[j], graph.links);
-      len2 = edges2.length;
-      for(var a = 0; a < len1; a++)
-      {
-        node = CycleRemoval.getNodeById(edges1[a].to, graph.nodes);
-        for(var b = 0; b < len2; b++)
-        {
-          if(node.order > CycleRemoval.getNodeById(edges2[b].to, graph.nodes).order)
-          {
-            number++;
-          }
-        }
-      }
-    }
-  }
-  return number;
-}
-
-// Inputs graph. Outputs number of crossing for the graph
-function getTotalCrossing(graph)
-{
-  var total = 0;
-  var i = 2;
-  var layer;
-  while(true)
-  {
-    layer = getLayer(graph, i++);
-    if(layer.length > 0)
-    {
-      total += getLayerCrossing(layer, graph);
-    }else{
-      break;
-    }
-  }
-  return total;
-}
-
-// Inputs graph and layer as integer. Returns array of nodes that is in this
-// layer.
-function getLayer(graph, layer){
-  var result = [];
-  var len = graph.nodes.length;
-  for(var i = 0; i < len; i++)
-  {
-    if(graph.nodes[i].rank == layer)
-    {
-      result.push(graph.nodes[i]);
-    }
-  }
-  return result;
 }

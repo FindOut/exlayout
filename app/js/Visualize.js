@@ -1,9 +1,4 @@
 var d3 = require('d3');
-var CycleRemoval = require('./CycleRemoval.js');
-var XCoordinateAssignment = require("./XCoordinateAssignment.js");
-var LongestPath = require("./LongestPath.js");
-var VertexOrdering = require("./VertexOrdering.js");
-var Initialize = require("./Initialize.js");
 var Sugiyama = require("./Sugiyama.js");
 var ConnectedGraphDetect = require("./ConnectedGraphDetection.js");
 var Main = require("./main.js");
@@ -71,7 +66,7 @@ for(var i = 0; i < len1; i++)
       id = boxGraphs[i].nodes[j].id;
     }
   }
-  boxGraphs[i].graph = CycleRemoval.getNodeById(id, graph.nodes).group;
+  boxGraphs[i].graph = helpFunctions.getNodeById(id, graph.nodes).group;
 }
 len1 = graphArray.length;
 var maxX;
@@ -248,8 +243,8 @@ graphEnter.each(function(d,i){
     .attr('class', 'link');
 
   linksEnter.each(function (d){
-    var fromNode = CycleRemoval.getNodeById(d.from, graphArray[i].nodes);
-    var toNode = CycleRemoval.getNodeById(d.to, graphArray[i].nodes);
+    var fromNode = helpFunctions.getNodeById(d.from, graphArray[i].nodes);
+    var toNode = helpFunctions.getNodeById(d.to, graphArray[i].nodes);
     var adjustedEnds = adjustEnds(fromNode, toNode);
     if(!fromNode.isDummy && !toNode.isDummy)
     {
@@ -366,8 +361,8 @@ boxEnter.each(function(d,i){
                           .attr('class', 'link');
 
   linksEnter.each(function (d){
-    var fromNode = CycleRemoval.getNodeById(d.from, boxGraphs[i].nodes);
-    var toNode = CycleRemoval.getNodeById(d.to, boxGraphs[i].nodes);
+    var fromNode = helpFunctions.getNodeById(d.from, boxGraphs[i].nodes);
+    var toNode = helpFunctions.getNodeById(d.to, boxGraphs[i].nodes);
     var adjustedEnds = adjustEnds(fromNode, toNode);
     if(!fromNode.isDummy && !toNode.isDummy)
     {
@@ -433,9 +428,9 @@ boxEnter.each(function(d){
   var graphNumber = d3.select(this).attr("graph");
   var boxNumber = d3.select(this).attr("box");
   var minId = d3.select(this).attr("id");
-  var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4,minId.length)).attr("cx"));
-  var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4,minId.length)).attr("cy"));
-  d3.select("g[graph='" + graphNumber + "']").select("g#name"+minId.slice(4,minId.length)).remove();
+  var toCx = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4)).attr("cx"));
+  var toCy = parseFloat(d3.select("g[graph='" + graphNumber + "']").select("circle#name"+minId.slice(4)).attr("cy"));
+  d3.select("g[graph='" + graphNumber + "']").select("g#name"+minId.slice(4)).remove();
   d3.select(this).select("circle[id=boxcircle]")
     .attr("cx", toCx)
     .attr("cy", toCy);
@@ -559,15 +554,15 @@ graphEnter.each(function(d,i){
       var toId = d3.select(this).attr("to");
       if(fromId.indexOf("box") > -1)
       {
-        fromId = fromId.slice(3, fromId.length);
+        fromId = fromId.slice(3);
         fromId = d3.select(".boxGraph[box='"+fromId+"']").attr("id");
-        fromId = fromId.slice(4, fromId.length);
+        fromId = fromId.slice(4);
       }
       if(toId.indexOf("box") > -1)
       {
-        toId = toId.slice(3, toId.length);
+        toId = toId.slice(3);
         toId = d3.select(".boxGraph[box='"+toId+"']").attr("id");
-        toId = toId.slice(4, toId.length);
+        toId = toId.slice(4);
       }
       if(d3.select(this.parentNode).selectAll(".boxGraph#node"+fromId).empty())
       {
@@ -632,7 +627,7 @@ var force = d3.layout.force()
 
 force
   .nodes(graphArrayCoordinate.graphs)
-  //.start();
+  .start();
 
 function tick()
 {
@@ -767,15 +762,15 @@ function dragmove(d) {
     var toId = d3.select(this).attr("to");
     if(fromId.indexOf("box") > -1)
     {
-      fromId = fromId.slice(3, fromId.length);
+      fromId = fromId.slice(3);
       fromId = d3.select(".boxGraph[box='"+fromId+"']").attr("id");
-      fromId = fromId.slice(4, fromId.length);
+      fromId = fromId.slice(4);
     }
     if(toId.indexOf("box") > -1)
     {
-      toId = toId.slice(3, toId.length);
+      toId = toId.slice(3);
       toId = d3.select(".boxGraph[box='"+toId+"']").attr("id");
-      toId = toId.slice(4, toId.length);
+      toId = toId.slice(4);
     }
     if(d3.select(this.parentNode).selectAll(".boxGraph#node"+fromId).empty())
     {
@@ -820,15 +815,15 @@ function dragmove(d) {
     var toId = d3.select(this).attr("to");
     if(fromId.indexOf("box") > -1)
     {
-      fromId = fromId.slice(3, fromId.length);
+      fromId = fromId.slice(3);
       fromId = d3.select(".boxGraph[box='"+fromId+"']").attr("id");
-      fromId = fromId.slice(4, fromId.length);
+      fromId = fromId.slice(4);
     }
     if(toId.indexOf("box") > -1)
     {
-      toId = toId.slice(3, toId.length);
+      toId = toId.slice(3);
       toId = d3.select(".boxGraph[box='"+toId+"']").attr("id");
-      toId = toId.slice(4, toId.length);
+      toId = toId.slice(4);
     }
     if(d3.select(this.parentNode).selectAll(".boxGraph#node"+fromId).empty())
     {
@@ -1026,7 +1021,7 @@ function handler1()
     }
   }
 
-  outgoingEdges = CycleRemoval.outgoing(node, graph.links);
+  outgoingEdges = helpFunctions.outgoing(node, graph.links);
   len = outgoingEdges.length;
   var fromId;
   var toId;
@@ -1034,21 +1029,21 @@ function handler1()
   {
     fromId = outgoingEdges[i].from;
     toId = outgoingEdges[i].to;
-    while(CycleRemoval.getNodeById(toId, graph.nodes).isDummy)
+    while(helpFunctions.getNodeById(toId, graph.nodes).isDummy)
     {
-      toId = CycleRemoval.outgoing(CycleRemoval.getNodeById(toId, graph.nodes), graph.links)[0].to;
+      toId = helpFunctions.outgoing(helpFunctions.getNodeById(toId, graph.nodes), graph.links)[0].to;
     }
     deleteLink(fromId, toId, group, graph);
   }
-  ingoingEdges = CycleRemoval.ingoing(node, graph.links);
+  ingoingEdges = helpFunctions.ingoing(node, graph.links);
   len = ingoingEdges.length;
   for(i = 0; i < len; i++)
   {
     fromId = ingoingEdges[i].from;
     toId = ingoingEdges[i].to;
-    while(CycleRemoval.getNodeById(fromId, graph.nodes).isDummy)
+    while(helpFunctions.getNodeById(fromId, graph.nodes).isDummy)
     {
-      fromId = CycleRemoval.ingoing(CycleRemoval.getNodeById(fromId, graph.nodes), graph.links)[0].from;
+      fromId = helpFunctions.ingoing(helpFunctions.getNodeById(fromId, graph.nodes), graph.links)[0].from;
     }
     deleteLink(fromId, toId, group, graph);
   }
@@ -1236,7 +1231,7 @@ function handler2()
   }
   if(edge === undefined)
   {
-    var path = helpFunctions.modifiedDFS(CycleRemoval.getNodeById(fromId, graph.nodes), CycleRemoval.getNodeById(toId, graph.nodes), graph, undefined);
+    var path = helpFunctions.modifiedDFS(helpFunctions.getNodeById(fromId, graph.nodes), helpFunctions.getNodeById(toId, graph.nodes), graph, undefined);
     len = path.length;
     if(len > 0)
     {
@@ -1357,13 +1352,13 @@ window.handler2 = handler2;
 
 function deleteNode(node, group, graph)
 {
-  var outgoingEdges = CycleRemoval.outgoing(node, graph.links);
+  var outgoingEdges = helpFunctions.outgoing(node, graph.links);
   var len = outgoingEdges.length;
   for(var i = 0; i < len; i++)
   {
     deleteLink(outgoingEdges[i].from, outgoingEdges[i].to, group, graph);
   }
-  var ingoingEdges = CycleRemoval.ingoing(node, graph.links);
+  var ingoingEdges = helpFunctions.ingoing(node, graph.links);
   len = ingoingEdges.length;
   for(i = 0; i < len; i++)
   {
@@ -1417,7 +1412,7 @@ function deleteLink(fromId, toId, group, graph)
   }
   if(edge === undefined)
   {
-    var path = helpFunctions.modifiedDFS(CycleRemoval.getNodeById(fromId, graph.nodes), CycleRemoval.getNodeById(toId, graph.nodes), graph, undefined);
+    var path = helpFunctions.modifiedDFS(helpFunctions.getNodeById(fromId, graph.nodes), helpFunctions.getNodeById(toId, graph.nodes), graph, undefined);
     len = path.length;
     if(len > 0)
     {
@@ -1474,13 +1469,13 @@ function redraw()
     var toId;
     for(var i = 0; i < len; i++)
     {
-      edges = CycleRemoval.outgoing(subGraph.nodes[i], subGraph.links);
+      edges = helpFunctions.outgoing(subGraph.nodes[i], subGraph.links);
       len1 = edges.length;
       for(var j = 0; j < len1; j++)
       {
         fromId = edges[j].from;
         toId = edges[j].to;
-        while(CycleRemoval.getNodeById(toId, subGraph.nodes) === null)
+        while(helpFunctions.getNodeById(toId, subGraph.nodes) === null)
         {
           for(var k = 0; k < len2; k++)
           {
@@ -1666,8 +1661,8 @@ function redraw()
       .attr('class', 'link');
 
     linksEnter.each(function (d){
-      var fromNode = CycleRemoval.getNodeById(d.from, graphArray[i].nodes);
-      var toNode = CycleRemoval.getNodeById(d.to, graphArray[i].nodes);
+      var fromNode = helpFunctions.getNodeById(d.from, graphArray[i].nodes);
+      var toNode = helpFunctions.getNodeById(d.to, graphArray[i].nodes);
       var adjustedEnds = adjustEnds(fromNode, toNode);
       if(!fromNode.isDummy && !toNode.isDummy)
       {

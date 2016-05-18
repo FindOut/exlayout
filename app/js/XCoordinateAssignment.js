@@ -6,17 +6,11 @@ four x-coordinate for each node. At the last step, we uses averge median of all
 four x-coordinate to set every nodes x-coordinate
 *******************************************************************************/
 
-var VertexOrdering = require("./VertexOrdering.js");
-var CycleRemoval = require("./CycleRemoval.js");
-
 exports.xCoordinateAssignment = function(graph){
   xCoordinateAssignment(graph);
 };
 exports.preprocessing = function(graph){
   return preprocessing(graph);
-};
-exports.isdummyPar = function(node, graph){
-  return isdummyPar(node, graph);
 };
 exports.alignUpperLeft = function(graph){
   alignUpperLeft(graph);
@@ -30,12 +24,12 @@ exports.alignLowerLeft = function(graph){
 exports.alignLowerRight = function(graph){
   alignLowerRight(graph);
 };
-exports.edgeBetweenTwoNodes = function(nodeA, nodeB, Graph){
-  return edgeBetweenTwoNodes(nodeA, nodeB, Graph);
-};
 exports.coordinateAsignment = function(graph){
   coordinateAsignment(graph);
 };
+
+var helpFunctions = require("./helpFunctions.js");
+
 // Preprocessing, mark edge with type 1 conflict
 function preprocessing(Graph) //mark type 1 conflict
 {
@@ -54,7 +48,7 @@ function preprocessing(Graph) //mark type 1 conflict
   {
       var kstart = 0;
       var l = 1;
-      var NodesinRow = VertexOrdering.getLayer(Graph,height-i);  // get nodes in i + 1 row
+      var NodesinRow = helpFunctions.getLayer(Graph,height-i);  // get nodes in i + 1 row
       NodesinRow.sort(function(a,b){
         return a.order - b.order;
       });
@@ -68,22 +62,22 @@ function preprocessing(Graph) //mark type 1 conflict
       for(var m = 1; m <= numberofNodesinRow; m++)
       {
         currentNode= NodesinRow[m-1];
-        dummiParNode = isdummyPar(currentNode, Graph);  //get ingoing dummy Node to NodesinRow[m]
+        dummiParNode = helpFunctions.isdummyPar(currentNode, Graph);  //get ingoing dummy Node to NodesinRow[m]
         if(m == numberofNodesinRow || dummiParNode != null)
         {
           layer = height -i +1;
-          kend = VertexOrdering.getLayer(Graph, layer).length;  //kend is the last position of row i
+          kend = helpFunctions.getLayer(Graph, layer).length;  //kend is the last position of row i
           if(dummiParNode != null)
           {
             kend = dummiParNode.order;  //kend change to position of ingoing dummy Node
           }
           while ( l <= m)
           {
-            ingoingEdges = CycleRemoval.ingoing(NodesinRow[l-1], Graph.links);  //get all ingoingEdges of Nodes in Row i+1
+            ingoingEdges = helpFunctions.ingoing(NodesinRow[l-1], Graph.links);  //get all ingoingEdges of Nodes in Row i+1
             for(var x = 0; x < ingoingEdges.length; x++)
             {
               index = ingoingEdges[x].from;
-              upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+              upperNeighbor = helpFunctions.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
               if(upperNeighbor.order < kstart || upperNeighbor.order > kend)
               {
                 ignoreEdges.push(ingoingEdges[x]); //sparas in ignoreEdges
@@ -97,30 +91,6 @@ function preprocessing(Graph) //mark type 1 conflict
       }//else
   }
   return ignoreEdges;
-}
-
-// Inputs node and the graph. Outputs if node is dummy, and if it is, this
-// function checks if it has upper dummy node. Returns null if node is not dummy
-// or node is dummy but its neighbor is not dummy, otherwise returns its upper
-// dummy neighbor
-function isdummyPar(node, Graph)
-{
-  var index;
-  var upperNeighbor;
-  var ingoingEdges;
-  if(node.isDummy) //node is Dummy, to check the upperNeighbor;
-  {
-    ingoingEdges = CycleRemoval.ingoing(node, Graph.links);
-    for(var x = 0; x < ingoingEdges.length; x++)
-    {
-      index = ingoingEdges[x].from;
-      upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
-      if(upperNeighbor.isDummy)
-      {
-        return upperNeighbor;
-      }
-    }return null; //no dummy upperNeighbor
-  }return null;  // it self is not dummy
 }
 
 // Align each node to its upper left neighbor
@@ -159,21 +129,21 @@ function alignUpperLeft(Graph)
   {
     r = 0;
     xRowIndex = height-x+1;
-    NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
+    NodesinRow = helpFunctions.getLayer(Graph,xRowIndex);  // get nodes in x row
     NodesinRow.sort(function(a,b){
       return a.order - b.order;
     });
     for(var k = 1; k <= NodesinRow.length; k++)
     {
       currentNode = NodesinRow[k-1];
-      ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
+      ingoingEdges = helpFunctions.ingoing(currentNode, Graph.links);
       upperNeighborArray = [];
       if(ingoingEdges.length > 0)   // check if exsit upperNeighbor
       {
         for(var y = 0; y < ingoingEdges.length; y++)
         {
           index = ingoingEdges[y].from;
-          upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          upperNeighbor = helpFunctions.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
           upperNeighborArray.push(upperNeighbor);
         }
 
@@ -190,7 +160,7 @@ function alignUpperLeft(Graph)
           averageNode = upperNeighborArray[m-1];
           if(currentNode.align == currentNode.id)
           {
-            link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
+            link = helpFunctions.edgeBetweenTwoNodes(averageNode,currentNode, Graph);
             if(link != null && !link.ismark && r < averageNode.order)
             {
                 averageNode.align = currentNode.id;
@@ -241,21 +211,21 @@ function alignUpperRight(Graph)
   {
     r = Number.MAX_VALUE;   //R set to maximum value
     xRowIndex = height-x+1;
-    NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
+    NodesinRow = helpFunctions.getLayer(Graph,xRowIndex);  // get nodes in x row
     NodesinRow.sort(function(a,b){
       return a.order - b.order;
     });
     for(var k = NodesinRow.length; k >= 1; k--)
     {
       currentNode = NodesinRow[k-1];
-      ingoingEdges = CycleRemoval.ingoing(currentNode, Graph.links);
+      ingoingEdges = helpFunctions.ingoing(currentNode, Graph.links);
       upperNeighborArray = [];
       if(ingoingEdges.length > 0)   // check if exsit upperNeighbor
       {
         for(var y = 0; y < ingoingEdges.length; y++)
         {
           index = ingoingEdges[y].from;
-          upperNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          upperNeighbor = helpFunctions.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
           upperNeighborArray.push(upperNeighbor);
         }
 
@@ -272,7 +242,7 @@ function alignUpperRight(Graph)
           averageNode = upperNeighborArray[m-1];
           if(currentNode.align == currentNode.id)
           {
-            link = edgeBetweenTwoNodes(averageNode,currentNode, Graph);
+            link = helpFunctions.edgeBetweenTwoNodes(averageNode,currentNode, Graph);
             if(link != null && !link.ismark && r > averageNode.order)
             {
                 averageNode.align = currentNode.id;
@@ -323,21 +293,21 @@ function alignLowerLeft(Graph)
   {
     r = 0;
     xRowIndex = height-x+1;
-    NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
+    NodesinRow = helpFunctions.getLayer(Graph,xRowIndex);  // get nodes in x row
     NodesinRow.sort(function(a,b){
       return a.order - b.order;
     });
     for(var k = 1; k <= NodesinRow.length; k++)
     {
       currentNode = NodesinRow[k-1];
-      outgoingEdges = CycleRemoval.outgoing(currentNode, Graph.links);
+      outgoingEdges = helpFunctions.outgoing(currentNode, Graph.links);
       lowerNeighborArray = [];
       if(outgoingEdges.length > 0)   // check if exsit upperNeighbor
       {
         for(var y = 0; y < outgoingEdges.length; y++)
         {
           index = outgoingEdges[y].to;
-          lowerNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          lowerNeighbor = helpFunctions.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
           lowerNeighborArray.push(lowerNeighbor);
         }
 
@@ -354,7 +324,7 @@ function alignLowerLeft(Graph)
           averageNode = lowerNeighborArray[m-1];
           if(currentNode.align == currentNode.root)
           {
-            link = edgeBetweenTwoNodes(currentNode, averageNode, Graph);
+            link = helpFunctions.edgeBetweenTwoNodes(currentNode, averageNode, Graph);
             if(link != null && !link.ismark && r < averageNode.order)
             {
                 currentNode.align = averageNode.id;
@@ -405,21 +375,21 @@ function alignLowerRight(Graph)
   {
     r = Number.MAX_VALUE;   //R set to maximum value
     xRowIndex = height-x+1;
-    NodesinRow = VertexOrdering.getLayer(Graph,xRowIndex);  // get nodes in x row
+    NodesinRow = helpFunctions.getLayer(Graph,xRowIndex);  // get nodes in x row
     NodesinRow.sort(function(a,b){
       return a.order - b.order;
     });
     for(var k = NodesinRow.length; k >= 1; k--)
     {
       currentNode = NodesinRow[k-1];
-      outgoingEdges = CycleRemoval.outgoing(currentNode, Graph.links);
+      outgoingEdges = helpFunctions.outgoing(currentNode, Graph.links);
       lowerNeighborArray = [];
       if(outgoingEdges.length > 0)   // check if exsit upperNeighbor
       {
         for(var y = 0; y < outgoingEdges.length; y++)
         {
           index = outgoingEdges[y].to;
-          lowerNeighbor = CycleRemoval.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
+          lowerNeighbor = helpFunctions.getNodeById(index, Graph.nodes); // get upperNeighbor of NodesinRow[m]
           lowerNeighborArray.push(lowerNeighbor);
         }
 
@@ -436,7 +406,7 @@ function alignLowerRight(Graph)
           averageNode = lowerNeighborArray[m-1];
           if(currentNode.align == currentNode.root)
           {
-            link = edgeBetweenTwoNodes(currentNode, averageNode, Graph);
+            link = helpFunctions.edgeBetweenTwoNodes(currentNode, averageNode, Graph);
             if(link != null && !link.ismark && r > averageNode.order)
             {
               currentNode.align = averageNode.id;
@@ -449,22 +419,6 @@ function alignLowerRight(Graph)
       }
     }
   }
-}
-
-// Checks if there exist edges from nodeA to nodeB. Returns the link if it exist,
-// otherwise returns null
-function edgeBetweenTwoNodes(nodeA, nodeB, Graph)
-{
-  var link = null;
-  for(var i = 0; i< Graph.links.length; i++)
-  {
-    if(Graph.links[i].from == nodeA.id && Graph.links[i].to == nodeB.id)
-    {
-      link = Graph.links[i];
-      break;
-    }
-  }
-  return link;
 }
 
 // Place v that is root of one block in graph. This function is recursive and
@@ -482,11 +436,11 @@ function place_block(v, graph)
     {
       if(w.order > 1)
       {
-        layer = VertexOrdering.getLayer(graph, w.rank);
+        layer = helpFunctions.getLayer(graph, w.rank);
         layer.sort(function(a,b){
           return a.order - b.order;
         });
-        u = CycleRemoval.getNodeById(layer[w.order-2].root, graph.nodes);
+        u = helpFunctions.getNodeById(layer[w.order-2].root, graph.nodes);
         place_block(u, graph);
         if(v.sink == v.id)
         {
@@ -494,14 +448,14 @@ function place_block(v, graph)
         }
         if(v.sink != u.sink)
         {
-          CycleRemoval.getNodeById(u.sink, graph.nodes).shift =
-          CycleRemoval.getNodeById(u.sink, graph.nodes).shift < (v.x - u.x - alpha)
-          ? CycleRemoval.getNodeById(u.sink, graph.nodes).shift : (v.x - u.x - alpha);
+          helpFunctions.getNodeById(u.sink, graph.nodes).shift =
+          helpFunctions.getNodeById(u.sink, graph.nodes).shift < (v.x - u.x - alpha)
+          ? helpFunctions.getNodeById(u.sink, graph.nodes).shift : (v.x - u.x - alpha);
         }else{
           v.x = v.x > (u.x + alpha) ? v.x : (u.x + alpha);
         }
       }
-      w = CycleRemoval.getNodeById(w.align, graph.nodes);
+      w = helpFunctions.getNodeById(w.align, graph.nodes);
     }while(w.id != v.id)
   }
 }
@@ -532,15 +486,15 @@ function coordinateAsignment(graph)
   for(i = 0; i < len; i++)
   {
     node = graph.nodes[i];
-    root = CycleRemoval.getNodeById(node.root, graph.nodes);
+    root = helpFunctions.getNodeById(node.root, graph.nodes);
     node.x = root.x;
   }
 
   for(i = 0; i < len; i++)
   {
     node = graph.nodes[i];
-    root = CycleRemoval.getNodeById(node.root, graph.nodes);
-    sink = CycleRemoval.getNodeById(root.sink, graph.nodes);
+    root = helpFunctions.getNodeById(node.root, graph.nodes);
+    sink = helpFunctions.getNodeById(root.sink, graph.nodes);
     shift = sink.shift;
     if(shift < Number.MAX_VALUE)
     {

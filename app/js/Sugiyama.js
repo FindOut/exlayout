@@ -7,6 +7,7 @@ var XCoordinateAssignment = require("./XCoordinateAssignment.js");
 var LongestPath = require("./LongestPath.js");
 var VertexOrdering = require("./VertexOrdering.js");
 var Initialize = require("./Initialize.js");
+var helpFunctions = require("./helpFunctions.js");
 
 exports.sugiyama = function(graph){
   sugiyama(graph);
@@ -27,7 +28,7 @@ function sugiyama(graph){
       reversedEdges.push(graph.links[i]);
     }
   }
-  CycleRemoval.reverse(reversedEdges);
+  helpFunctions.reverse(reversedEdges);
   var minX = Number.MAX_VALUE;
   len = graph.nodes.length;
   for(i = 0; i < len; i++)
