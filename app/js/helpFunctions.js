@@ -7,9 +7,6 @@ exports.modifiedDFS = function(start, end, graph, path){
 exports.randomGraph = function(numberOfNodes, p){
   return randomGraph(numberOfNodes, p);
 };
-exports.boxGraphDataCalculater = function(boxGraphs){
-  return boxGraphDataCalculater(boxGraphs);
-};
 exports.getNodeById = function(id, nodes){
   return getNodeById(id, nodes);
 };
@@ -78,13 +75,13 @@ function modifiedDFS(start, end, graph, path)
       graph.nodes[i].visited = false;
     }
     start.visited = true;
-    var outgoingEdges = CycleRemoval.outgoing(start, graph.links);
+    var outgoingEdges = outgoing(start, graph.links);
     len = outgoingEdges.length;
     for(i = 0; i < len; i++)
     {
-      if(CycleRemoval.getNodeById(outgoingEdges[i].to, graph.nodes).isDummy)
+      if(getNodeById(outgoingEdges[i].to, graph.nodes).isDummy)
       {
-        a = modifiedDFS(CycleRemoval.getNodeById(outgoingEdges[i].to, graph.nodes), end, graph, [CycleRemoval.getNodeById(outgoingEdges[i].to, graph.nodes)]);
+        a = modifiedDFS(getNodeById(outgoingEdges[i].to, graph.nodes), end, graph, [getNodeById(outgoingEdges[i].to, graph.nodes)]);
         if(a.length > 0)
         {
           return a;
@@ -96,17 +93,17 @@ function modifiedDFS(start, end, graph, path)
     if(!start.visited)
     {
       start.visited = true;
-      var outgoingEdges = CycleRemoval.outgoing(start, graph.links);
+      var outgoingEdges = outgoing(start, graph.links);
       len = outgoingEdges.length;
       for(i = 0; i < len; i++)
       {
         if(outgoingEdges[i].to == end.id)
         {
           return path;
-        }else if(CycleRemoval.getNodeById(outgoingEdges[i].to, graph.nodes).isDummy)
+        }else if(getNodeById(outgoingEdges[i].to, graph.nodes).isDummy)
         {
-          path.push(CycleRemoval.getNodeById(outgoingEdges[i].to, graph.nodes));
-          return modifiedDFS(CycleRemoval.getNodeById(outgoingEdges[i].to, graph.nodes), end, graph, path);
+          path.push(getNodeById(outgoingEdges[i].to, graph.nodes));
+          return modifiedDFS(getNodeById(outgoingEdges[i].to, graph.nodes), end, graph, path);
         }
       }
     }
@@ -159,38 +156,6 @@ function randomGraph(numberOfNodes, p)
     }
   }
   return graph;
-}
-
-//function boxGraphLocationCalculater calculate the postions for each boxgraph
-function boxGraphDataCalculater(boxGraphs)
-{
-  var boxGraphDatas = [];
-    for(var i = 0; i < boxGraphs.length; i++)
-    {
-      var currentBoxGraph = boxGraphs[i];
-      var biggestY = 0;
-      var biggestX = 0;
-      var boxGraphData = {"x": null, "y": null, "r": null, "groupnumber":null, "box":null};
-      for(var j = 0; j < currentBoxGraph.nodes.length; j++)
-      {
-        if(biggestY < currentBoxGraph.nodes[j].rank)
-        {
-          biggestY = currentBoxGraph.nodes[j].rank;
-        }
-        if(biggestX < currentBoxGraph.nodes[j].order)
-        {
-          biggestX = currentBoxGraph.nodes[j].order;
-        }
-      }
-      var radius = Math.sqrt(biggestX*biggestX + biggestY*biggestY)/2;
-      boxGraphData.x = biggestX;
-      boxGraphData.y = biggestY;
-      boxGraphData.r = radius;
-      boxGraphData.groupnumber = currentBoxGraph.groupnumber;
-      boxGraphData.box = currentBoxGraph.box;
-      boxGraphDatas.push(boxGraphData);
-    }
-  return boxGraphDatas;
 }
 
 // Inputs id and array of vertex. Outputs vertex with that id or null;

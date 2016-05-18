@@ -1,6 +1,41 @@
 var helpFunctions = require("../../app/js/helpFunctions.js");
 
 describe("Test all functions in helpFunctions.js", function(){
+  it("Test modifiedDFS function", function(){
+    var graph = {
+      "nodes": [
+        {"id": 1, "label": "A", "isDummy": false},
+        {"id": 2, "label": "B", "isDummy": false},
+        {"id": 3, "label": "C", "isDummy": false},
+        {"id": 4, "label": "D", "isDummy": false},
+        {"id": 5, "label": "E", "isDummy": false},
+        {"id": 6, "label": "F", "isDummy": false},
+        {"id": 7, "label": "G", "isDummy": true},
+        {"id": 8, "label": "H", "isDummy": true},
+        {"id": 9, "label": "I", "isDummy": true},
+        {"id": 10, "label": "J", "isDummy": true},
+        {"id": 11, "label": "K", "isDummy": true}
+      ],
+      "links": [
+        {"from": 1, "to": 7},
+        {"from": 1, "to": 10},
+        {"from": 2, "to": 11},
+        {"from": 7, "to": 8},
+        {"from": 10, "to": 3},
+        {"from": 11, "to": 3},
+        {"from": 8, "to": 9},
+        {"from": 3, "to": 4},
+        {"from": 9, "to": 5},
+        {"from": 4, "to": 5},
+        {"from": 4, "to": 6},
+      ]
+    };
+    expect(helpFunctions.modifiedDFS(graph.nodes[0], graph.nodes[4], graph, undefined)).toContain(graph.nodes[6]);
+    expect(helpFunctions.modifiedDFS(graph.nodes[0], graph.nodes[4], graph, undefined)).toContain(graph.nodes[7]);
+    expect(helpFunctions.modifiedDFS(graph.nodes[0], graph.nodes[4], graph, undefined)).toContain(graph.nodes[8]);
+    expect(helpFunctions.modifiedDFS(graph.nodes[0], graph.nodes[4], graph, undefined)).not.toContain(graph.nodes[9]);
+    expect(helpFunctions.modifiedDFS(graph.nodes[2], graph.nodes[3], graph, undefined)).toEqual([]);
+  });
   it("Test topologicalOrder function", function(){
     var graph = {
       "nodes": [
