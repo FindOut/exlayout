@@ -15,7 +15,7 @@ text {
 #DeleteButton1 {
   display: inline-block;
   padding: 15px 25px;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
   text-align: center;
@@ -40,7 +40,7 @@ text {
 #DeleteButton2 {
   display: inline-block;
   padding: 15px 25px;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
   text-align: center;
@@ -65,7 +65,7 @@ text {
 #Release {
   display: inline-block;
   padding: 15px 25px;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
   text-align: center;
@@ -90,7 +90,7 @@ text {
 #Redraw {
   display: inline-block;
   padding: 15px 25px;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
   text-align: center;
@@ -116,7 +116,7 @@ text {
 #Stop {
   display: inline-block;
   padding: 15px 25px;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: bold;
   cursor: pointer;
   text-align: center;
@@ -141,7 +141,7 @@ text {
 #Start {
   display: inline-block;
   padding: 15px 25px;
-  font-size:14px;
+  font-size:18px;
   font-weight: bold;
   cursor: pointer;
   text-align: center;
