@@ -94,7 +94,7 @@ function graphAsNode()
       .attr("cx", bbox.x+r/2)
       .attr("cy", bbox.y+r/2)
       .attr("r", r/2)
-      .attr("fill", "black")
+      .style("fill", "green")
       .attr("graph", d.groupnumber)
       .call(dragGraph);
   });
@@ -828,7 +828,7 @@ function collide(graph)
   };
 }
 
-// Update node and links when dragging node
+// Update node and links when dragging node (Does not support node in box)
 function dragmove(d) {
   var x = d3.event.x; // x-coordinate of mouse
   var y = d3.event.y; // y-coordinate of mouse
@@ -1073,6 +1073,8 @@ function graphMoveEnd()
     if(graphArrayCoordinate.graphs[i].graph == graphNumber)
     {
       graphArrayCoordinate.graphs[i].fixed = true;
+      d3.select("#moveButton[graph='"+graphNumber+"']")
+          .style("fill", "red");
     }
   }
 }
@@ -1082,7 +1084,7 @@ function zoomed() {
   container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 
-// Called when user pressed delete beside Delete node
+// Called when user pressed delete beside Delete node (Does not work with boxGraph)
 function handler1()
 {
   force.stop(); // Stop force algorithm
@@ -1282,7 +1284,7 @@ function handler1()
                   .attr("cx", bbox.x+r/2)
                   .attr("cy", bbox.y+r/2)
                   .attr("r", r/2)
-                  .attr("fill", "black")
+                  .style("fill", "green")
                   .attr("graph", d.groupnumber)
                   .call(dragGraph);
         }else{
@@ -1305,7 +1307,7 @@ function handler1()
 }
 window.handler1 = handler1;
 
-// Called when user pressed delete beside Delete link
+// Called when user pressed delete beside Delete link (Does not work with boxGraph)
 function handler2()
 {
   force.stop(); // Stop force algorithm
@@ -1485,7 +1487,7 @@ function handler2()
                       .attr("cx", bbox.x+r/2)
                       .attr("cy", bbox.y+r/2)
                       .attr("r", r/2)
-                      .attr("fill", "black")
+                      .style("fill", "green")
                       .attr("graph", d.groupnumber)
                       .call(dragGraph);
           }else{
@@ -1729,6 +1731,8 @@ function release()
   {
     graphArrayCoordinate.graphs[i].fixed = false;
   }
+  d3.selectAll("#moveButton")
+      .style("fill", "green");
   // Start the force algorithm again
   force
     .nodes(graphArrayCoordinate.graphs)
