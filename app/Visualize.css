@@ -6,10 +6,161 @@ circle {
 text {
   fill: black;
   stroke: black;
+  font-size: 20px;
+  font-weight: bold;
+  margin:5px 10px 5px 10px;
 }
 
-button {
-  margin-bottom: 1em;
+
+#DeleteButton1 {
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #84bdd1;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+  margin:5px 10px 10px 10px;
+}
+
+#DeleteButton1:hover {background-color: #6997a7}
+
+#DeleteButton1:active {
+  background-color: #6997a7;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+#DeleteButton2 {
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #84bdd1;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+  margin:5px 10px 5px 10px;
+}
+
+#DeleteButton2:hover {background-color: #6997a7}
+
+#DeleteButton2:active {
+  background-color: #6997a7;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+#Release {
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #84bdd1;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+  margin:5px 35px 5px 10px;
+}
+
+#Release:hover {background-color: #6997a7}
+
+#Release:active {
+  background-color: #6997a7;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+#Redraw {
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #84bdd1;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+  margin:5px 60px 5px 10px;
+}
+
+#Redraw:hover {background-color: #6997a7}
+
+#Redraw:active {
+  background-color: #6997a7;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+
+#Stop {
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #d94444;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+  margin:5px 10px 5px 10px;
+}
+
+#Stop:hover {background-color: #ad3636}
+
+#Stop:active {
+  background-color: #ad3636;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
+
+#Start {
+  display: inline-block;
+  padding: 15px 25px;
+  font-size:14px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #82bc82;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+  margin:5px 10px 5px 10px;
+}
+
+#Start:hover {background-color: #689668}
+
+#Start:active {
+  background-color: #689668;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
 }
 
 svg {
@@ -18,4 +169,5 @@ svg {
 
 line {
   stroke: black;
+  font-weight: bold;
 }
