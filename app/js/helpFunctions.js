@@ -243,7 +243,7 @@ function isolatedNodes(v,e)
     {
       for(var j = 0; j < len2; j++)
       {
-        if(e[j].from == v[i].id || e[j].to == v[i].id)
+        if(e[j].from === v[i].id || e[j].to === v[i].id)
         {
           break;
         }
@@ -295,7 +295,7 @@ function deleteLinks(edges, e)
   {
     for(var j = 0; j < e.length; j++)
     {
-      if(edges[i].from == e[j].from && edges[i].to == e[j].to)
+      if(edges[i].from === e[j].from && edges[i].to === e[j].to)
       {
         e.splice(j,1);
         break;
@@ -330,7 +330,7 @@ function testDAG(graph)
   var node;
   var neighbor;
   //find all sources
-  for(var i = containsSource(temporaryNodes,links); i != null; i = containsSource(temporaryNodes,links))
+  for(var i = containsSource(temporaryNodes,links); i !== null; i = containsSource(temporaryNodes,links))
   {
     sources.push(i);
     deleteNode(i,temporaryNodes);
@@ -371,7 +371,7 @@ function topologicalOrder(graph)
   var sources = [];
   var node;
   var neighbor;
-  for(var i = containsSource(temporaryNodes,links); i != null; i = containsSource(temporaryNodes,links))
+  for(var i = containsSource(temporaryNodes,links); i !== null; i = containsSource(temporaryNodes,links))
   {
     sources.push(i);
     deleteNode(i,temporaryNodes);
