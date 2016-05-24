@@ -13,7 +13,7 @@ var yScale; // y-scale of graph
 var r = 20; // Radius of nodes
 var dummyR = 0; // Radius of dummyNodes
 
-var graph = Graph.getGraph(); // Get input graph
+var graph = Graph.getGraph(); // Get test graph
 var boxGraphs = BoxGraphController.getBoxGraph(graph); // Extract all boxes from graph and replace each box to fake node
 var graphArray = Main.main(graph); // Sugiyama method for all graphs
 boxGraphs = boxSugiyama(boxGraphs); // Sugiyama method for all boxes
@@ -39,10 +39,11 @@ var svg = d3.select('#graph').append('svg')
   .append("g")
     .call(zoom);
 var rect = svg.append("rect")
-                .attr("width", width)
+                .attr("width", width*0.8)
                 .attr("height", height)
                 .style("fill", "none")
-                .style("pointer-events", "all");
+                .style("pointer-events", "all")
+                .style("floar", "left");
 var container = svg
                   .append("g");
 

@@ -11,6 +11,33 @@ text {
   margin:5px 10px 5px 10px;
 }
 
+#submitButton{
+  display: inline-block;
+  padding: 15px 25px;
+  font-size: 18px;
+  position: absolute;
+  bottom: 8px;
+  right: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  color: #fff;
+  background-color: #84bdd1;
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 9px #999;
+  margin:5px 10px 10px 10px;
+}
+
+#submitButton:hover {background-color: #6997a7}
+
+#submitButton:active {
+  background-color: #6997a7;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
 
 #DeleteButton1 {
   display: inline-block;
