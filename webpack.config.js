@@ -2,7 +2,7 @@ var path = require('path');
 
 module.exports = {
   context: __dirname + "/app",
-  entry: "./js/Visualize.js",
+  entry: "./js/main.js",
   output: {
     filename: "./bundle.js"
   },

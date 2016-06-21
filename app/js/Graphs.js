@@ -3,7 +3,7 @@ exports.getGraph = function(){
 }
 
 function getGraph(){
-  return Graph5;
+  return Graph1;
 }
 
 //general graph (LongestPath disadvantage, too big width)
