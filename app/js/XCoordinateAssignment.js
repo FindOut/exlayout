@@ -35,7 +35,7 @@ function preprocessing(Graph) //mark type 1 conflict
 {
   var ignoreEdges = [];
   var height = 0;
-  numberofNodes = Graph.nodes.length;
+  var numberofNodes = Graph.nodes.length;
   for(var i = 0; i < numberofNodes; i++)
   {
     if(Graph.nodes[i].rank > height)
@@ -66,7 +66,7 @@ function preprocessing(Graph) //mark type 1 conflict
         if(m == numberofNodesinRow || dummiParNode != null)
         {
           layer = height -i +1;
-          kend = helpFunctions.getLayer(Graph, layer).length;  //kend is the last position of row i
+          var kend = helpFunctions.getLayer(Graph, layer).length;  //kend is the last position of row i
           if(dummiParNode != null)
           {
             kend = dummiParNode.order;  //kend change to position of ingoing dummy Node
